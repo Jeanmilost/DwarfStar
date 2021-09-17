@@ -113,7 +113,7 @@ std::size_t DWF_StdFileBuffer::GetSize() const
     // get file size
     std::fseek(m_FileBuffer, 0, SEEK_END);
     const std::size_t fileSize = std::ftell(m_FileBuffer);
-    std::fseek(m_FileBuffer, (std::uint32_t)curPos, SEEK_SET);
+    std::fseek(m_FileBuffer, curPos, SEEK_SET);
 
     return fileSize;
 }
@@ -136,7 +136,7 @@ std::size_t DWF_StdFileBuffer::Seek(std::size_t start, std::size_t delta)
         }
 
         // seek to final position
-        std::fseek(m_FileBuffer, (std::uint32_t)delta, SEEK_SET);
+        std::fseek(m_FileBuffer, delta, SEEK_SET);
         return delta;
     }
 
@@ -151,13 +151,13 @@ std::size_t DWF_StdFileBuffer::Seek(std::size_t start, std::size_t delta)
         // calculate seek to start delta
         startDelta = start - offset;
 
-        std::fseek(m_FileBuffer, (std::uint32_t)startDelta, SEEK_CUR);
+        std::fseek(m_FileBuffer, startDelta, SEEK_CUR);
     }
     else
         startDelta = 0;
 
     // seek to final position
-    std::fseek(m_FileBuffer, (std::uint32_t)delta, SEEK_CUR);
+    std::fseek(m_FileBuffer, delta, SEEK_CUR);
 
     return offset + startDelta + delta;
 }
