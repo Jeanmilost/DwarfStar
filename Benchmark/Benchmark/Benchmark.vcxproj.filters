@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{35239126-3167-479e-a85e-00c7a71173f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Base">
+      <UniqueIdentifier>{1b6f649d-4434-4554-af8a-cfcd515587e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Core">
+      <UniqueIdentifier>{49988b13-10a8-480f-a08b-916195350fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Model">
+      <UniqueIdentifier>{448c59f8-4b3d-4aca-9538-b74d9d457f1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Rendering">
+      <UniqueIdentifier>{fb1bab9d-9f9f-440d-a754-ad3394244f88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Rendering\OpenGL">
+      <UniqueIdentifier>{0e626f4a-70f4-4316-96c0-6a0bcc1bcd7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{08afdf0c-6b26-431e-b8c5-0d18dd0ac54b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SDK\Base\DWF_Buffer.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Base\DWF_StdFileBuffer.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Color.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Object.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Model.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Texture.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_VertexBuffer.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Entity.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Material.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Mesh.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Shader.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Renderer.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Model\DWF_Model_FBX.h">
+      <Filter>SDK\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.h">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.h">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.h">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Benchmark.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_StdFileBuffer.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_VertexBuffer.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Entity.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Material.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Mesh.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Renderer.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Shader.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Model\DWF_Model_FBX.cpp">
+      <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.cpp">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp">
+      <Filter>SDK\Rendering\OpenGL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Benchmark.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
