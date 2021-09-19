@@ -111,9 +111,17 @@ std::size_t DWF_StdFileBuffer::GetSize() const
     const std::size_t curPos = std::ftell(m_FileBuffer);
 
     // get file size
-    std::fseek(m_FileBuffer, 0, SEEK_END);
-    const std::size_t fileSize = std::ftell(m_FileBuffer);
-    std::fseek(m_FileBuffer, curPos, SEEK_SET);
+    #ifdef _MSC_VER
+        _fseeki64(m_FileBuffer, 0, SEEK_END);
+    #else
+        std::fseek(m_FileBuffer, 0, SEEK_END);
+    #endif
+        const std::size_t fileSize = std::ftell(m_FileBuffer);
+    #ifdef _MSC_VER
+        _fseeki64(m_FileBuffer, curPos, SEEK_SET);
+    #else
+        std::fseek(m_FileBuffer, curPos, SEEK_SET);
+    #endif
 
     return fileSize;
 }
@@ -131,12 +139,20 @@ std::size_t DWF_StdFileBuffer::Seek(std::size_t start, std::size_t delta)
         if (!delta)
         {
             // seek to file beginning
-            std::fseek(m_FileBuffer, 0, SEEK_SET);
+            #ifdef _MSC_VER
+                _fseeki64(m_FileBuffer, 0, SEEK_SET);
+            #else
+                std::fseek(m_FileBuffer, 0, SEEK_SET);
+            #endif
             return 0L;
         }
 
         // seek to final position
-        std::fseek(m_FileBuffer, delta, SEEK_SET);
+        #ifdef _MSC_VER
+            _fseeki64(m_FileBuffer, delta, SEEK_SET);
+        #else
+            std::fseek(m_FileBuffer, delta, SEEK_SET);
+        #endif
         return delta;
     }
 
@@ -151,13 +167,21 @@ std::size_t DWF_StdFileBuffer::Seek(std::size_t start, std::size_t delta)
         // calculate seek to start delta
         startDelta = start - offset;
 
-        std::fseek(m_FileBuffer, startDelta, SEEK_CUR);
+        #ifdef _MSC_VER
+            _fseeki64(m_FileBuffer, startDelta, SEEK_CUR);
+        #else
+            std::fseek(m_FileBuffer, startDelta, SEEK_CUR);
+        #endif
     }
     else
         startDelta = 0;
 
     // seek to final position
-    std::fseek(m_FileBuffer, delta, SEEK_CUR);
+    #ifdef _MSC_VER
+        _fseeki64(m_FileBuffer, delta, SEEK_CUR);
+    #else
+        std::fseek(m_FileBuffer, delta, SEEK_CUR);
+    #endif
 
     return offset + startDelta + delta;
 }

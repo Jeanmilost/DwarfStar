@@ -22,8 +22,9 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{2868a299-2d4f-4965-a837-e363d48388de}</ProjectGuid>
-    <RootNamespace>Benchmark</RootNamespace>
+    <RootNamespace>FBXModelTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>FBXModelTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -153,13 +154,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\SDK\Base\DWF_Buffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_MathHelper.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_StdFileBuffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Collider.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Color.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Entity.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Material.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h" />
@@ -182,13 +182,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_MathHelper.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_StdFileBuffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Collider.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Entity.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Material.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp" />
@@ -206,10 +205,10 @@
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp" />
-    <ClCompile Include="Benchmark.cpp" />
+    <ClCompile Include="FBXModelTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Benchmark.rc" />
+    <ResourceCompile Include="FBXModelTest.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />

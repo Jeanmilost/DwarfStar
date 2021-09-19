@@ -1,8 +1,9 @@
 /****************************************************************************
  * ==> DWF_Model_FBX -------------------------------------------------------*
  ****************************************************************************
- * Description : Filmbox .fbx model loader                                  *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description:  Filmbox .fbx model loader                                  *
+ * Contained in: Model                                                      *
+ * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar engine                                           *
  *                                                                          *
@@ -28,11 +29,12 @@
 
 #pragma once
 
- // std
+// std
 #include <ctime>
 #include <set>
 
 // dwarfstar
+#include "Base\DWF_Buffer.h"
 #include "Core\DWF_Object.h"
 #include "Core\DWF_Color.h"
 #include "Core\DWF_Vector3.h"
@@ -42,7 +44,7 @@
 #include "Core\DWF_Model.h"
 
 /**
-* FilmBox (.fbx) model
+* FilmBox (.fbx) model loader
 *@author Jean-Milost Reymond
 */
 class DWF_Model_FBX : public DWF_Object
@@ -792,11 +794,19 @@ class DWF_Model_FBX : public DWF_Object
         virtual void Clear();
 
         /**
-        * Opens a FBX file
-        *@param fileName - FBX file to open
+        * Opens a FBX model from a file
+        *@param fileName - FBX file name to open
         *@return true on success, otherwise false
         */
-        virtual bool Open(const std::string& fileName);
+        virtual bool Open(const std::string&  fileName);
+        virtual bool Open(const std::wstring& fileName);
+
+        /**
+        * Opens a FBX model from a buffer
+        *@param buffer - buffer containing FBX file to open
+        *@return true on success, otherwise false
+        */
+        virtual bool Open(DWF_Buffer& fileName);
 
         /**
         * Reads a FBX data
@@ -811,7 +821,7 @@ class DWF_Model_FBX : public DWF_Object
         *@param elapsedTime - elapsed time in milliseconds
         *@return a ready-to-draw copy of the model, nullptr on error
         */
-        virtual DWF_Model* GetModel(int animSetIndex, double elapsedTime) const;
+        virtual DWF_Model* GetModel(std::int32_t animSetIndex, double elapsedTime) const;
 
         /**
         * Gets the bone animation matrix

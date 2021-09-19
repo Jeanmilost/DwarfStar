@@ -1,8 +1,9 @@
 /****************************************************************************
- * ==> Benchmark -----------------------------------------------------------*
+ * ==> FBXModelTest --------------------------------------------------------*
  ****************************************************************************
- * Description : DwarfStar Benchmark project                                *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description:  DwarfStar FBX model test project                           *
+ * Contained in: Benchmark                                                  *
+ * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar engine                                           *
  *                                                                          *
@@ -287,20 +288,20 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     wcex.cbClsExtra    = 0;
     wcex.cbWndExtra    = 0;
     wcex.hInstance     = hInstance;
-    wcex.hIcon         = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BENCHMARK));
+    wcex.hIcon         = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FBXMODELTEST));
     wcex.hIconSm       = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
     wcex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName  = nullptr;
-    wcex.lpszClassName = L"dwarfstarBenchmark";
+    wcex.lpszClassName = L"dwarfstarFBXModelTest";
 
     if (!RegisterClassEx(&wcex))
         return 0;
 
     // create main window
     hWnd = ::CreateWindowEx(0,
-                            L"dwarfstarBenchmark",
-                            L"DwarfStar Benchmark",
+                            L"dwarfstarFBXModelTest",
+                            L"DwarfStar FBX Model Test",
                             WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
                             CW_USEDEFAULT,
                             CW_USEDEFAULT,

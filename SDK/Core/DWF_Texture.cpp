@@ -227,7 +227,7 @@ bool DWF_Texture::GetPixelsFromBitmap(DWF_Buffer&  buffer,
 
     try
     {
-        const std::uint32_t bytesPerRow = (std::uint32_t)((width * 3 + 3) / 4) * 4 - (width * 3 % 4);
+        const std::uint32_t bytesPerRow = (std::uint32_t)((std::size_t)((width * 3 + 3) / 4) * 4 - (width * 3 % 4));
         const std::uint32_t bitmapSize  = bytesPerRow * (std::uint32_t)height;
 
         pBitmapData = new std::uint8_t[bitmapSize];
@@ -250,7 +250,7 @@ bool DWF_Texture::GetPixelsFromBitmap(DWF_Buffer&  buffer,
                     for (std::uint32_t x = 0; x < width; ++x)
                         for (std::uint8_t c = 0; c < 3; ++c)
                             pPixelArray[3 * (width * y + x) + c] =
-                                    pBitmapData[(bytesPerRow * ((height - 1) - y)) + (3 * (std::size_t)x) + (2 - c)];
+                                    pBitmapData[((std::size_t)bytesPerRow * (((std::size_t)height - 1) - (std::size_t)y)) + (3 * (std::size_t)x) + (2 - (std::size_t)c)];
 
                 pPixels = pPixelArray;
                 break;
@@ -296,7 +296,7 @@ bool DWF_Texture::GetPixelsFromPng(const std::string& fileName,
         image.format = is32bit ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB;
 
         // allocate enough memory to hold the image in this format
-        png_bytep pBuffer = (png_bytep)std::malloc(PNG_IMAGE_SIZE(image));
+        png_bytep pBuffer = (png_bytep)std::malloc((std::size_t)PNG_IMAGE_SIZE(image));
 
         if (pBuffer && png_image_finish_read(&image, nullptr, pBuffer, 0, nullptr) != 0)
             return GetPixelsFromPng(image, pBuffer, is32bit, width, height, format, length, pPixels);
@@ -337,7 +337,7 @@ bool DWF_Texture::GetPixelsFromPng(DWF_Buffer&  buffer,
             image.format = is32bit ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB;
 
             // allocate enough memory to hold the image in this format
-            png_bytep pBuffer = (png_bytep)std::malloc(PNG_IMAGE_SIZE(image));
+            png_bytep pBuffer = (png_bytep)std::malloc((std::size_t)PNG_IMAGE_SIZE(image));
 
             if (pBuffer && png_image_finish_read(&image, nullptr, pBuffer, 0, nullptr) != 0)
                 return GetPixelsFromPng(image, pBuffer, is32bit, width, height, format, length, pPixels);
@@ -376,7 +376,7 @@ bool DWF_Texture::GetPixelsFromPng(const png_image&   image,
     width   = image.width;
     height  = image.height;
     format  = is32bit ? 32 : 24;
-    length  = PNG_IMAGE_SIZE(image);
+    length  = (std::size_t)PNG_IMAGE_SIZE(image);
     pPixels = nullptr;
 
     std::uint8_t* pPixelArray = nullptr;

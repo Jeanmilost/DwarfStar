@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{e39bd813-e0b5-4fbf-a85d-c86f0d6b4e39}</ProjectGuid>
+    <RootNamespace>CollisionsTest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SDK\Base\DWF_Buffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_MathHelper.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_StdFileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Box.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Capsule.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Box.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Capsule.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Sphere.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Color.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Entity.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Line.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Material.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Mesh.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Model.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Object.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Plane.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Polygon.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Ray.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Renderer.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Shader.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Sphere.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Texture.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_VertexBuffer.h" />
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.h" />
+    <ClInclude Include="Resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_MathHelper.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_StdFileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Box.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Capsule.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Box.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Capsule.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Sphere.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Entity.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Line.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Material.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Mesh.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Plane.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Polygon.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Ray.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Renderer.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Shader.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Sphere.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_VertexBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp" />
+    <ClCompile Include="CollisionsTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CollisionsTest.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

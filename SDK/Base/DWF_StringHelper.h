@@ -117,6 +117,8 @@ class DWF_StringHelper
 };
 
 //---------------------------------------------------------------------------
+// DWF_StringHelper
+//---------------------------------------------------------------------------
 template <class T>
 std::basic_string<T> DWF_StringHelper::ReplaceChars(const std::basic_string<T>& fileName, const std::basic_string<T>& pattern, T by)
 {

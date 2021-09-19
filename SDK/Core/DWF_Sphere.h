@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_Sphere ----------------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
+ * Description : Geometric sphere                                           *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,19 +27,62 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
+#pragma once
 
-// dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+// std
+#include <cmath>
 
-//---------------------------------------------------------------------------
-// DWF_Collider
-//---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
-    DWF_Object()
-{}
-//---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
-{}
-//---------------------------------------------------------------------------
+// retrograde engine
+#include "DWF_Object.h"
+#include "DWF_Vector3.h"
+
+/**
+* Geometric sphere
+*@author Jean-Milost Reymond
+*/
+class DWF_Sphere : public DWF_Object
+{
+    public:
+        DWF_Vector3F m_Center;
+        float        m_Radius = 0.0f;
+
+        /**
+        * Constructor
+        */
+        DWF_Sphere();
+
+        /**
+        * Constructor
+        *@param center - center
+        *@param radius - radius
+        */
+        DWF_Sphere(const DWF_Vector3F& center, float radius);
+
+        /**
+        * Destructor
+        */
+        virtual ~DWF_Sphere();
+
+        /**
+        * Check if a point is inside rectangle
+        *@param x - point x coordinate
+        *@param y - point y coordinate
+        *@param Z - point z coordinate
+        *@return true if point is inside the sphere, otherwise false
+        */
+        virtual bool Inside(float x, float y, float z) const;
+
+        /**
+        * Check if a point is inside the sphere
+        *@param point - point coordinate
+        *@return true if point is inside the sphere, otherwise false
+        */
+        virtual bool Inside(const DWF_Vector3F& point) const;
+
+        /**
+        * Check if sphere intersects with another sphere
+        *@param other - other sphere to check
+        *@return true if spheres intersect, otherwise false
+        */
+        virtual bool Intersect(const DWF_Sphere& other) const;
+};

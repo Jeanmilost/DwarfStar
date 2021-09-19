@@ -5,37 +5,41 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="SDK">
-      <UniqueIdentifier>{35239126-3167-479e-a85e-00c7a71173f1}</UniqueIdentifier>
+      <UniqueIdentifier>{fb4b14e0-49e4-4c73-8157-fbae1b582fb5}</UniqueIdentifier>
     </Filter>
     <Filter Include="SDK\Base">
-      <UniqueIdentifier>{1b6f649d-4434-4554-af8a-cfcd515587e4}</UniqueIdentifier>
+      <UniqueIdentifier>{021c099f-e6ec-4df0-b258-2dfe4f56fb67}</UniqueIdentifier>
     </Filter>
     <Filter Include="SDK\Core">
-      <UniqueIdentifier>{49988b13-10a8-480f-a08b-916195350fbb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SDK\Model">
-      <UniqueIdentifier>{448c59f8-4b3d-4aca-9538-b74d9d457f1a}</UniqueIdentifier>
+      <UniqueIdentifier>{9851625b-2195-45de-997c-c307e26e8c80}</UniqueIdentifier>
     </Filter>
     <Filter Include="SDK\Rendering">
-      <UniqueIdentifier>{fb1bab9d-9f9f-440d-a754-ad3394244f88}</UniqueIdentifier>
+      <UniqueIdentifier>{42ccdc5d-eb53-437b-aec3-c40da5605148}</UniqueIdentifier>
     </Filter>
     <Filter Include="SDK\Rendering\OpenGL">
-      <UniqueIdentifier>{0e626f4a-70f4-4316-96c0-6a0bcc1bcd7f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{08afdf0c-6b26-431e-b8c5-0d18dd0ac54b}</UniqueIdentifier>
+      <UniqueIdentifier>{2aed430a-61bc-4a10-b908-2307fc4fe4cb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\SDK\Base\DWF_Buffer.h">
       <Filter>SDK\Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h">
+      <Filter>SDK\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Base\DWF_MathHelper.h">
       <Filter>SDK\Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h">
@@ -47,37 +51,19 @@
     <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h">
       <Filter>SDK\Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Color.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Object.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Model.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Texture.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_VertexBuffer.h">
-      <Filter>SDK\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\SDK\Core\DWF_Collider.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Box.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Capsule.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Sphere.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Color.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h">
@@ -86,20 +72,56 @@
     <ClInclude Include="..\..\SDK\Core\DWF_Entity.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Line.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\SDK\Core\DWF_Material.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Core\DWF_Mesh.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Core\DWF_Shader.h">
+    <ClInclude Include="..\..\SDK\Core\DWF_Model.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Object.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Plane.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Polygon.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Ray.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Core\DWF_Renderer.h">
       <Filter>SDK\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Model\DWF_Model_FBX.h">
-      <Filter>SDK\Model</Filter>
+    <ClInclude Include="..\..\SDK\Core\DWF_Shader.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Texture.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_VertexBuffer.h">
+      <Filter>SDK\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.h">
       <Filter>SDK\Rendering\OpenGL</Filter>
@@ -110,18 +132,27 @@
     <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.h">
       <Filter>SDK\Rendering\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\SDK\Core\DWF_Capsule.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Sphere.h">
+      <Filter>SDK\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Core\DWF_Box.h">
+      <Filter>SDK\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Benchmark.cpp">
+    <ClCompile Include="CollisionsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp">
       <Filter>SDK\Base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp">
+      <Filter>SDK\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Base\DWF_MathHelper.cpp">
       <Filter>SDK\Base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp">
@@ -133,37 +164,19 @@
     <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp">
       <Filter>SDK\Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Core\DWF_VertexBuffer.cpp">
-      <Filter>SDK\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SDK\Core\DWF_Collider.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Box.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Capsule.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Sphere.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp">
       <Filter>SDK\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp">
@@ -172,10 +185,37 @@
     <ClCompile Include="..\..\SDK\Core\DWF_Entity.cpp">
       <Filter>SDK\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Line.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\SDK\Core\DWF_Material.cpp">
       <Filter>SDK\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\SDK\Core\DWF_Mesh.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Plane.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Polygon.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Ray.cpp">
       <Filter>SDK\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Core\DWF_Renderer.cpp">
@@ -184,8 +224,17 @@
     <ClCompile Include="..\..\SDK\Core\DWF_Shader.cpp">
       <Filter>SDK\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SDK\Model\DWF_Model_FBX.cpp">
-      <Filter>SDK\Model</Filter>
+    <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_VertexBuffer.cpp">
+      <Filter>SDK\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp">
       <Filter>SDK\Rendering\OpenGL</Filter>
@@ -196,9 +245,18 @@
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp">
       <Filter>SDK\Rendering\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Capsule.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Box.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Core\DWF_Sphere.cpp">
+      <Filter>SDK\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Benchmark.rc">
+    <ResourceCompile Include="CollisionsTest.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

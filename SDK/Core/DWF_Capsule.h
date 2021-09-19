@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_Capsule ---------------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
+ * Description:  Geometric capsule                                          *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,19 +27,40 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
+#pragma once
 
 // dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+#include "DWF_Object.h"
+#include "DWF_Mesh.h"
 
-//---------------------------------------------------------------------------
-// DWF_Collider
-//---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
-    DWF_Object()
-{}
-//---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
-{}
-//---------------------------------------------------------------------------
+/**
+* Geometric capsule
+*@author Jean-Milost Reymond
+*/
+class DWF_Capsule : public DWF_Object
+{
+    public:
+        DWF_Vector3F m_Top;
+        DWF_Vector3F m_Bottom;
+        float        m_Radius = 0.0f;
+
+        DWF_Capsule();
+        virtual ~DWF_Capsule();
+
+        /**
+        * Checks if capsule intersects with another capsule
+        *@param other - other capsule to check
+        *@param[out] penetrationDepth - penetration depth, in case of collisions
+        *@return true if capsules are in collision, otherwise false
+        */
+        virtual bool Intersect(const DWF_Capsule& other, float& penetrationDepth) const;
+
+        /**
+        * Gets the capsule mesh
+        *@param[out] mesh - the mesh to fill with capsule
+        */
+        virtual void GetMesh(DWF_Mesh& mesh) const;
+
+    private:
+        DWF_Vector3F GetAnyPerpendicularUnitVector(const DWF_Vector3F& vec) const;
+};

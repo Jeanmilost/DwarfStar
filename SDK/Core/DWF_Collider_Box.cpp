@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_Collider_Box ----------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
+ * Description:  Box collider                                               *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,19 +27,25 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
-
-// dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+#include "DWF_Collider_Box.h"
 
 //---------------------------------------------------------------------------
-// DWF_Collider
+// DWF_Collider_Box
 //---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
-    DWF_Object()
+DWF_Collider_Box::DWF_Collider_Box() :
+    DWF_Collider()
 {}
 //---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
+DWF_Collider_Box::~DWF_Collider_Box()
 {}
+//---------------------------------------------------------------------------
+bool DWF_Collider_Box::Inside(const DWF_Vector3F& point) const
+{
+    return false;
+}
+//---------------------------------------------------------------------------
+bool DWF_Collider_Box::Collide(const DWF_Collider& other) const
+{
+    return false;
+}
 //---------------------------------------------------------------------------

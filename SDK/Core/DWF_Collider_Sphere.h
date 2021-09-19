@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_Collider_Sphere -------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
+ * Description:  Sphere collider                                            *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,19 +27,34 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
+#pragma once
 
 // dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+#include "DWF_Collider.h"
 
-//---------------------------------------------------------------------------
-// DWF_Collider
-//---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
-    DWF_Object()
-{}
-//---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
-{}
-//---------------------------------------------------------------------------
+/**
+* Sphere collider
+*@author Jean-Milost Reymond
+*/
+class DWF_Collider_Sphere : public DWF_Collider
+{
+    public:
+        ISphere m_Sphere;
+
+        DWF_Collider_Sphere();
+        virtual ~DWF_Collider_Sphere();
+
+        /**
+        * Checks if this a point is inside the collider
+        *@param point - point to check
+        *@return true if the point is inside the collider, otherwise false
+        */
+        virtual bool Inside(const DWF_Vector3F& point) const;
+
+        /**
+        * Checks if this collider collides with another collider
+        *@param other - other collider to check against
+        *@return true if this collider collides with the other collider, otherwise false
+        */
+        virtual bool Collide(const DWF_Collider& other) const;
+};

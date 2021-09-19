@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_Sphere ----------------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
+ * Description : Geometric sphere                                           *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,19 +27,47 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
-
-// dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+#include "DWF_Sphere.h"
 
 //---------------------------------------------------------------------------
-// DWF_Collider
+// DWF_Sphere
 //---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
+DWF_Sphere::DWF_Sphere() :
     DWF_Object()
 {}
 //---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
+DWF_Sphere::DWF_Sphere(const DWF_Vector3F& center, float radius) :
+    DWF_Object(),
+    m_Center(center),
+    m_Radius(radius)
 {}
+//---------------------------------------------------------------------------
+DWF_Sphere::~DWF_Sphere()
+{}
+//---------------------------------------------------------------------------
+bool DWF_Sphere::Inside(float x, float y, float z) const
+{
+    return Inside(DWF_Vector3F(x, y, z));
+}
+//---------------------------------------------------------------------------
+bool DWF_Sphere::Inside(const DWF_Vector3F& point) const
+{
+    // calculate the distance between test point and the center of the sphere
+    const DWF_Vector3F length   = point - m_Center;
+    const float        distance = length.Length();
+
+    // check if distance is shorter than the sphere radius and return result
+    return (distance <= m_Radius);
+}
+//---------------------------------------------------------------------------
+bool DWF_Sphere::Intersect(const DWF_Sphere& other) const
+{
+    const DWF_Vector3F dist(std::fabs(m_Center.m_X - other.m_Center.m_X),
+                            std::fabs(m_Center.m_Y - other.m_Center.m_Y),
+                            std::fabs(m_Center.m_Z - other.m_Center.m_Z));
+
+    const float length = dist.Length();
+
+    return (length <= (m_Radius + other.m_Radius));
+}
 //---------------------------------------------------------------------------

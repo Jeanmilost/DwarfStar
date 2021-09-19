@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Collider --------------------------------------------------------*
+ * ==> DWF_MathHelper ------------------------------------------------------*
  ****************************************************************************
- * Description:  Generic collider object                                    *
- * Contained in: Core                                                       *
+ * Description:  Helper class for math                                      *
+ * Contained in: Base                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar engine                                           *
@@ -27,19 +27,71 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Collider.h"
+#pragma once
 
-// dwarfstar
-#include "Base\DWF_MathHelper.h"
-#include "DWF_Line.h"
+// std
+#include <algorithm>
+
+// epsilon value used for tolerance
+#define M_Epsilon 1.0E-3
+
+/**
+* Helper class for math
+*@author Jean-Milost Reymond
+*/
+class DWF_MathHelper
+{
+    public:
+        /**
+        * Clamps a value
+        *@param value - value to clamp
+        *@param rangeMin - range minimum value
+        *@param rangeMax - range maximum value
+        *@return clamped value
+        */
+        template <class T>
+        static T Clamp(T value, T rangeMin, T rangeMax);
+
+        /**
+        * Clamps a value between 0 and 1
+        *@param value - value to clamp
+        *@return clamped value
+        */
+        template <class T>
+        static T Clamp01(T value);
+
+        /**
+        * Checks if a value is between a range defined by start and end
+        *@param value - value to check
+        *@param start - range start value
+        *@param end - range end value
+        *@param tolerance - tolerance
+        *@return true if value is between the range, otherwise false
+        */
+        template <class T>
+        static bool IsBetween(T value, T start, T end, T tolerance);
+};
 
 //---------------------------------------------------------------------------
-// DWF_Collider
+// DWF_MathHelper
 //---------------------------------------------------------------------------
-DWF_Collider::DWF_Collider() :
-    DWF_Object()
-{}
+template <class T>
+static T DWF_MathHelper::Clamp(T value, T rangeMin, T rangeMax)
+{
+    return std::min(std::max(value, rangeMin), rangeMax);
+}
 //---------------------------------------------------------------------------
-DWF_Collider::~DWF_Collider()
-{}
+template <class T>
+static T DWF_MathHelper::Clamp01(T value)
+{
+    return Clamp(value, T(0.0), T(1.0));
+}
+//---------------------------------------------------------------------------
+template <class T>
+static bool DWF_MathHelper::IsBetween(T value, T start, T end, T tolerance)
+{
+    // check if each value is between start and end limits considering tolerance
+    return (value >= std::min(start, end) - tolerance &&
+            value <= std::max(start, end) + tolerance);
+}
 //---------------------------------------------------------------------------
