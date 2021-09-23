@@ -47,7 +47,7 @@ class DWF_Box : public DWF_Object
         /**
         * Longest axis enumeration
         */
-        enum IEAxis
+        enum class IEAxis
         {
             IE_A_X,
             IE_A_Y,

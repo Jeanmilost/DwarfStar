@@ -42,3 +42,17 @@ DWF_Material::~DWF_Material()
         delete m_pTexture;
 }
 //---------------------------------------------------------------------------
+DWF_Material& DWF_Material::operator = (const DWF_Material& other)
+{
+    m_Color       = other.m_Color;
+    m_Transparent = other.m_Transparent;
+    m_Wireframe   = other.m_Wireframe;
+
+    if (m_pTexture)
+        delete m_pTexture;
+
+    m_pTexture = nullptr;
+
+    return *this;
+}
+//---------------------------------------------------------------------------

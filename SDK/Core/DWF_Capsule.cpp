@@ -37,7 +37,6 @@
 
 // dwarfstar
 #include "DWF_Line.h"
-//REM #include "DWF_Plane.h"
 
 //---------------------------------------------------------------------------
 // DWF_Capsule
@@ -108,7 +107,10 @@ bool DWF_Capsule::Intersect(const DWF_Capsule& other, float& penetrationDepth) c
     return (penetrationDepth > 0.0f);
 }
 //---------------------------------------------------------------------------
-void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
+void DWF_Capsule::GetMesh(const DWF_VertexBuffer::IFormat&  format,
+                          const DWF_VertexBuffer::ICulling& culling,
+                          const DWF_Material&               material,
+                                DWF_Mesh&                   mesh) const
 {
     // this capsule
     const DWF_Vector3F lineDir       = (m_Top   - m_Bottom).Normalize();
@@ -118,7 +120,7 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
 
     const DWF_Vector3F axis   = bottom - top;
     const float        length = axis.Length();
-    const DWF_Vector3F localZ = axis / length;
+    const DWF_Vector3F localZ = axis / (length ? length : 1.0f);
     const DWF_Vector3F localX = GetAnyPerpendicularUnitVector(localZ);
     const DWF_Vector3F localY = localZ.Cross(localX);
 
@@ -161,14 +163,13 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
     };
 
     std::unique_ptr<DWF_VertexBuffer> pVB(new DWF_VertexBuffer());
-    pVB->m_Material.m_Color = DWF_ColorF(1.0f, 0.0f, 0.0f, 1.0f);
-    pVB->m_Format.m_Format  = DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors;
-    pVB->m_Format.m_Type    = DWF_VertexBuffer::IFormat::IEType::IE_VT_Triangles;
+    pVB->m_Material = material;
+    pVB->m_Culling  = culling;
+    pVB->m_Format   = format;
     pVB->m_Format.CalculateStride();
 
     DWF_Vector3F p0, p1, p2, p3, normal0, normal1, normal2, normal3;
-    DWF_Vector2F uv;
-    //REM DWF_PlaneF   plane;
+    DWF_Vector2F uv0, uv1, uv2, uv3;
 
     // iterate through latitude and longitude
     for (float i = 0.0f; i < resolution; ++i)
@@ -189,11 +190,9 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             p3 = cylinder(un, vn);
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
             {
                 // calculate the vertex normals
-                //REM plane  = DWF_PlaneF::FromPoints(p0, p1, p2);
-                //REM normal = DWF_Vector3F(plane.m_A, plane.m_B, plane.m_C);
                 normal0 = p0 / m_Radius;
                 normal1 = p1 / m_Radius;
                 normal2 = p2 / m_Radius;
@@ -201,19 +200,25 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             }
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv.m_X = 0.333333f + ((j / resolution) * 0.333333f);
-                uv.m_Y = 0.333333f + ((i / resolution) * 0.333333f);
+                uv0.m_X =               (i      / resolution);
+                uv0.m_Y = 0.333333f +  ((j      / resolution) * 0.333333f);
+                uv1.m_X =               (i      / resolution);
+                uv1.m_Y = 0.333333f + (((j + 1) / resolution) * 0.333333f);
+                uv2.m_X =              ((i + 1) / resolution);
+                uv2.m_Y = 0.333333f +  ((j      / resolution) * 0.333333f);
+                uv3.m_X =              ((i + 1) / resolution);
+                uv3.m_Y = 0.333333f + (((j + 1) / resolution) * 0.333333f);
             }
 
             // add face to vertex buffer
-            pVB->Add(&p0, &normal0, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
-            pVB->Add(&p3, &normal3, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
+            pVB->Add(&p0, &normal0, &uv0, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
+            pVB->Add(&p3, &normal3, &uv3, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
 
             // create next sphere start face
             p0 = sphereStart(u,  v);
@@ -222,11 +227,9 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             p3 = sphereStart(un, vn);
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
             {
                 // calculate the vertex normals
-                //REM plane  = DWF_PlaneF::FromPoints(p0, p1, p2);
-                //REM normal = DWF_Vector3F(plane.m_A, plane.m_B, plane.m_C);
                 normal0 = p0 / m_Radius;
                 normal1 = p1 / m_Radius;
                 normal2 = p2 / m_Radius;
@@ -234,19 +237,25 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             }
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv.m_X = 0.666667f + ((j / resolution) * 0.333333f);
-                uv.m_Y = 0.666667f + ((i / resolution) * 0.333333f);
+                uv0.m_X =   (i      / resolution);
+                uv0.m_Y =  ((j      / resolution) * 0.333333f);
+                uv1.m_X =   (i      / resolution);
+                uv1.m_Y = (((j + 1) / resolution) * 0.333333f);
+                uv2.m_X =  ((i + 1) / resolution);
+                uv2.m_Y =  ((j      / resolution) * 0.333333f);
+                uv3.m_X =  ((i + 1) / resolution);
+                uv3.m_Y = (((j + 1) / resolution) * 0.333333f);
             }
 
             // add face to vertex buffer
-            pVB->Add(&p0, &normal0, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
-            pVB->Add(&p3, &normal3, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
+            pVB->Add(&p0, &normal0, &uv0, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
+            pVB->Add(&p3, &normal3, &uv3, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
 
             // create next sphere end face
             p0 = sphereEnd(u,  v);
@@ -255,11 +264,9 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             p3 = sphereEnd(un, vn);
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
             {
                 // calculate the vertex normals
-                //REM plane  = DWF_PlaneF::FromPoints(p0, p1, p2);
-                //REM normal = DWF_Vector3F(plane.m_A, plane.m_B, plane.m_C);
                 normal0 = p0 / m_Radius;
                 normal1 = p1 / m_Radius;
                 normal2 = p2 / m_Radius;
@@ -267,19 +274,25 @@ void DWF_Capsule::GetMesh(DWF_Mesh& mesh) const
             }
 
             // vertex has UV texture coordinates?
-            if (((std::uint32_t)pVB->m_Format.m_Format | (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
+            if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv.m_X = (j / resolution) * 0.333333f;
-                uv.m_Y = (i / resolution) * 0.333333f;
+                uv0.m_X =               (i      / resolution);
+                uv0.m_Y = 0.666667f +  ((j      / resolution) * 0.333333f);
+                uv1.m_X =               (i      / resolution);
+                uv1.m_Y = 0.666667f + (((j + 1) / resolution) * 0.333333f);
+                uv2.m_X =              ((i + 1) / resolution);
+                uv2.m_Y = 0.666667f +  ((j      / resolution) * 0.333333f);
+                uv3.m_X =              ((i + 1) / resolution);
+                uv3.m_Y = 0.666667f + (((j + 1) / resolution) * 0.333333f);
             }
 
             // add face to vertex buffer
-            pVB->Add(&p0, &normal0, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
-            pVB->Add(&p3, &normal3, &uv, 0, nullptr);
-            pVB->Add(&p1, &normal1, &uv, 0, nullptr);
-            pVB->Add(&p2, &normal2, &uv, 0, nullptr);
+            pVB->Add(&p0, &normal0, &uv0, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
+            pVB->Add(&p3, &normal3, &uv3, 0, nullptr);
+            pVB->Add(&p1, &normal1, &uv1, 0, nullptr);
+            pVB->Add(&p2, &normal2, &uv2, 0, nullptr);
         }
 
     mesh.m_VBs.push_back(pVB.get());

@@ -61,6 +61,7 @@ class DWF_Shader : public DWF_Object
             IE_SA_Normal,
             IE_SA_Texture,
             IE_SA_Color,
+            IE_SA_DirLight,
             IE_SA_ProjectionMatrix,
             IE_SA_ViewMatrix,
             IE_SA_ModelMatrix,

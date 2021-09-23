@@ -48,4 +48,11 @@ class DWF_Material : public DWF_Object
 
         DWF_Material();
         virtual ~DWF_Material();
+
+        /**
+        * Copy operator
+        *@param other - other material to copy from
+        *@return this material
+        */
+        virtual DWF_Material& operator = (const DWF_Material& other);
 };

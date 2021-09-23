@@ -52,7 +52,7 @@ DWF_Vector3F DWF_Box::GetCenter() const
                         (m_Min.m_Z + m_Max.m_Z) / 2.0f);
 }
 //---------------------------------------------------------------------------
-typename DWF_Box::IEAxis DWF_Box::GetLongestAxis() const
+DWF_Box::IEAxis DWF_Box::GetLongestAxis() const
 {
     // calculate each edge length
     const float x = std::fabs(m_Max.m_X - m_Min.m_X);
@@ -61,22 +61,22 @@ typename DWF_Box::IEAxis DWF_Box::GetLongestAxis() const
 
     // search for longest axis
     if (x >= y && x >= z)
-        return IE_A_X;
+        return IEAxis::IE_A_X;
     else
     if (y >= x && y >= z)
-        return IE_A_Y;
+        return IEAxis::IE_A_Y;
     else
-        return IE_A_Z;
+        return IEAxis::IE_A_Z;
 }
 //---------------------------------------------------------------------------
 DWF_PlaneF DWF_Box::GetSplittingPlane(IEAxis axis) const
 {
     switch (axis)
     {
-        case IE_A_X: return DWF_PlaneF(1.0f, 0.0f, 0.0f, -GetCenter().m_X);
-        case IE_A_Y: return DWF_PlaneF(0.0f, 1.0f, 0.0f, -GetCenter().m_Y);
-        case IE_A_Z: return DWF_PlaneF(0.0f, 0.0f, 1.0f, -GetCenter().m_Z);
-        default:     return DWF_PlaneF();
+        case IEAxis::IE_A_X: return DWF_PlaneF(1.0f, 0.0f, 0.0f, -GetCenter().m_X);
+        case IEAxis::IE_A_Y: return DWF_PlaneF(0.0f, 1.0f, 0.0f, -GetCenter().m_Y);
+        case IEAxis::IE_A_Z: return DWF_PlaneF(0.0f, 0.0f, 1.0f, -GetCenter().m_Z);
+        default:             return DWF_PlaneF();
     }
 }
 //---------------------------------------------------------------------------
@@ -84,10 +84,10 @@ DWF_PlaneF DWF_Box::GetSplittingPlane(IEAxis axis, const DWF_Vector3F& center) c
 {
     switch (axis)
     {
-        case IE_A_X: return DWF_PlaneF(1.0f, 0.0f, 0.0f, -center.m_X);
-        case IE_A_Y: return DWF_PlaneF(0.0f, 1.0f, 0.0f, -center.m_Y);
-        case IE_A_Z: return DWF_PlaneF(0.0f, 0.0f, 1.0f, -center.m_Z);
-        default:     return DWF_PlaneF();
+        case IEAxis::IE_A_X: return DWF_PlaneF(1.0f, 0.0f, 0.0f, -center.m_X);
+        case IEAxis::IE_A_Y: return DWF_PlaneF(0.0f, 1.0f, 0.0f, -center.m_Y);
+        case IEAxis::IE_A_Z: return DWF_PlaneF(0.0f, 0.0f, 1.0f, -center.m_Z);
+        default:             return DWF_PlaneF();
     }
 }
 //-----------------------------------------------------------------------------------------

@@ -46,4 +46,9 @@ class DWF_Mesh : public DWF_Object
 
         DWF_Mesh();
         virtual ~DWF_Mesh();
+
+        /**
+        * Clears the mesh
+        */
+        virtual void Clear();
 };

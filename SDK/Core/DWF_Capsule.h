@@ -57,10 +57,21 @@ class DWF_Capsule : public DWF_Object
 
         /**
         * Gets the capsule mesh
+        *@param format - the mesh format to use
+        *@param culling - the mesh culling to use
+        *@param material - the mesh material to use
         *@param[out] mesh - the mesh to fill with capsule
         */
-        virtual void GetMesh(DWF_Mesh& mesh) const;
+        virtual void GetMesh(const DWF_VertexBuffer::IFormat&  format,
+                             const DWF_VertexBuffer::ICulling& culling,
+                             const DWF_Material&               material,
+                                   DWF_Mesh&                   mesh) const;
 
     private:
+        /**
+        * Gets any perpendicular unit vector from a vector
+        *@param vec - vector
+        *@return perpendicular unit vector
+        */
         DWF_Vector3F GetAnyPerpendicularUnitVector(const DWF_Vector3F& vec) const;
 };

@@ -45,3 +45,14 @@ DWF_Mesh::~DWF_Mesh()
         delete m_VBs[i];
 }
 //---------------------------------------------------------------------------
+void DWF_Mesh::Clear()
+{
+    const std::size_t count = m_VBs.size();
+
+    // clear vertex buffers
+    for (std::size_t i = 0; i < count; ++i)
+        delete m_VBs[i];
+
+    m_VBs.clear();
+}
+//---------------------------------------------------------------------------

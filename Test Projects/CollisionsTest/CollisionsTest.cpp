@@ -51,52 +51,98 @@ bool g_PauseAnim = false;
 bool g_Rotate = true;
 //------------------------------------------------------------------------------
 const char vertexShader[] = "precision mediump float;"
-"attribute    vec3 aVertices;"
-"attribute    vec4 aColor;"
-"attribute    vec2 aTexCoord;"
-"uniform      mat4 uProjection;"
-"uniform      mat4 uView;"
-"uniform      mat4 uModel;"
-"varying lowp vec4 vColor;"
-"varying      vec2 vTexCoord;"
-"void main(void)"
-"{"
-"    vColor      = aColor;"
-"    vTexCoord   = aTexCoord;"
-"    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
-"}";
+                            "attribute    vec3 aVertices;"
+                            "attribute    vec4 aColor;"
+                            "attribute    vec2 aTexCoord;"
+                            "uniform      mat4 uProjection;"
+                            "uniform      mat4 uView;"
+                            "uniform      mat4 uModel;"
+                            "varying lowp vec4 vColor;"
+                            "varying      vec2 vTexCoord;"
+                            "void main(void)"
+                            "{"
+                            "    vColor      = aColor;"
+                            "    vTexCoord   = aTexCoord;"
+                            "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                            "}";
 //------------------------------------------------------------------------------
 const char lineVertShader[] = "precision mediump float;"
-"attribute    vec3 aVertices;"
-"attribute    vec4 aColor;"
-"uniform      mat4 uProjection;"
-"uniform      mat4 uView;"
-"uniform      mat4 uModel;"
-"varying lowp vec4 vColor;"
-"void main(void)"
-"{"
-"    vColor      = aColor;"
-"    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
-"}";
+                              "attribute    vec3 aVertices;"
+                              "attribute    vec4 aColor;"
+                              "uniform      mat4 uProjection;"
+                              "uniform      mat4 uView;"
+                              "uniform      mat4 uModel;"
+                              "varying lowp vec4 vColor;"
+                              "void main(void)"
+                              "{"
+                              "    vColor      = aColor;"
+                              "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                              "}";
+//------------------------------------------------------------------------------
+const char dirLightVertShader[] = "precision mediump float;"
+                                  "attribute    vec3 aVertices;"
+                                  "attribute    vec3 aNormal;"
+                                  "attribute    vec4 aColor;"
+                                  "uniform      vec3 aDirLight;"
+                                  "uniform      mat4 uProjection;"
+                                  "uniform      mat4 uView;"
+                                  "uniform      mat4 uModel;"
+                                  "varying lowp vec4 vColor;"
+                                  "void main(void)"
+                                  "{"
+                                  "    float intensity = dot(aDirLight, aNormal);"
+                                  "    vColor          = aColor * intensity;"
+                                  "    gl_Position     = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                                  "}";
+//------------------------------------------------------------------------------
+const char colorVertShader[] = "precision mediump float;"
+                               "attribute    vec3 aVertices;"
+                               "attribute    vec4 aColor;"
+                               "uniform      mat4 uProjection;"
+                               "uniform      mat4 uView;"
+                               "uniform      mat4 uModel;"
+                               "varying lowp vec4 vColor;"
+                               "void main(void)"
+                               "{"
+                               "    vColor      = aColor;"
+                               "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                               "}";
 //------------------------------------------------------------------------------
 const char fragmentShader[] = "precision mediump float;"
-"uniform      sampler2D sTexture;"
-"varying lowp vec4      vColor;"
-"varying      vec2      vTexCoord;"
-"void main(void)"
-"{"
-"    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);"
-""
-"    if (gl_FragColor.a < 0.5)"
-"        discard;"
-"}";
+                              "uniform      sampler2D sTexture;"
+                              "varying lowp vec4      vColor;"
+                              "varying      vec2      vTexCoord;"
+                              "void main(void)"
+                              "{"
+                              "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);"
+                              ""
+                              "    if (gl_FragColor.a < 0.5)"
+                              "        discard;"
+                              "}";
 //------------------------------------------------------------------------------
 const char lineFragShader[] = "precision mediump float;"
-"varying lowp vec4 vColor;"
-"void main(void)"
-"{"
-"    gl_FragColor = vColor;"
-"}";
+                              "varying lowp vec4 vColor;"
+                              "void main(void)"
+                              "{"
+                              "    gl_FragColor = vColor;"
+                              "}";
+//------------------------------------------------------------------------------
+const char colorFragShader[] = "precision mediump float;"
+                              "varying lowp vec4 vColor;"
+                              "void main(void)"
+                              "{"
+                              "    gl_FragColor = vColor;"
+                              "}";
+//------------------------------------------------------------------------------
+const char dirLightFragShader[] = "precision mediump float;"
+                                  "varying lowp vec4 vColor;"
+                                  "void main(void)"
+                                  "{"
+                                  "    gl_FragColor = vColor;"
+                                  "}";
+//------------------------------------------------------------------------------
+DWF_Capsule g_Capsule1;
+DWF_Capsule g_Capsule2;
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -127,6 +173,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 case VK_ESCAPE:
                     ::PostQuitMessage(0);
                     break;
+
+                case VK_LEFT:
+                    g_Capsule1.m_Top.m_X    += 0.5f;
+                    g_Capsule1.m_Bottom.m_X += 0.5f;
+                    g_Capsule2.m_Top.m_X    -= 0.5f;
+                    g_Capsule2.m_Bottom.m_X -= 0.5f;
+                    break;
+
+                case VK_RIGHT:
+                    g_Capsule1.m_Top.m_X    -= 0.5f;
+                    g_Capsule1.m_Bottom.m_X -= 0.5f;
+                    g_Capsule2.m_Top.m_X    += 0.5f;
+                    g_Capsule2.m_Bottom.m_X += 0.5f;
+                    break;
             }
 
             break;
@@ -136,6 +196,38 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 
     return 0;
+}
+//------------------------------------------------------------------------------
+DWF_Texture* LoadTexture()
+{
+    std::size_t width = 0;
+    std::size_t height = 0;
+    std::size_t format = 0;
+    std::size_t length = 0;
+    void* pPixels = nullptr;
+
+    if (!DWF_Texture::GetPixelsFromPng("Resources\\earthmap.png",
+                                       false,
+                                       width,
+                                       height,
+                                       format,
+                                       length,
+                                       pPixels))
+        return nullptr;
+
+    if (!pPixels)
+        return nullptr;
+
+    std::unique_ptr<DWF_Texture_OpenGL> pTexture(new DWF_Texture_OpenGL());
+    pTexture->m_Width = (std::int32_t)width;
+    pTexture->m_Height = (std::int32_t)height;
+    pTexture->m_Format = format == 24 ? DWF_Texture::IEFormat::IE_FT_24bit : DWF_Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_WrapMode = DWF_Texture::IEWrapMode::IE_WM_Clamp;
+    pTexture->m_MinFilter = DWF_Texture::IEMinFilter::IE_MI_Linear;
+    pTexture->m_MagFilter = DWF_Texture::IEMagFilter::IE_MA_Linear;
+    pTexture->Create(pPixels);
+
+    return pTexture.release();
 }
 //------------------------------------------------------------------------------
 int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
@@ -232,13 +324,39 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     lineShader.Attach(lineFragShader, DWF_Shader::IEType::IE_ST_Fragment);
     lineShader.Link(true);
 
-    DWF_Capsule capsule;
-    capsule.m_Top    = DWF_Vector3F(0.0f, -20.0f, 0.0f);
-    capsule.m_Bottom = DWF_Vector3F(0.0f,  20.0f, 0.0f);
-    capsule.m_Radius = 10.0f;
+    DWF_Shader_OpenGL dirLightShader;
+    dirLightShader.CreateProgram();
+    dirLightShader.Attach(dirLightVertShader, DWF_Shader::IEType::IE_ST_Vertex);
+    dirLightShader.Attach(dirLightFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    dirLightShader.Link(true);
 
-    DWF_Mesh capsuleMesh;
-    capsule.GetMesh(capsuleMesh);
+    g_Capsule1.m_Top    = DWF_Vector3F(-15.0f, -20.0f, 0.0f);
+    g_Capsule1.m_Bottom = DWF_Vector3F(-15.0f,  20.0f, 0.0f);
+    g_Capsule1.m_Radius = 10.0f;
+
+    g_Capsule2.m_Top    = DWF_Vector3F(15.0f, -20.0f, 0.0f);
+    g_Capsule2.m_Bottom = DWF_Vector3F(15.0f,  20.0f, 0.0f);
+    g_Capsule2.m_Radius = 10.0f;
+
+    DWF_Material material;
+    material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
+
+    DWF_VertexBuffer::ICulling culling;
+
+    DWF_VertexBuffer::IFormat format;
+    //format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
+    format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
+    format.m_Type   = DWF_VertexBuffer::IFormat::IEType::IE_VT_Triangles;
+
+    DWF_Mesh capsuleMesh1;
+    g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
+    //capsuleMesh1.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
+
+    material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
+
+    DWF_Mesh capsuleMesh2;
+    g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+    //capsuleMesh2.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
     DWF_Matrix4x4F projMatrix;
 
@@ -252,11 +370,21 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     // connect the projection matrix to the line shader
     renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
+    renderer.ConnectProjectionMatrixToShader(&dirLightShader, projMatrix);
 
     // connect the view matrix to the both model and line shaders
     DWF_Matrix4x4F viewMatrix = DWF_Matrix4x4F::Identity();
     renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
     renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
+    renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
+
+    dirLightShader.Use(true);
+
+    const GLint lightPos = renderer.GetUniform(&dirLightShader, DWF_Shader::IEAttribute::IE_SA_DirLight);
+
+    // found it?
+    if (lightPos != -1)
+        glUniform3f(lightPos, 0.5f, 0.5f, 0.0f);
 
     DWF_ColorF bgColor;
     bgColor.m_R = 0.08f;
@@ -312,7 +440,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
             // place the model in the 3d world (update the matrix directly)
             DWF_Matrix4x4F modelMatrix = rotMatZ.Multiply(scaleMat);
-            modelMatrix.m_Table[3][2]  = -50.0f;
+            modelMatrix.m_Table[3][2] = -25.0f;
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
@@ -323,7 +451,37 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                                                                       (std::uint32_t)DWF_Renderer::IESceneFlags::IE_SF_ClearDepth));
 
             // draw the capsule
-            renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
+            //renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
+            //renderer.Draw(capsuleMesh, modelMatrix, &shader);
+            renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
+            renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
+
+            float depth;
+
+            if (g_Capsule1.Intersect(g_Capsule2, depth))
+            {
+                material.m_Color = DWF_ColorF(0.0f, 1.0f, 0.0f, 1.0f);
+
+                capsuleMesh1.Clear();
+                g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
+
+                material.m_Color = DWF_ColorF(0.0f, 1.0f, 0.0f, 1.0f);
+
+                capsuleMesh2.Clear();
+                g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+            }
+            else
+            {
+                material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
+
+                capsuleMesh1.Clear();
+                g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
+
+                material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
+
+                capsuleMesh2.Clear();
+                g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+            }
 
             renderer.EndScene();
 

@@ -116,7 +116,7 @@ std::size_t DWF_StdFileBuffer::GetSize() const
     #else
         std::fseek(m_FileBuffer, 0, SEEK_END);
     #endif
-        const std::size_t fileSize = std::ftell(m_FileBuffer);
+    const std::size_t fileSize = std::ftell(m_FileBuffer);
     #ifdef _MSC_VER
         _fseeki64(m_FileBuffer, curPos, SEEK_SET);
     #else
