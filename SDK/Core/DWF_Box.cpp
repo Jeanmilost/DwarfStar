@@ -29,6 +29,12 @@
 
 #include "DWF_Box.h"
 
+// std
+#include <memory>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <cmath>
+
 //---------------------------------------------------------------------------
 // DWF_Box
 //---------------------------------------------------------------------------
@@ -170,5 +176,195 @@ bool DWF_Box::Intersect(const DWF_Box& other) const
     return !(m_Min.m_X > other.m_Max.m_X || m_Max.m_X < other.m_Min.m_X ||
              m_Min.m_Y > other.m_Max.m_Y || m_Max.m_Y < other.m_Min.m_Y ||
              m_Min.m_Z > other.m_Max.m_Z || m_Max.m_Z < other.m_Min.m_Z);
+}
+//---------------------------------------------------------------------------
+void DWF_Box::GetMesh(float                                 width,
+                      float                                 height,
+                      float                                 depth,
+                      bool                                  repeatTexOnEachFace,
+                const DWF_VertexBuffer::IFormat&            format,
+                const DWF_VertexBuffer::ICulling&           culling,
+                const DWF_Material&                         material,
+                      DWF_Mesh&                             mesh,
+                const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor)
+{
+    // calculate half values
+    const float halfX = width  / 2.0f;
+    const float halfY = height / 2.0f;
+    const float halfZ = depth  / 2.0f;
+
+    // iterate through each edges
+    for (std::size_t i = 0; i < 6; ++i)
+    {
+        // create a vertex buffer for each box edges
+        std::unique_ptr<DWF_VertexBuffer> pVB(new DWF_VertexBuffer());
+
+        // apply the user wished vertex format, culling and material
+        pVB->m_Format   = format;
+        pVB->m_Culling  = culling;
+        pVB->m_Material = material;
+
+        // set the vertex format type
+        pVB->m_Format.m_Type = DWF_VertexBuffer::IFormat::IEType::IE_VT_TriangleStrip;
+
+        // calculate the stride
+        pVB->m_Format.CalculateStride();
+
+        mesh.m_VBs.push_back(pVB.get());
+        pVB.release();
+    }
+
+    DWF_Vector3F vertices[8];
+
+    // iterate through vertices to create. Vertices are generated as follow:
+    //     v2 *--------* v6
+    //      / |      / |
+    // v4 *--------* v8|
+    //    |   |    |   |
+    //    |v1 *----|---* v5
+    //    | /      | /
+    // v3 *--------* v7
+    for (std::size_t i = 0; i < 8; ++i)
+    {
+        // generate the 4 first vertices on the left, and 4 last on the right
+        if (!(i / 4))
+            vertices[i].m_X = -halfX;
+        else
+            vertices[i].m_X =  halfX;
+
+        // generate 2 vertices on the front, then 2 vertices on the back
+        if (!((i / 2) % 2))
+            vertices[i].m_Z = -halfZ;
+        else
+            vertices[i].m_Z =  halfZ;
+
+        // for each vertices, generates one on the top, and one on the bottom
+        if (!(i % 2))
+            vertices[i].m_Y = -halfY;
+        else
+            vertices[i].m_Y =  halfY;
+    }
+
+    DWF_Vector3F normals[6];
+
+    // calculate normals
+    normals[0].m_X = -1.0; normals[0].m_Y =  0.0; normals[0].m_Z =  0.0;
+    normals[1].m_X =  1.0; normals[1].m_Y =  0.0; normals[1].m_Z =  0.0;
+    normals[2].m_X =  0.0; normals[2].m_Y = -1.0; normals[2].m_Z =  0.0;
+    normals[3].m_X =  0.0; normals[3].m_Y =  1.0; normals[3].m_Z =  0.0;
+    normals[4].m_X =  0.0; normals[4].m_Y =  0.0; normals[4].m_Z = -1.0;
+    normals[5].m_X =  0.0; normals[5].m_Y =  0.0; normals[5].m_Z =  1.0;
+
+    DWF_Vector2F texCoords[24];
+
+    // do repeat texture on each faces?
+    if (repeatTexOnEachFace)
+    {
+        // calculate texture positions
+        texCoords[0].m_X  = 0.0; texCoords[0].m_Y  = 0.0;
+        texCoords[1].m_X  = 0.0; texCoords[1].m_Y  = 1.0;
+        texCoords[2].m_X  = 1.0; texCoords[2].m_Y  = 0.0;
+        texCoords[3].m_X  = 1.0; texCoords[3].m_Y  = 1.0;
+        texCoords[4].m_X  = 0.0; texCoords[4].m_Y  = 0.0;
+        texCoords[5].m_X  = 0.0; texCoords[5].m_Y  = 1.0;
+        texCoords[6].m_X  = 1.0; texCoords[6].m_Y  = 0.0;
+        texCoords[7].m_X  = 1.0; texCoords[7].m_Y  = 1.0;
+        texCoords[8].m_X  = 0.0; texCoords[8].m_Y  = 0.0;
+        texCoords[9].m_X  = 0.0; texCoords[9].m_Y  = 1.0;
+        texCoords[10].m_X = 1.0; texCoords[10].m_Y = 0.0;
+        texCoords[11].m_X = 1.0; texCoords[11].m_Y = 1.0;
+        texCoords[12].m_X = 0.0; texCoords[12].m_Y = 0.0;
+        texCoords[13].m_X = 0.0; texCoords[13].m_Y = 1.0;
+        texCoords[14].m_X = 1.0; texCoords[14].m_Y = 0.0;
+        texCoords[15].m_X = 1.0; texCoords[15].m_Y = 1.0;
+        texCoords[16].m_X = 0.0; texCoords[16].m_Y = 0.0;
+        texCoords[17].m_X = 0.0; texCoords[17].m_Y = 1.0;
+        texCoords[18].m_X = 1.0; texCoords[18].m_Y = 0.0;
+        texCoords[19].m_X = 1.0; texCoords[19].m_Y = 1.0;
+        texCoords[20].m_X = 0.0; texCoords[20].m_Y = 0.0;
+        texCoords[21].m_X = 0.0; texCoords[21].m_Y = 1.0;
+        texCoords[22].m_X = 1.0; texCoords[22].m_Y = 0.0;
+        texCoords[23].m_X = 1.0; texCoords[23].m_Y = 1.0;
+    }
+    else
+    {
+        // calculate texture offset
+        const float texOffset = 1.0f / 3.0f;
+
+        // calculate texture positions. They are distributed as follow:
+        // -------------------
+        // |     |     |     |
+        // |  1  |  2  |  3  |
+        // |     |     |     |
+        // |-----------------|
+        // |     |     |     |
+        // |  4  |  5  |  6  |
+        // |     |     |     |
+        // -------------------
+        // |  This texture   |
+        // |  area is not    |
+        // |  used           |
+        // -------------------
+        texCoords[0].m_X  = 0.0f;             texCoords[0].m_Y  = texOffset;
+        texCoords[1].m_X  = 0.0f;             texCoords[1].m_Y  = 0.0f;
+        texCoords[2].m_X  = texOffset;        texCoords[2].m_Y  = texOffset;
+        texCoords[3].m_X  = texOffset;        texCoords[3].m_Y  = 0.0f;
+        texCoords[4].m_X  = texOffset;        texCoords[4].m_Y  = texOffset;
+        texCoords[5].m_X  = texOffset;        texCoords[5].m_Y  = 0.0f;
+        texCoords[6].m_X  = texOffset * 2.0f; texCoords[6].m_Y  = texOffset;
+        texCoords[7].m_X  = texOffset * 2.0f; texCoords[7].m_Y  = 0.0f;
+        texCoords[8].m_X  = texOffset * 2.0f; texCoords[8].m_Y  = texOffset;
+        texCoords[9].m_X  = texOffset * 2.0f; texCoords[9].m_Y  = 0.0f;
+        texCoords[10].m_X = 1.0f;             texCoords[10].m_Y = texOffset;
+        texCoords[11].m_X = 1.0f;             texCoords[11].m_Y = 0.0f;
+        texCoords[12].m_X = 0.0f;             texCoords[12].m_Y = texOffset * 2.0f;
+        texCoords[13].m_X = 0.0f;             texCoords[13].m_Y = texOffset;
+        texCoords[14].m_X = texOffset;        texCoords[14].m_Y = texOffset * 2.0f;
+        texCoords[15].m_X = texOffset;        texCoords[15].m_Y = texOffset;
+        texCoords[16].m_X = texOffset;        texCoords[16].m_Y = texOffset * 2.0f;
+        texCoords[17].m_X = texOffset;        texCoords[17].m_Y = texOffset;
+        texCoords[18].m_X = texOffset * 2.0f; texCoords[18].m_Y = texOffset * 2.0f;
+        texCoords[19].m_X = texOffset * 2.0f; texCoords[19].m_Y = texOffset;
+        texCoords[20].m_X = texOffset * 2.0f; texCoords[20].m_Y = texOffset * 2.0f;
+        texCoords[21].m_X = texOffset * 2.0f; texCoords[21].m_Y = texOffset;
+        texCoords[22].m_X = 1.0f;             texCoords[22].m_Y = texOffset * 2.0f;
+        texCoords[23].m_X = 1.0f;             texCoords[23].m_Y = texOffset;
+    }
+
+    // create box edge 1
+    mesh.m_VBs[0]->Add(&vertices[1], &normals[0], &texCoords[4],  0, fOnGetVertexColor);
+    mesh.m_VBs[0]->Add(&vertices[0], &normals[0], &texCoords[5],  1, fOnGetVertexColor);
+    mesh.m_VBs[0]->Add(&vertices[3], &normals[0], &texCoords[6],  2, fOnGetVertexColor);
+    mesh.m_VBs[0]->Add(&vertices[2], &normals[0], &texCoords[7],  3, fOnGetVertexColor);
+
+    // create box edge 2
+    mesh.m_VBs[1]->Add(&vertices[3], &normals[5], &texCoords[8],  0, fOnGetVertexColor);
+    mesh.m_VBs[1]->Add(&vertices[2], &normals[5], &texCoords[9],  1, fOnGetVertexColor);
+    mesh.m_VBs[1]->Add(&vertices[7], &normals[5], &texCoords[10], 2, fOnGetVertexColor);
+    mesh.m_VBs[1]->Add(&vertices[6], &normals[5], &texCoords[11], 3, fOnGetVertexColor);
+
+    // create box edge 3
+    mesh.m_VBs[2]->Add(&vertices[7], &normals[1], &texCoords[12], 0, fOnGetVertexColor);
+    mesh.m_VBs[2]->Add(&vertices[6], &normals[1], &texCoords[13], 1, fOnGetVertexColor);
+    mesh.m_VBs[2]->Add(&vertices[5], &normals[1], &texCoords[14], 2, fOnGetVertexColor);
+    mesh.m_VBs[2]->Add(&vertices[4], &normals[1], &texCoords[15], 3, fOnGetVertexColor);
+
+    // create box edge 4
+    mesh.m_VBs[3]->Add(&vertices[5], &normals[4], &texCoords[16], 0, fOnGetVertexColor);
+    mesh.m_VBs[3]->Add(&vertices[4], &normals[4], &texCoords[17], 1, fOnGetVertexColor);
+    mesh.m_VBs[3]->Add(&vertices[1], &normals[4], &texCoords[18], 2, fOnGetVertexColor);
+    mesh.m_VBs[3]->Add(&vertices[0], &normals[4], &texCoords[19], 3, fOnGetVertexColor);
+
+    // create box edge 5
+    mesh.m_VBs[4]->Add(&vertices[1], &normals[3], &texCoords[0], 0, fOnGetVertexColor);
+    mesh.m_VBs[4]->Add(&vertices[3], &normals[3], &texCoords[1], 1, fOnGetVertexColor);
+    mesh.m_VBs[4]->Add(&vertices[5], &normals[3], &texCoords[2], 2, fOnGetVertexColor);
+    mesh.m_VBs[4]->Add(&vertices[7], &normals[3], &texCoords[3], 3, fOnGetVertexColor);
+
+    // create box edge 6
+    mesh.m_VBs[5]->Add(&vertices[2], &normals[2], &texCoords[20], 0, fOnGetVertexColor);
+    mesh.m_VBs[5]->Add(&vertices[0], &normals[2], &texCoords[21], 1, fOnGetVertexColor);
+    mesh.m_VBs[5]->Add(&vertices[6], &normals[2], &texCoords[22], 2, fOnGetVertexColor);
+    mesh.m_VBs[5]->Add(&vertices[4], &normals[2], &texCoords[23], 3, fOnGetVertexColor);
 }
 //---------------------------------------------------------------------------

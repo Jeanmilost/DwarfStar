@@ -108,6 +108,23 @@ const char colorVertShader[] = "precision mediump float;"
                                "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
                                "}";
 //------------------------------------------------------------------------------
+const char colTestVertShader[] = "precision mediump float;"
+                                 "attribute    vec3 aVertices;"
+                                 "attribute    vec4 aColor;"
+                                 "uniform      int  uIsColliding;"
+                                 "uniform      mat4 uProjection;"
+                                 "uniform      mat4 uView;"
+                                 "uniform      mat4 uModel;"
+                                 "varying lowp vec4 vColor;"
+                                 "void main(void)"
+                                 "{"
+                                 "    if (uIsColliding == 1)"
+                                 "        vColor = vec4(0.0, 1.0, 0.0, 1.0);"
+                                 "    else"
+                                 "        vColor = aColor;"
+                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                                 "}";
+//------------------------------------------------------------------------------
 const char fragmentShader[] = "precision mediump float;"
                               "uniform      sampler2D sTexture;"
                               "varying lowp vec4      vColor;"
@@ -133,6 +150,13 @@ const char colorFragShader[] = "precision mediump float;"
                               "{"
                               "    gl_FragColor = vColor;"
                               "}";
+//------------------------------------------------------------------------------
+const char colTestFragShader[] = "precision mediump float;"
+                                 "varying lowp vec4 vColor;"
+                                 "void main(void)"
+                                 "{"
+                                 "    gl_FragColor = vColor;"
+                                 "}";
 //------------------------------------------------------------------------------
 const char dirLightFragShader[] = "precision mediump float;"
                                   "varying lowp vec4 vColor;"
@@ -330,6 +354,12 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     dirLightShader.Attach(dirLightFragShader, DWF_Shader::IEType::IE_ST_Fragment);
     dirLightShader.Link(true);
 
+    DWF_Shader_OpenGL colTestShader;
+    colTestShader.CreateProgram();
+    colTestShader.Attach(colTestVertShader, DWF_Shader::IEType::IE_ST_Vertex);
+    colTestShader.Attach(colTestFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    colTestShader.Link(true);
+
     g_Capsule1.m_Top    = DWF_Vector3F(-15.0f, -20.0f, 0.0f);
     g_Capsule1.m_Bottom = DWF_Vector3F(-15.0f,  20.0f, 0.0f);
     g_Capsule1.m_Radius = 10.0f;
@@ -340,22 +370,24 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     DWF_Material material;
     material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
+    //material.m_Wireframe = true;
 
     DWF_VertexBuffer::ICulling culling;
 
     DWF_VertexBuffer::IFormat format;
     //format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
-    format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
+    //format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
+    format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
     format.m_Type   = DWF_VertexBuffer::IFormat::IEType::IE_VT_Triangles;
 
     DWF_Mesh capsuleMesh1;
-    g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
+    DWF_Capsule::GetMesh(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh1);
     //capsuleMesh1.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
     material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
 
     DWF_Mesh capsuleMesh2;
-    g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+    DWF_Capsule::GetMesh(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh2);
     //capsuleMesh2.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
     DWF_Matrix4x4F projMatrix;
@@ -371,12 +403,14 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     // connect the projection matrix to the line shader
     renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
     renderer.ConnectProjectionMatrixToShader(&dirLightShader, projMatrix);
+    renderer.ConnectProjectionMatrixToShader(&colTestShader, projMatrix);
 
     // connect the view matrix to the both model and line shaders
     DWF_Matrix4x4F viewMatrix = DWF_Matrix4x4F::Identity();
     renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
     renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
     renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
+    renderer.ConnectViewMatrixToShader(&colTestShader, viewMatrix);
 
     dirLightShader.Use(true);
 
@@ -385,6 +419,16 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     // found it?
     if (lightPos != -1)
         glUniform3f(lightPos, 0.5f, 0.5f, 0.0f);
+
+    dirLightShader.Use(false);
+
+    colTestShader.Use(true);
+
+    const GLint isColliding = glGetUniformLocation((GLuint)colTestShader.GetProgramID(), "uIsColliding");
+
+    // found it?
+    if (isColliding != -1)
+        glUniform1i(isColliding, 0);
 
     DWF_ColorF bgColor;
     bgColor.m_R = 0.08f;
@@ -431,16 +475,18 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
             // create the scale matrix
             DWF_Matrix4x4F scaleMat = DWF_Matrix4x4F::Identity();
-            scaleMat.m_Table[0][0] = 0.2f;
-            scaleMat.m_Table[1][1] = 0.2f;
-            scaleMat.m_Table[2][2] = 0.2f;
+            //scaleMat.m_Table[0][0] = 0.2f;
+            //scaleMat.m_Table[1][1] = 0.2f;
+            //scaleMat.m_Table[2][2] = 0.2f;
 
             // combine the rotation matrices
             rotMatZ.Multiply(rotMatX);
 
             // place the model in the 3d world (update the matrix directly)
             DWF_Matrix4x4F modelMatrix = rotMatZ.Multiply(scaleMat);
-            modelMatrix.m_Table[3][2] = -25.0f;
+            modelMatrix.m_Table[3][0] = g_Capsule1.m_Top.m_X;// *0.2f;
+            modelMatrix.m_Table[3][1] = g_Capsule1.m_Top.m_Y;// *0.2f;
+            modelMatrix.m_Table[3][2] = -100.0f;
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
@@ -453,13 +499,21 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             // draw the capsule
             //renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
             //renderer.Draw(capsuleMesh, modelMatrix, &shader);
-            renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
-            renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
+            //renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
+            renderer.Draw(capsuleMesh1, modelMatrix, &colTestShader);
+
+            modelMatrix.m_Table[3][0] = g_Capsule2.m_Top.m_X;// *0.2f;
+
+            //renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
+            renderer.Draw(capsuleMesh2, modelMatrix, &colTestShader);
+
+            colTestShader.Use(true);
 
             float depth;
 
             if (g_Capsule1.Intersect(g_Capsule2, depth))
             {
+                /*
                 material.m_Color = DWF_ColorF(0.0f, 1.0f, 0.0f, 1.0f);
 
                 capsuleMesh1.Clear();
@@ -469,9 +523,13 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
                 capsuleMesh2.Clear();
                 g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+                */
+                if (isColliding != -1)
+                    glUniform1i(isColliding, 1);
             }
             else
             {
+                /*
                 material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
 
                 capsuleMesh1.Clear();
@@ -481,13 +539,16 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
                 capsuleMesh2.Clear();
                 g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
+                */
+                if (isColliding != -1)
+                    glUniform1i(isColliding, 0);
             }
 
             renderer.EndScene();
 
             // calculate the next angle
-            if (g_Rotate)
-                angle = std::fmodf(angle + ((float)elapsedTime * 0.001f), 2.0f * (float)M_PI);
+            //if (g_Rotate)
+                //angle = std::fmodf(angle + ((float)elapsedTime * 0.001f), 2.0f * (float)M_PI);
 
             Sleep(1);
         }

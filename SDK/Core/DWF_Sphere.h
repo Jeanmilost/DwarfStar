@@ -35,6 +35,7 @@
 // retrograde engine
 #include "DWF_Object.h"
 #include "DWF_Vector3.h"
+#include "DWF_Mesh.h"
 
 /**
 * Geometric sphere
@@ -85,4 +86,24 @@ class DWF_Sphere : public DWF_Object
         *@return true if spheres intersect, otherwise false
         */
         virtual bool Intersect(const DWF_Sphere& other) const;
+
+        /**
+        * Gets the capsule mesh
+        *@param radius - sphere radius
+        *@param slices - slices (longitude) count
+        *@param stacks - stacks (latitude) count
+        *@param format - the mesh format to use
+        *@param culling - the mesh culling to use
+        *@param material - the mesh material to use
+        *@param[out] mesh - the mesh to fill with sphere
+        *@param fOnGetVertexColor - get vertex color callback function to use, nullptr if not used
+        */
+        static void GetMesh(float                                 radius,
+                            std::size_t                           slices,
+                            std::size_t                           stacks,
+                      const DWF_VertexBuffer::IFormat&            format,
+                      const DWF_VertexBuffer::ICulling&           culling,
+                      const DWF_Material&                         material,
+                            DWF_Mesh&                             mesh,
+                      const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
 };

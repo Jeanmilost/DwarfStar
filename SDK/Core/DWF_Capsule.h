@@ -57,15 +57,23 @@ class DWF_Capsule : public DWF_Object
 
         /**
         * Gets the capsule mesh
+        *@param height - the capsule height
+        *@param radius - the capsule radius
+        *@param resolution - the capsule resolution (or slices)
         *@param format - the mesh format to use
         *@param culling - the mesh culling to use
         *@param material - the mesh material to use
         *@param[out] mesh - the mesh to fill with capsule
+        *@param fOnGetVertexColor - get vertex color callback function to use, nullptr if not used
         */
-        virtual void GetMesh(const DWF_VertexBuffer::IFormat&  format,
-                             const DWF_VertexBuffer::ICulling& culling,
-                             const DWF_Material&               material,
-                                   DWF_Mesh&                   mesh) const;
+        static void GetMesh(float                                 height,
+                            float                                 radius,
+                            float                                 resolution,
+                      const DWF_VertexBuffer::IFormat&            format,
+                      const DWF_VertexBuffer::ICulling&           culling,
+                      const DWF_Material&                         material,
+                            DWF_Mesh&                             mesh,
+                      const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
 
     private:
         /**
@@ -73,5 +81,5 @@ class DWF_Capsule : public DWF_Object
         *@param vec - vector
         *@return perpendicular unit vector
         */
-        DWF_Vector3F GetAnyPerpendicularUnitVector(const DWF_Vector3F& vec) const;
+        static DWF_Vector3F GetAnyPerpendicularUnitVector(const DWF_Vector3F& vec);
 };

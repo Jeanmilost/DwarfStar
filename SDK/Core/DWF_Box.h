@@ -36,6 +36,7 @@
 #include "DWF_Object.h"
 #include "DWF_Vector3.h"
 #include "DWF_Plane.h"
+#include "DWF_Mesh.h"
 
 /**
 * Geometric box
@@ -130,4 +131,26 @@ class DWF_Box : public DWF_Object
         *@return true if boxes intersect, otherwise false
         */
         virtual bool Intersect(const DWF_Box& other) const;
+
+        /**
+        * Gets the capsule mesh
+        *@param width - box width (on the x axis)
+        *@param height - box height (on the y axis)
+        *@param depth - box depth (on the z axis)
+        *@param repeatTexOnEachFace - if true the texture will be repeated on each face
+        *@param format - the mesh format to use
+        *@param culling - the mesh culling to use
+        *@param material - the mesh material to use
+        *@param[out] mesh - the mesh to fill with box
+        *@param fOnGetVertexColor - get vertex color callback function to use, nullptr if not used
+        */
+        static void GetMesh(float                                 width,
+                            float                                 height,
+                            float                                 depth,
+                            bool                                  repeatTexOnEachFace,
+                      const DWF_VertexBuffer::IFormat&            format,
+                      const DWF_VertexBuffer::ICulling&           culling,
+                      const DWF_Material&                         material,
+                            DWF_Mesh&                             mesh,
+                      const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
 };
