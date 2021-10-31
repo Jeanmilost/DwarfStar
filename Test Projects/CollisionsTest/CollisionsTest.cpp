@@ -401,15 +401,15 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                             projMatrix);
 
     // connect the projection matrix to the line shader
-    renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
-    renderer.ConnectProjectionMatrixToShader(&dirLightShader, projMatrix);
+    //renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
+    //renderer.ConnectProjectionMatrixToShader(&dirLightShader, projMatrix);
     renderer.ConnectProjectionMatrixToShader(&colTestShader, projMatrix);
 
     // connect the view matrix to the both model and line shaders
     DWF_Matrix4x4F viewMatrix = DWF_Matrix4x4F::Identity();
-    renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
-    renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
-    renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
+    //renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
+    //renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
+    //renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
     renderer.ConnectViewMatrixToShader(&colTestShader, viewMatrix);
 
     dirLightShader.Use(true);
@@ -498,12 +498,13 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
             // draw the capsule
             //renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
-            //renderer.Draw(capsuleMesh, modelMatrix, &shader);
+            //renderer.Draw(capsuleMesh1, modelMatrix, &shader);
             //renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
             renderer.Draw(capsuleMesh1, modelMatrix, &colTestShader);
 
             modelMatrix.m_Table[3][0] = g_Capsule2.m_Top.m_X;// *0.2f;
 
+            //renderer.Draw(capsuleMesh2, modelMatrix, &shader);
             //renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
             renderer.Draw(capsuleMesh2, modelMatrix, &colTestShader);
 

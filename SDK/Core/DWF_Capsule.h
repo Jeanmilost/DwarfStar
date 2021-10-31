@@ -77,6 +77,62 @@ class DWF_Capsule : public DWF_Object
 
     private:
         /**
+        * Gets a vertex belonging to the cylinder part of the capsule
+        *@param top - capsule top position
+        *@param localX - current x position on the local axis
+        *@param localY - current y position on the local axis
+        *@param localZ - current z position on the local axis
+        *@param radius - capsule radius
+        *@param length - capsule length
+        *@param u - texture u coordinate
+        *@param v - texture v coordinate
+        */
+        static DWF_Vector3F GetCylinderVertex(const DWF_Vector3F& top,
+                                              const DWF_Vector3F& localX,
+                                              const DWF_Vector3F& localY,
+                                              const DWF_Vector3F& localZ,
+                                                    float         radius,
+                                                    float         length,
+                                                    float         u,
+                                                    float         v);
+
+        /**
+        * Gets a vertex belonging to the top half sphere part of the capsule
+        *@param top - capsule top position
+        *@param localX - current x position on the local axis
+        *@param localY - current y position on the local axis
+        *@param localZ - current z position on the local axis
+        *@param radius - capsule radius
+        *@param u - texture u coordinate
+        *@param v - texture v coordinate
+        */
+        static DWF_Vector3F GetSphereStartVertex(const DWF_Vector3F& top,
+                                                 const DWF_Vector3F& localX,
+                                                 const DWF_Vector3F& localY,
+                                                 const DWF_Vector3F& localZ,
+                                                       float         radius,
+                                                       float         u,
+                                                       float         v);
+
+        /**
+        * Gets a vertex belonging to the bottom half sphere part of the capsule
+        *@param top - capsule top position
+        *@param localX - current x position on the local axis
+        *@param localY - current y position on the local axis
+        *@param localZ - current z position on the local axis
+        *@param radius - capsule radius
+        *@param u - texture u coordinate
+        *@param v - texture v coordinate
+        */
+        static DWF_Vector3F GetSphereEndVertex(const DWF_Vector3F& top,
+                                               const DWF_Vector3F& localX,
+                                               const DWF_Vector3F& localY,
+                                               const DWF_Vector3F& localZ,
+                                                     float         radius,
+                                                     float         u,
+                                                     float         v);
+
+        /**
         * Gets any perpendicular unit vector from a vector
         *@param vec - vector
         *@return perpendicular unit vector

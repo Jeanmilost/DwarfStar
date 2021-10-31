@@ -123,6 +123,9 @@ void DWF_Capsule::GetMesh(float                                 height,
     if (radius == 0.0f)
         return;
 
+    const float third     = 1.0f / 3.0f;
+    const float twoThirds = 2.0f / 3.0f;
+
     const DWF_Vector3F capsuleTop   (0.0f, height, 0.0f);
     const DWF_Vector3F capsuleBottom(0.0f, 0.0f,   0.0f);
 
@@ -142,38 +145,6 @@ void DWF_Capsule::GetMesh(float                                 height,
     const DWF_Vector3F end  (1.0f, 1.0f, 1.0f);
 
     const DWF_Vector3F step = (end - start) / resolution;
-
-    // local nested function to calculate cylinder
-    auto cylinder = [top, localX, localY, localZ, radius, length](const float u, const float v)
-    {
-        return top                                                 +
-               localX * std::cosf(2.0f * (float)M_PI * u) * radius +
-               localY * std::sinf(2.0f * (float)M_PI * u) * radius +
-               localZ * v * length;
-
-    };
-
-    // local nested function to calculate top half sphere
-    auto sphereStart = [top, localX, localY, localZ, radius](const float u, const float v)
-    {
-        const float latitude = (float)(M_PI / 2.0) * (v - 1);
-
-        return top                                                                         +
-               localX * std::cosf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
-               localY * std::sinf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
-               localZ * std::sinf(latitude) * radius;
-    };
-
-    // local nested function to calculate bottom half sphere
-    auto sphereEnd = [bottom, localX, localY, localZ, radius](const float u, const float v)
-    {
-        const float latitude = (float)(M_PI / 2.0) * v;
-
-        return bottom                                                                    +
-               localX * std::cos(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
-               localY * std::sin(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
-               localZ * std::sin(latitude) * radius;
-    };
 
     std::unique_ptr<DWF_VertexBuffer> pVB(new DWF_VertexBuffer());
     pVB->m_Material = material;
@@ -197,10 +168,10 @@ void DWF_Capsule::GetMesh(float                                 height,
             const float vn = (j + 1 == resolution) ? end.m_Y : (j + 1) * step.m_Y + start.m_Y;
 
             // create next cylinder face
-            p0 = cylinder(u,  v);
-            p1 = cylinder(u,  vn);
-            p2 = cylinder(un, v);
-            p3 = cylinder(un, vn);
+            p0 = GetCylinderVertex(top, localX, localY, localZ, radius, length, u,  v);
+            p1 = GetCylinderVertex(top, localX, localY, localZ, radius, length, u,  vn);
+            p2 = GetCylinderVertex(top, localX, localY, localZ, radius, length, un, v);
+            p3 = GetCylinderVertex(top, localX, localY, localZ, radius, length, un, vn);
 
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
@@ -215,14 +186,14 @@ void DWF_Capsule::GetMesh(float                                 height,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv0.m_X =               (i      / resolution);
-                uv0.m_Y = 0.333333f +  ((j      / resolution) * 0.333333f);
-                uv1.m_X =               (i      / resolution);
-                uv1.m_Y = 0.333333f + (((j + 1) / resolution) * 0.333333f);
-                uv2.m_X =              ((i + 1) / resolution);
-                uv2.m_Y = 0.333333f +  ((j      / resolution) * 0.333333f);
-                uv3.m_X =              ((i + 1) / resolution);
-                uv3.m_Y = 0.333333f + (((j + 1) / resolution) * 0.333333f);
+                uv0.m_X =           (i      / resolution);
+                uv0.m_Y = third +  ((j      / resolution) * third);
+                uv1.m_X =           (i      / resolution);
+                uv1.m_Y = third + (((j + 1) / resolution) * third);
+                uv2.m_X =          ((i + 1) / resolution);
+                uv2.m_Y = third +  ((j      / resolution) * third);
+                uv3.m_X =          ((i + 1) / resolution);
+                uv3.m_Y = third + (((j + 1) / resolution) * third);
             }
 
             // add face to vertex buffer
@@ -234,10 +205,10 @@ void DWF_Capsule::GetMesh(float                                 height,
             pVB->Add(&p2, &normal2, &uv2, 0, fOnGetVertexColor);
 
             // create next sphere start face
-            p0 = sphereStart(u,  v);
-            p1 = sphereStart(u,  vn);
-            p2 = sphereStart(un, v);
-            p3 = sphereStart(un, vn);
+            p0 = GetSphereStartVertex(top, localX, localY, localZ, radius, u,  v);
+            p1 = GetSphereStartVertex(top, localX, localY, localZ, radius, u,  vn);
+            p2 = GetSphereStartVertex(top, localX, localY, localZ, radius, un, v);
+            p3 = GetSphereStartVertex(top, localX, localY, localZ, radius, un, vn);
 
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
@@ -253,13 +224,13 @@ void DWF_Capsule::GetMesh(float                                 height,
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
                 uv0.m_X =   (i      / resolution);
-                uv0.m_Y =  ((j      / resolution) * 0.333333f);
+                uv0.m_Y =  ((j      / resolution) * third);
                 uv1.m_X =   (i      / resolution);
-                uv1.m_Y = (((j + 1) / resolution) * 0.333333f);
+                uv1.m_Y = (((j + 1) / resolution) * third);
                 uv2.m_X =  ((i + 1) / resolution);
-                uv2.m_Y =  ((j      / resolution) * 0.333333f);
+                uv2.m_Y =  ((j      / resolution) * third);
                 uv3.m_X =  ((i + 1) / resolution);
-                uv3.m_Y = (((j + 1) / resolution) * 0.333333f);
+                uv3.m_Y = (((j + 1) / resolution) * third);
             }
 
             // add face to vertex buffer
@@ -271,10 +242,10 @@ void DWF_Capsule::GetMesh(float                                 height,
             pVB->Add(&p2, &normal2, &uv2, 0, fOnGetVertexColor);
 
             // create next sphere end face
-            p0 = sphereEnd(u,  v);
-            p1 = sphereEnd(u,  vn);
-            p2 = sphereEnd(un, v);
-            p3 = sphereEnd(un, vn);
+            p0 = GetSphereEndVertex(bottom, localX, localY, localZ, radius, u,  v);
+            p1 = GetSphereEndVertex(bottom, localX, localY, localZ, radius, u,  vn);
+            p2 = GetSphereEndVertex(bottom, localX, localY, localZ, radius, un, v);
+            p3 = GetSphereEndVertex(bottom, localX, localY, localZ, radius, un, vn);
 
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals) != 0)
@@ -290,13 +261,13 @@ void DWF_Capsule::GetMesh(float                                 height,
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
                 uv0.m_X =               (i      / resolution);
-                uv0.m_Y = 0.666667f +  ((j      / resolution) * 0.333333f);
+                uv0.m_Y = twoThirds +  ((j      / resolution) * third);
                 uv1.m_X =               (i      / resolution);
-                uv1.m_Y = 0.666667f + (((j + 1) / resolution) * 0.333333f);
+                uv1.m_Y = twoThirds + (((j + 1) / resolution) * third);
                 uv2.m_X =              ((i + 1) / resolution);
-                uv2.m_Y = 0.666667f +  ((j      / resolution) * 0.333333f);
+                uv2.m_Y = twoThirds +  ((j      / resolution) * third);
                 uv3.m_X =              ((i + 1) / resolution);
-                uv3.m_Y = 0.666667f + (((j + 1) / resolution) * 0.333333f);
+                uv3.m_Y = twoThirds + (((j + 1) / resolution) * third);
             }
 
             // add face to vertex buffer
@@ -310,6 +281,54 @@ void DWF_Capsule::GetMesh(float                                 height,
 
     mesh.m_VBs.push_back(pVB.get());
     pVB.release();
+}
+//---------------------------------------------------------------------------
+DWF_Vector3F DWF_Capsule::GetCylinderVertex(const DWF_Vector3F& top,
+                                            const DWF_Vector3F& localX,
+                                            const DWF_Vector3F& localY,
+                                            const DWF_Vector3F& localZ,
+                                                  float         radius,
+                                                  float         length,
+                                                  float         u,
+                                                  float         v)
+{
+    return top                                                 +
+           localX * std::cosf(2.0f * (float)M_PI * u) * radius +
+           localY * std::sinf(2.0f * (float)M_PI * u) * radius +
+           localZ * v * length;
+
+}
+//---------------------------------------------------------------------------
+DWF_Vector3F DWF_Capsule::GetSphereStartVertex(const DWF_Vector3F& top,
+                                               const DWF_Vector3F& localX,
+                                               const DWF_Vector3F& localY,
+                                               const DWF_Vector3F& localZ,
+                                                     float         radius,
+                                                     float         u,
+                                                     float         v)
+{
+    const float latitude = (float)(M_PI / 2.0) * (v - 1);
+
+    return top                                                                       +
+           localX * std::cosf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
+           localY * std::sinf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
+           localZ * std::sinf(latitude) * radius;
+}
+//---------------------------------------------------------------------------
+DWF_Vector3F DWF_Capsule::GetSphereEndVertex(const DWF_Vector3F& bottom,
+                                             const DWF_Vector3F& localX,
+                                             const DWF_Vector3F& localY,
+                                             const DWF_Vector3F& localZ,
+                                                   float         radius,
+                                                   float         u,
+                                                   float         v)
+{
+    const float latitude = (float)(M_PI / 2.0) * v;
+
+    return bottom                                                                  +
+           localX * std::cos(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
+           localY * std::sin(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
+           localZ * std::sin(latitude) * radius;
 }
 //---------------------------------------------------------------------------
 DWF_Vector3F DWF_Capsule::GetAnyPerpendicularUnitVector(const DWF_Vector3F& vec)

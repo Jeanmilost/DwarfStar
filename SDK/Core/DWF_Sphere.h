@@ -88,7 +88,7 @@ class DWF_Sphere : public DWF_Object
         virtual bool Intersect(const DWF_Sphere& other) const;
 
         /**
-        * Gets the capsule mesh
+        * Gets the sphere mesh
         *@param radius - sphere radius
         *@param slices - slices (longitude) count
         *@param stacks - stacks (latitude) count

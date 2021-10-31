@@ -133,7 +133,7 @@ class DWF_Box : public DWF_Object
         virtual bool Intersect(const DWF_Box& other) const;
 
         /**
-        * Gets the capsule mesh
+        * Gets the box mesh
         *@param width - box width (on the x axis)
         *@param height - box height (on the y axis)
         *@param depth - box depth (on the z axis)
