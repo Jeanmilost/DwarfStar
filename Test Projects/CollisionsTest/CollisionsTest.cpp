@@ -46,9 +46,13 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
-bool g_ShowSkeleton = false;
-bool g_PauseAnim = false;
-bool g_Rotate = true;
+const DWF_Vector3F g_DefCapsule1Top   (  0.0f,  40.0f,    0.0f);
+const DWF_Vector3F g_DefCapsule1Bottom(  0.0f,   0.0f,    0.0f);
+const DWF_Vector3F g_DefCapsule2Top   (  0.0f,  40.0f,    0.0f);
+const DWF_Vector3F g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
+      DWF_Vector3F g_Capsule1Pos      (-15.0f, -20.0f, -100.0f);
+      DWF_Vector3F g_Capsule2Pos      ( 15.0f, -20.0f, -100.0f);
+      bool         g_Rotate = false;
 //------------------------------------------------------------------------------
 const char vertexShader[] = "precision mediump float;"
                             "attribute    vec3 aVertices;"
@@ -183,15 +187,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             switch (wParam)
             {
                 case '1':
-                    g_ShowSkeleton = !g_ShowSkeleton;
                     break;
 
                 case '2':
-                    g_Rotate = !g_Rotate;
                     break;
 
                 case VK_SPACE:
-                    g_PauseAnim = !g_PauseAnim;
+                    g_Rotate = !g_Rotate;
                     break;
 
                 case VK_ESCAPE:
@@ -199,17 +201,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case VK_LEFT:
-                    g_Capsule1.m_Top.m_X    += 0.5f;
-                    g_Capsule1.m_Bottom.m_X += 0.5f;
-                    g_Capsule2.m_Top.m_X    -= 0.5f;
-                    g_Capsule2.m_Bottom.m_X -= 0.5f;
+                    g_Capsule1Pos.m_X += 0.5f;
+                    g_Capsule2Pos.m_X -= 0.5f;
                     break;
 
                 case VK_RIGHT:
-                    g_Capsule1.m_Top.m_X    -= 0.5f;
-                    g_Capsule1.m_Bottom.m_X -= 0.5f;
-                    g_Capsule2.m_Top.m_X    += 0.5f;
-                    g_Capsule2.m_Bottom.m_X += 0.5f;
+                    g_Capsule1Pos.m_X -= 0.5f;
+                    g_Capsule2Pos.m_X += 0.5f;
                     break;
             }
 
@@ -243,10 +241,10 @@ DWF_Texture* LoadTexture()
         return nullptr;
 
     std::unique_ptr<DWF_Texture_OpenGL> pTexture(new DWF_Texture_OpenGL());
-    pTexture->m_Width = (std::int32_t)width;
-    pTexture->m_Height = (std::int32_t)height;
-    pTexture->m_Format = format == 24 ? DWF_Texture::IEFormat::IE_FT_24bit : DWF_Texture::IEFormat::IE_FT_32bit;
-    pTexture->m_WrapMode = DWF_Texture::IEWrapMode::IE_WM_Clamp;
+    pTexture->m_Width     = (std::int32_t)width;
+    pTexture->m_Height    = (std::int32_t)height;
+    pTexture->m_Format    = format == 24 ? DWF_Texture::IEFormat::IE_FT_24bit : DWF_Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_WrapMode  = DWF_Texture::IEWrapMode::IE_WM_Clamp;
     pTexture->m_MinFilter = DWF_Texture::IEMinFilter::IE_MI_Linear;
     pTexture->m_MagFilter = DWF_Texture::IEMagFilter::IE_MA_Linear;
     pTexture->Create(pPixels);
@@ -265,17 +263,17 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     BOOL       bQuit = FALSE;
 
     // register window class
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_OWNDC;
-    wcex.lpfnWndProc = WindowProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_COLLISIONSTEST));
-    wcex.hIconSm = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
-    wcex.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
+    wcex.cbSize        = sizeof(WNDCLASSEX);
+    wcex.style         = CS_OWNDC;
+    wcex.lpfnWndProc   = WindowProc;
+    wcex.cbClsExtra    = 0;
+    wcex.cbWndExtra    = 0;
+    wcex.hInstance     = hInstance;
+    wcex.hIcon         = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_COLLISIONSTEST));
+    wcex.hIconSm       = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
-    wcex.lpszMenuName = nullptr;
+    wcex.lpszMenuName  = nullptr;
     wcex.lpszClassName = L"dwarfstarCollisionsTest";
 
     if (!RegisterClassEx(&wcex))
@@ -338,7 +336,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     DWF_Shader_OpenGL shader;
     shader.CreateProgram();
-    shader.Attach(vertexShader, DWF_Shader::IEType::IE_ST_Vertex);
+    shader.Attach(vertexShader,   DWF_Shader::IEType::IE_ST_Vertex);
     shader.Attach(fragmentShader, DWF_Shader::IEType::IE_ST_Fragment);
     shader.Link(true);
 
@@ -360,12 +358,10 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     colTestShader.Attach(colTestFragShader, DWF_Shader::IEType::IE_ST_Fragment);
     colTestShader.Link(true);
 
-    g_Capsule1.m_Top    = DWF_Vector3F(-15.0f, -20.0f, 0.0f);
-    g_Capsule1.m_Bottom = DWF_Vector3F(-15.0f,  20.0f, 0.0f);
+    g_Capsule1.m_Top    = g_DefCapsule1Top;
     g_Capsule1.m_Radius = 10.0f;
 
-    g_Capsule2.m_Top    = DWF_Vector3F(15.0f, -20.0f, 0.0f);
-    g_Capsule2.m_Bottom = DWF_Vector3F(15.0f,  20.0f, 0.0f);
+    g_Capsule2.m_Top    = g_DefCapsule2Top;
     g_Capsule2.m_Radius = 10.0f;
 
     DWF_Material material;
@@ -436,7 +432,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     bgColor.m_B = 0.17f;
     bgColor.m_A = 1.0f;
 
-    float  angle = 0.0f;
+    float  angle    = 0.0f;
     double lastTime = 0.0f;
 
     // program main loop
@@ -457,36 +453,44 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         else
         {
             DWF_Matrix4x4F matrix = DWF_Matrix4x4F::Identity();
-            DWF_Vector3F   axis;
 
             // create the X rotation matrix
             DWF_Matrix4x4F rotMatX;
+            DWF_Vector3F   axis;
             axis.m_X = 1.0f;
             axis.m_Y = 0.0f;
             axis.m_Z = 0.0f;
             rotMatX = matrix.Rotate(0.0f, axis);
 
             // create the Y rotation matrix
-            DWF_Matrix4x4F rotMatZ;
+            DWF_Matrix4x4F rotMatY;
             axis.m_X = 0.0f;
             axis.m_Y = 1.0f;
             axis.m_Z = 0.0f;
+            rotMatY = matrix.Rotate(0.0f, axis);
+
+            // create the Y rotation matrix
+            DWF_Matrix4x4F rotMatZ;
+            axis.m_X = 0.0f;
+            axis.m_Y = 0.0f;
+            axis.m_Z = 1.0f;
             rotMatZ = matrix.Rotate(angle, axis);
 
-            // create the scale matrix
-            DWF_Matrix4x4F scaleMat = DWF_Matrix4x4F::Identity();
-            //scaleMat.m_Table[0][0] = 0.2f;
-            //scaleMat.m_Table[1][1] = 0.2f;
-            //scaleMat.m_Table[2][2] = 0.2f;
-
             // combine the rotation matrices
-            rotMatZ.Multiply(rotMatX);
+            DWF_Matrix4x4F rotMat;
+                     rotMatY.Multiply(rotMatX);
+            rotMat = rotMatZ.Multiply(rotMatY);
 
-            // place the model in the 3d world (update the matrix directly)
-            DWF_Matrix4x4F modelMatrix = rotMatZ.Multiply(scaleMat);
-            modelMatrix.m_Table[3][0] = g_Capsule1.m_Top.m_X;// *0.2f;
-            modelMatrix.m_Table[3][1] = g_Capsule1.m_Top.m_Y;// *0.2f;
-            modelMatrix.m_Table[3][2] = -100.0f;
+            // place the models in the 3d world (update the matrix directly)
+            DWF_Matrix4x4F modelMatrixC1 = rotMat;
+            modelMatrixC1.m_Table[3][0]  = g_Capsule1Pos.m_X;
+            modelMatrixC1.m_Table[3][1]  = g_Capsule1Pos.m_Y;
+            modelMatrixC1.m_Table[3][2]  = g_Capsule1Pos.m_Z;
+
+            DWF_Matrix4x4F modelMatrixC2 = modelMatrixC1;
+            modelMatrixC2.m_Table[3][0] = g_Capsule2Pos.m_X;
+            modelMatrixC2.m_Table[3][1] = g_Capsule2Pos.m_Y;
+            modelMatrixC2.m_Table[3][2] = g_Capsule2Pos.m_Z;
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
@@ -500,56 +504,35 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             //renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
             //renderer.Draw(capsuleMesh1, modelMatrix, &shader);
             //renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
-            renderer.Draw(capsuleMesh1, modelMatrix, &colTestShader);
-
-            modelMatrix.m_Table[3][0] = g_Capsule2.m_Top.m_X;// *0.2f;
+            renderer.Draw(capsuleMesh1, modelMatrixC1, &colTestShader);
 
             //renderer.Draw(capsuleMesh2, modelMatrix, &shader);
             //renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
-            renderer.Draw(capsuleMesh2, modelMatrix, &colTestShader);
+            renderer.Draw(capsuleMesh2, modelMatrixC2, &colTestShader);
 
             colTestShader.Use(true);
 
             float depth;
 
+            g_Capsule1.m_Top    = modelMatrixC1.Transform(g_DefCapsule1Top);
+            g_Capsule1.m_Bottom = modelMatrixC1.Transform(g_DefCapsule1Bottom);
+            g_Capsule2.m_Top    = modelMatrixC2.Transform(g_DefCapsule2Top);
+            g_Capsule2.m_Bottom = modelMatrixC2.Transform(g_DefCapsule2Bottom);
+
             if (g_Capsule1.Intersect(g_Capsule2, depth))
             {
-                /*
-                material.m_Color = DWF_ColorF(0.0f, 1.0f, 0.0f, 1.0f);
-
-                capsuleMesh1.Clear();
-                g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
-
-                material.m_Color = DWF_ColorF(0.0f, 1.0f, 0.0f, 1.0f);
-
-                capsuleMesh2.Clear();
-                g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
-                */
                 if (isColliding != -1)
                     glUniform1i(isColliding, 1);
             }
             else
-            {
-                /*
-                material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
-
-                capsuleMesh1.Clear();
-                g_Capsule1.GetMesh(format, culling, material, capsuleMesh1);
-
-                material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
-
-                capsuleMesh2.Clear();
-                g_Capsule2.GetMesh(format, culling, material, capsuleMesh2);
-                */
-                if (isColliding != -1)
-                    glUniform1i(isColliding, 0);
-            }
+            if (isColliding != -1)
+                glUniform1i(isColliding, 0);
 
             renderer.EndScene();
 
             // calculate the next angle
-            //if (g_Rotate)
-                //angle = std::fmodf(angle + ((float)elapsedTime * 0.001f), 2.0f * (float)M_PI);
+            if (g_Rotate)
+                angle = std::fmodf(angle + ((float)elapsedTime * 0.001f), 2.0f * (float)M_PI);
 
             Sleep(1);
         }

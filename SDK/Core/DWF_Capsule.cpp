@@ -51,7 +51,7 @@ DWF_Capsule::~DWF_Capsule()
 bool DWF_Capsule::Intersect(const DWF_Capsule& other, float& penetrationDepth) const
 {
     // perfect collision (rare, but may happen)
-    if (m_Top == other.m_Top && m_Bottom == other.m_Bottom && m_Radius == other.m_Radius)
+    if (m_Top == other.m_Top || m_Bottom == other.m_Bottom)
         return true;
 
     // this capsule
