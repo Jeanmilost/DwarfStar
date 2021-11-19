@@ -39,8 +39,7 @@
 // DWF_StdFileBuffer
 //---------------------------------------------------------------------------
 DWF_StdFileBuffer::DWF_StdFileBuffer() :
-    DWF_FileBuffer(),
-    m_FileBuffer(nullptr)
+    DWF_FileBuffer()
 {}
 //---------------------------------------------------------------------------
 DWF_StdFileBuffer::~DWF_StdFileBuffer()

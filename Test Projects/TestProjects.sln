@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBXModelTest", "FBXModelTes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CollisionsTest", "CollisionsTest\CollisionsTest.vcxproj", "{E39BD813-E0B5-4FBF-A85D-C86F0D6B4E39}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Landscape", "Landscape\Landscape.vcxproj", "{1A50EC09-4926-46B8-96B0-57F512EFDCC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{E39BD813-E0B5-4FBF-A85D-C86F0D6B4E39}.Release|x64.Build.0 = Release|x64
 		{E39BD813-E0B5-4FBF-A85D-C86F0D6B4E39}.Release|x86.ActiveCfg = Release|Win32
 		{E39BD813-E0B5-4FBF-A85D-C86F0D6B4E39}.Release|x86.Build.0 = Release|Win32
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Debug|x64.ActiveCfg = Debug|x64
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Debug|x64.Build.0 = Debug|x64
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Debug|x86.ActiveCfg = Debug|Win32
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Debug|x86.Build.0 = Debug|Win32
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Release|x64.ActiveCfg = Release|x64
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Release|x64.Build.0 = Release|x64
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Release|x86.ActiveCfg = Release|Win32
+		{1A50EC09-4926-46B8-96B0-57F512EFDCC0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

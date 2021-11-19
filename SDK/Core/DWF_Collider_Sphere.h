@@ -31,6 +31,7 @@
 
 // dwarfstar
 #include "DWF_Collider.h"
+#include "DWF_Sphere.h"
 
 /**
 * Sphere collider
@@ -39,7 +40,7 @@
 class DWF_Collider_Sphere : public DWF_Collider
 {
     public:
-        ISphere m_Sphere;
+        DWF_Sphere m_Sphere;
 
         DWF_Collider_Sphere();
         virtual ~DWF_Collider_Sphere();

@@ -31,6 +31,7 @@
 
 // dwarfstar
 #include "DWF_Collider.h"
+#include "DWF_Capsule.h"
 
 /**
 * Capsule collider

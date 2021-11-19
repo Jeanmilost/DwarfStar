@@ -36,8 +36,7 @@
 // DWF_MemoryBuffer
 //---------------------------------------------------------------------------
 DWF_MemoryBuffer::DWF_MemoryBuffer() :
-    DWF_Buffer(),
-    m_Offset(0)
+    DWF_Buffer()
 {}
 //---------------------------------------------------------------------------
 DWF_MemoryBuffer::~DWF_MemoryBuffer()

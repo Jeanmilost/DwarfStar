@@ -40,10 +40,10 @@ template <class T>
 class DWF_Color : public DWF_Object
 {
     public:
-        T m_R; // color red component
-        T m_G; // color green component
-        T m_B; // color blue component
-        T m_A; // color alpha component
+        T m_R = T(0.0); // color red component
+        T m_G = T(0.0); // color green component
+        T m_B = T(0.0); // color blue component
+        T m_A = T(0.0); // color alpha component
 
         inline DWF_Color();
 
@@ -94,11 +94,7 @@ typedef DWF_Color<float>    DWF_ColorF;
 //---------------------------------------------------------------------------
 template <class T>
 DWF_Color<T>::DWF_Color() :
-    DWF_Object(),
-    m_R(T(0.0)),
-    m_G(T(0.0)),
-    m_B(T(0.0)),
-    m_A(T(0.0))
+    DWF_Object()
 {}
 //---------------------------------------------------------------------------
 template <class T>

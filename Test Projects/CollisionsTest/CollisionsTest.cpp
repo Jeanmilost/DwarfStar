@@ -29,6 +29,7 @@
 
  // dwarfstar
 #include "Core\DWF_Capsule.h"
+#include "Core\DWF_MeshFactory.h"
 #include "Rendering\OpenGL\DWF_Texture_OpenGL.h"
 #include "Rendering\OpenGL\DWF_Shader_OpenGL.h"
 #include "Rendering\OpenGL\DWF_Renderer_OpenGL.h"
@@ -377,13 +378,13 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     format.m_Type   = DWF_VertexBuffer::IFormat::IEType::IE_VT_Triangles;
 
     DWF_Mesh capsuleMesh1;
-    DWF_Capsule::GetMesh(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh1);
+    DWF_MeshFactory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh1);
     //capsuleMesh1.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
     material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
 
     DWF_Mesh capsuleMesh2;
-    DWF_Capsule::GetMesh(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh2);
+    DWF_MeshFactory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh2);
     //capsuleMesh2.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
     DWF_Matrix4x4F projMatrix;
@@ -476,8 +477,9 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             axis.m_Z = 1.0f;
             rotMatZ = matrix.Rotate(angle, axis);
 
-            // combine the rotation matrices
             DWF_Matrix4x4F rotMat;
+
+            // combine the rotation matrices
                      rotMatY.Multiply(rotMatX);
             rotMat = rotMatZ.Multiply(rotMatY);
 
@@ -487,7 +489,11 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             modelMatrixC1.m_Table[3][1]  = g_Capsule1Pos.m_Y;
             modelMatrixC1.m_Table[3][2]  = g_Capsule1Pos.m_Z;
 
-            DWF_Matrix4x4F modelMatrixC2 = modelMatrixC1;
+            matrix = DWF_Matrix4x4F::Identity();
+            rotMatZ = matrix.Rotate(-angle, axis);
+            rotMat  = rotMatZ.Multiply(rotMatY);
+
+            DWF_Matrix4x4F modelMatrixC2 = rotMat;
             modelMatrixC2.m_Table[3][0] = g_Capsule2Pos.m_X;
             modelMatrixC2.m_Table[3][1] = g_Capsule2Pos.m_Y;
             modelMatrixC2.m_Table[3][2] = g_Capsule2Pos.m_Z;

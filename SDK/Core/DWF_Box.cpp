@@ -71,8 +71,8 @@ DWF_Box::IEAxis DWF_Box::GetLongestAxis() const
     else
     if (y >= x && y >= z)
         return IEAxis::IE_A_Y;
-    else
-        return IEAxis::IE_A_Z;
+
+    return IEAxis::IE_A_Z;
 }
 //---------------------------------------------------------------------------
 DWF_PlaneF DWF_Box::GetSplittingPlane(IEAxis axis) const
@@ -178,193 +178,90 @@ bool DWF_Box::Intersect(const DWF_Box& other) const
              m_Min.m_Z > other.m_Max.m_Z || m_Max.m_Z < other.m_Min.m_Z);
 }
 //---------------------------------------------------------------------------
-void DWF_Box::GetMesh(float                                 width,
-                      float                                 height,
-                      float                                 depth,
-                      bool                                  repeatTexOnEachFace,
-                const DWF_VertexBuffer::IFormat&            format,
-                const DWF_VertexBuffer::ICulling&           culling,
-                const DWF_Material&                         material,
-                      DWF_Mesh&                             mesh,
-                const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor)
+bool DWF_Box::Intersect(const DWF_RayF& ray) const
 {
-    // calculate half values
-    const float halfX = width  / 2.0f;
-    const float halfY = height / 2.0f;
-    const float halfZ = depth  / 2.0f;
+    const DWF_Vector3F rayPos    = ray.GetPos();
+    const DWF_Vector3F rayInvDir = ray.GetInvDir();
 
-    // iterate through each edges
-    for (std::size_t i = 0; i < 6; ++i)
-    {
-        // create a vertex buffer for each box edges
-        std::unique_ptr<DWF_VertexBuffer> pVB(new DWF_VertexBuffer());
+    float tX1 = 0.0f;
 
-        // apply the user wished vertex format, culling and material
-        pVB->m_Format   = format;
-        pVB->m_Culling  = culling;
-        pVB->m_Material = material;
-
-        // set the vertex format type
-        pVB->m_Format.m_Type = DWF_VertexBuffer::IFormat::IEType::IE_VT_TriangleStrip;
-
-        // calculate the stride
-        pVB->m_Format.CalculateStride();
-
-        mesh.m_VBs.push_back(pVB.get());
-        pVB.release();
-    }
-
-    DWF_Vector3F vertices[8];
-
-    // iterate through vertices to create. Vertices are generated as follow:
-    //     v2 *--------* v6
-    //      / |      / |
-    // v4 *--------* v8|
-    //    |   |    |   |
-    //    |v1 *----|---* v5
-    //    | /      | /
-    // v3 *--------* v7
-    for (std::size_t i = 0; i < 8; ++i)
-    {
-        // generate the 4 first vertices on the left, and 4 last on the right
-        if (!(i / 4))
-            vertices[i].m_X = -halfX;
-        else
-            vertices[i].m_X =  halfX;
-
-        // generate 2 vertices on the front, then 2 vertices on the back
-        if (!((i / 2) % 2))
-            vertices[i].m_Z = -halfZ;
-        else
-            vertices[i].m_Z =  halfZ;
-
-        // for each vertices, generates one on the top, and one on the bottom
-        if (!(i % 2))
-            vertices[i].m_Y = -halfY;
-        else
-            vertices[i].m_Y =  halfY;
-    }
-
-    DWF_Vector3F normals[6];
-
-    // calculate normals
-    normals[0].m_X = -1.0; normals[0].m_Y =  0.0; normals[0].m_Z =  0.0;
-    normals[1].m_X =  1.0; normals[1].m_Y =  0.0; normals[1].m_Z =  0.0;
-    normals[2].m_X =  0.0; normals[2].m_Y = -1.0; normals[2].m_Z =  0.0;
-    normals[3].m_X =  0.0; normals[3].m_Y =  1.0; normals[3].m_Z =  0.0;
-    normals[4].m_X =  0.0; normals[4].m_Y =  0.0; normals[4].m_Z = -1.0;
-    normals[5].m_X =  0.0; normals[5].m_Y =  0.0; normals[5].m_Z =  1.0;
-
-    DWF_Vector2F texCoords[24];
-
-    // do repeat texture on each faces?
-    if (repeatTexOnEachFace)
-    {
-        // calculate texture positions
-        texCoords[0].m_X  = 0.0; texCoords[0].m_Y  = 0.0;
-        texCoords[1].m_X  = 0.0; texCoords[1].m_Y  = 1.0;
-        texCoords[2].m_X  = 1.0; texCoords[2].m_Y  = 0.0;
-        texCoords[3].m_X  = 1.0; texCoords[3].m_Y  = 1.0;
-        texCoords[4].m_X  = 0.0; texCoords[4].m_Y  = 0.0;
-        texCoords[5].m_X  = 0.0; texCoords[5].m_Y  = 1.0;
-        texCoords[6].m_X  = 1.0; texCoords[6].m_Y  = 0.0;
-        texCoords[7].m_X  = 1.0; texCoords[7].m_Y  = 1.0;
-        texCoords[8].m_X  = 0.0; texCoords[8].m_Y  = 0.0;
-        texCoords[9].m_X  = 0.0; texCoords[9].m_Y  = 1.0;
-        texCoords[10].m_X = 1.0; texCoords[10].m_Y = 0.0;
-        texCoords[11].m_X = 1.0; texCoords[11].m_Y = 1.0;
-        texCoords[12].m_X = 0.0; texCoords[12].m_Y = 0.0;
-        texCoords[13].m_X = 0.0; texCoords[13].m_Y = 1.0;
-        texCoords[14].m_X = 1.0; texCoords[14].m_Y = 0.0;
-        texCoords[15].m_X = 1.0; texCoords[15].m_Y = 1.0;
-        texCoords[16].m_X = 0.0; texCoords[16].m_Y = 0.0;
-        texCoords[17].m_X = 0.0; texCoords[17].m_Y = 1.0;
-        texCoords[18].m_X = 1.0; texCoords[18].m_Y = 0.0;
-        texCoords[19].m_X = 1.0; texCoords[19].m_Y = 1.0;
-        texCoords[20].m_X = 0.0; texCoords[20].m_Y = 0.0;
-        texCoords[21].m_X = 0.0; texCoords[21].m_Y = 1.0;
-        texCoords[22].m_X = 1.0; texCoords[22].m_Y = 0.0;
-        texCoords[23].m_X = 1.0; texCoords[23].m_Y = 1.0;
-    }
+    // calculate nearest point where ray intersects box on x coordinate
+    if (rayInvDir.m_X != std::numeric_limits<float>::infinity())
+        tX1 = ((m_Min.m_X - rayPos.m_X) * rayInvDir.m_X);
     else
-    {
-        // calculate texture offset
-        const float texOffset = 1.0f / 3.0f;
+    if ((m_Min.m_X - rayPos.m_X) < 0.0f)
+        tX1 = -std::numeric_limits<float>::infinity();
+    else
+        tX1 = std::numeric_limits<float>::infinity();
 
-        // calculate texture positions. They are distributed as follow:
-        // -------------------
-        // |     |     |     |
-        // |  1  |  2  |  3  |
-        // |     |     |     |
-        // |-----------------|
-        // |     |     |     |
-        // |  4  |  5  |  6  |
-        // |     |     |     |
-        // -------------------
-        // |  This texture   |
-        // |  area is not    |
-        // |  used           |
-        // -------------------
-        texCoords[0].m_X  = 0.0f;             texCoords[0].m_Y  = texOffset;
-        texCoords[1].m_X  = 0.0f;             texCoords[1].m_Y  = 0.0f;
-        texCoords[2].m_X  = texOffset;        texCoords[2].m_Y  = texOffset;
-        texCoords[3].m_X  = texOffset;        texCoords[3].m_Y  = 0.0f;
-        texCoords[4].m_X  = texOffset;        texCoords[4].m_Y  = texOffset;
-        texCoords[5].m_X  = texOffset;        texCoords[5].m_Y  = 0.0f;
-        texCoords[6].m_X  = texOffset * 2.0f; texCoords[6].m_Y  = texOffset;
-        texCoords[7].m_X  = texOffset * 2.0f; texCoords[7].m_Y  = 0.0f;
-        texCoords[8].m_X  = texOffset * 2.0f; texCoords[8].m_Y  = texOffset;
-        texCoords[9].m_X  = texOffset * 2.0f; texCoords[9].m_Y  = 0.0f;
-        texCoords[10].m_X = 1.0f;             texCoords[10].m_Y = texOffset;
-        texCoords[11].m_X = 1.0f;             texCoords[11].m_Y = 0.0f;
-        texCoords[12].m_X = 0.0f;             texCoords[12].m_Y = texOffset * 2.0f;
-        texCoords[13].m_X = 0.0f;             texCoords[13].m_Y = texOffset;
-        texCoords[14].m_X = texOffset;        texCoords[14].m_Y = texOffset * 2.0f;
-        texCoords[15].m_X = texOffset;        texCoords[15].m_Y = texOffset;
-        texCoords[16].m_X = texOffset;        texCoords[16].m_Y = texOffset * 2.0f;
-        texCoords[17].m_X = texOffset;        texCoords[17].m_Y = texOffset;
-        texCoords[18].m_X = texOffset * 2.0f; texCoords[18].m_Y = texOffset * 2.0f;
-        texCoords[19].m_X = texOffset * 2.0f; texCoords[19].m_Y = texOffset;
-        texCoords[20].m_X = texOffset * 2.0f; texCoords[20].m_Y = texOffset * 2.0f;
-        texCoords[21].m_X = texOffset * 2.0f; texCoords[21].m_Y = texOffset;
-        texCoords[22].m_X = 1.0f;             texCoords[22].m_Y = texOffset * 2.0f;
-        texCoords[23].m_X = 1.0f;             texCoords[23].m_Y = texOffset;
-    }
+    float tX2 = 0.0f;
 
-    // create box edge 1
-    mesh.m_VBs[0]->Add(&vertices[1], &normals[0], &texCoords[4],  0, fOnGetVertexColor);
-    mesh.m_VBs[0]->Add(&vertices[0], &normals[0], &texCoords[5],  1, fOnGetVertexColor);
-    mesh.m_VBs[0]->Add(&vertices[3], &normals[0], &texCoords[6],  2, fOnGetVertexColor);
-    mesh.m_VBs[0]->Add(&vertices[2], &normals[0], &texCoords[7],  3, fOnGetVertexColor);
+    // calculate farthest point where ray intersects box on x coordinate
+    if (rayInvDir.m_X != std::numeric_limits<float>::infinity())
+        tX2 = ((m_Max.m_X - rayPos.m_X) * rayInvDir.m_X);
+    else
+    if ((m_Max.m_X - rayPos.m_X) < 0.0f)
+        tX2 = -std::numeric_limits<float>::infinity();
+    else
+        tX2 = std::numeric_limits<float>::infinity();
 
-    // create box edge 2
-    mesh.m_VBs[1]->Add(&vertices[3], &normals[5], &texCoords[8],  0, fOnGetVertexColor);
-    mesh.m_VBs[1]->Add(&vertices[2], &normals[5], &texCoords[9],  1, fOnGetVertexColor);
-    mesh.m_VBs[1]->Add(&vertices[7], &normals[5], &texCoords[10], 2, fOnGetVertexColor);
-    mesh.m_VBs[1]->Add(&vertices[6], &normals[5], &texCoords[11], 3, fOnGetVertexColor);
+    float tY1 = 0.0f;
 
-    // create box edge 3
-    mesh.m_VBs[2]->Add(&vertices[7], &normals[1], &texCoords[12], 0, fOnGetVertexColor);
-    mesh.m_VBs[2]->Add(&vertices[6], &normals[1], &texCoords[13], 1, fOnGetVertexColor);
-    mesh.m_VBs[2]->Add(&vertices[5], &normals[1], &texCoords[14], 2, fOnGetVertexColor);
-    mesh.m_VBs[2]->Add(&vertices[4], &normals[1], &texCoords[15], 3, fOnGetVertexColor);
+    // calculate nearest point where ray intersects box on y coordinate
+    if (rayInvDir.m_Y != std::numeric_limits<float>::infinity())
+        tY1 = ((m_Min.m_Y - rayPos.m_Y) * rayInvDir.m_Y);
+    else
+    if ((m_Min.m_Y - rayPos.m_Y) < 0.0f)
+        tY1 = -std::numeric_limits<float>::infinity();
+    else
+        tY1 = std::numeric_limits<float>::infinity();
 
-    // create box edge 4
-    mesh.m_VBs[3]->Add(&vertices[5], &normals[4], &texCoords[16], 0, fOnGetVertexColor);
-    mesh.m_VBs[3]->Add(&vertices[4], &normals[4], &texCoords[17], 1, fOnGetVertexColor);
-    mesh.m_VBs[3]->Add(&vertices[1], &normals[4], &texCoords[18], 2, fOnGetVertexColor);
-    mesh.m_VBs[3]->Add(&vertices[0], &normals[4], &texCoords[19], 3, fOnGetVertexColor);
+    float tY2 = 0.0f;
 
-    // create box edge 5
-    mesh.m_VBs[4]->Add(&vertices[1], &normals[3], &texCoords[0], 0, fOnGetVertexColor);
-    mesh.m_VBs[4]->Add(&vertices[3], &normals[3], &texCoords[1], 1, fOnGetVertexColor);
-    mesh.m_VBs[4]->Add(&vertices[5], &normals[3], &texCoords[2], 2, fOnGetVertexColor);
-    mesh.m_VBs[4]->Add(&vertices[7], &normals[3], &texCoords[3], 3, fOnGetVertexColor);
+    // calculate farthest point where ray intersects box on y coordinate
+    if (rayInvDir.m_Y != std::numeric_limits<float>::infinity())
+        tY2 = ((m_Max.m_Y - rayPos.m_Y) * rayInvDir.m_Y);
+    else
+    if ((m_Max.m_Y - rayPos.m_Y) < 0.0f)
+        tY2 = -std::numeric_limits<float>::infinity();
+    else
+        tY2 = std::numeric_limits<float>::infinity();
 
-    // create box edge 6
-    mesh.m_VBs[5]->Add(&vertices[2], &normals[2], &texCoords[20], 0, fOnGetVertexColor);
-    mesh.m_VBs[5]->Add(&vertices[0], &normals[2], &texCoords[21], 1, fOnGetVertexColor);
-    mesh.m_VBs[5]->Add(&vertices[6], &normals[2], &texCoords[22], 2, fOnGetVertexColor);
-    mesh.m_VBs[5]->Add(&vertices[4], &normals[2], &texCoords[23], 3, fOnGetVertexColor);
+    float tZ1 = 0.0f;
+
+    // calculate nearest point where ray intersects box on z coordinate
+    if (rayInvDir.m_Z != std::numeric_limits<float>::infinity())
+        tZ1 = ((m_Min.m_Z - rayPos.m_Z) * rayInvDir.m_Z);
+    else
+    if ((m_Min.m_Z - rayPos.m_Z) < 0.0f)
+        tZ1 = -std::numeric_limits<float>::infinity();
+    else
+        tZ1 = std::numeric_limits<float>::infinity();
+
+    float tZ2 = 0.0f;
+
+    // calculate farthest point where ray intersects box on z coordinate
+    if (rayInvDir.m_Z != std::numeric_limits<float>::infinity())
+        tZ2 = ((m_Max.m_Z - rayPos.m_Z) * rayInvDir.m_Z);
+    else
+    if ((m_Max.m_Z - rayPos.m_Z) < 0.0f)
+        tZ2 = -std::numeric_limits<float>::infinity();
+    else
+        tZ2 = std::numeric_limits<float>::infinity();
+
+    // calculate near/far intersection on each axis
+    const float tXn = std::min(tX1, tX2);
+    const float tXf = std::max(tX1, tX2);
+    const float tYn = std::min(tY1, tY2);
+    const float tYf = std::max(tY1, tY2);
+    const float tZn = std::min(tZ1, tZ2);
+    const float tZf = std::max(tZ1, tZ2);
+
+    // calculate final near/far intersection point
+    const float tNear = std::max(tXn, std::max(tYn, tZn));
+    const float tFar  = std::min(tXf, std::min(tYf, tZf));
+
+    // check if ray intersects box
+    return (tFar >= tNear);
 }
 //---------------------------------------------------------------------------

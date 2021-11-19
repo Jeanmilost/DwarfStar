@@ -33,8 +33,7 @@
 // DWF_FileBuffer
 //---------------------------------------------------------------------------
 DWF_FileBuffer::DWF_FileBuffer() :
-    DWF_Buffer(),
-    m_Mode(IEMode::IE_M_Unknown)
+    DWF_Buffer()
 {}
 //---------------------------------------------------------------------------
 DWF_FileBuffer::~DWF_FileBuffer()

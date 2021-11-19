@@ -128,12 +128,33 @@ class DWF_Polygon : public DWF_Object
         virtual bool Intersect(const DWF_Polygon& other, T tolerance = M_Epsilon) const;
 
         /**
+        * Check if box intersects with a ray
+        *@param ray - ray
+        *@param intersectionPoint - the intersection point, if polygon intersects ray
+        *@return true if polygon intersects ray, otherwise false
+        */
+        virtual bool Intersect(const DWF_Ray<T>& ray, DWF_Vector3<T>& intersectionPoint) const;
+
+        /**
         * Applies the given matrix to the polygon
         *@param matrix - matrix to apply
         *@return transformed polygon
         *@note The returned polygon should be deleted when useless
         */
         virtual DWF_Polygon* ApplyMatrix(const DWF_Matrix4x4<T>& matrix) const;
+
+        /**
+        * Checks if a vector is between start and end limits
+        *@param value - value to check
+        *@param start - start limit
+        *@param end - end limit
+        *@param tolerance - tolerance
+        *@return true if value is between limits, otherwise false
+        */
+        virtual bool IsBetween(const DWF_Vector3<T>& value,
+                               const DWF_Vector3<T>& start,
+                               const DWF_Vector3<T>& end,
+                                     T               tolerance) const;
 };
 
 typedef DWF_Polygon<float>  DWF_PolygonF;
@@ -241,9 +262,9 @@ bool DWF_Polygon<T>::Inside(const DWF_Vector3<T>& point) const
 
     // calculate the angles using the dot product of each vectors. Limit range
     // to values between -1.0f and 1.0f
-    const T a1 = std::max(std::min(nPToV1.Dot(nPToV2), T(1.0)), T(-1.0));
-    const T a2 = std::max(std::min(nPToV2.Dot(nPToV3), T(1.0)), T(-1.0));
-    const T a3 = std::max(std::min(nPToV3.Dot(nPToV1), T(1.0)), T(-1.0));
+    const float a1 = DWF_MathHelper::Clamp(nPToV1.Dot(nPToV2), -1.0f, 1.0f);
+    const float a2 = DWF_MathHelper::Clamp(nPToV2.Dot(nPToV3), -1.0f, 1.0f);
+    const float a3 = DWF_MathHelper::Clamp(nPToV3.Dot(nPToV1), -1.0f, 1.0f);
 
     // calculate the sum of all angles
     const T angleResult = std::acos(a1) + std::acos(a2) + std::acos(a3);
@@ -422,10 +443,22 @@ bool DWF_Polygon<T>::Intersect(const DWF_Polygon& other, T tolerance) const
 
     // first and second polygon intersection points are on the same line, so
     // check if calculated first and second polygon segments intersect
-    return (DWF_MathHelper::IsBetween(p1pts[0], p2pts[0], p2pts[1], tolerance) ||
-            DWF_MathHelper::IsBetween(p1pts[1], p2pts[0], p2pts[1], tolerance) ||
-            DWF_MathHelper::IsBetween(p2pts[0], p1pts[0], p1pts[1], tolerance) ||
-            DWF_MathHelper::IsBetween(p2pts[1], p1pts[0], p1pts[1], tolerance));
+    return (IsBetween(p1pts[0], p2pts[0], p2pts[1], tolerance) ||
+            IsBetween(p1pts[1], p2pts[0], p2pts[1], tolerance) ||
+            IsBetween(p2pts[0], p1pts[0], p1pts[1], tolerance) ||
+            IsBetween(p2pts[1], p1pts[0], p1pts[1], tolerance));
+}
+//---------------------------------------------------------------------------
+template <class T>
+bool DWF_Polygon<T>::Intersect(const DWF_Ray<T>& ray, DWF_Vector3<T>& intersectionPoint) const
+{
+    // create a plane using the 3 vertices of the polygon
+    DWF_Plane<T> polygonPlane = DWF_Plane<T>::FromPoints(m_Vertex[0], m_Vertex[1], m_Vertex[2]);
+
+    if (!polygonPlane.Intersect(ray, intersectionPoint))
+        return false;
+
+    return Inside(intersectionPoint);
 }
 //---------------------------------------------------------------------------
 template <class T>
@@ -436,5 +469,17 @@ DWF_Polygon<T>* DWF_Polygon<T>::ApplyMatrix(const DWF_Matrix4x4<T>& matrix) cons
     return new DWF_Polygon(matrix.Transform(m_Vertex[0]),
                            matrix.Transform(m_Vertex[1]),
                            matrix.Transform(m_Vertex[2]));
+}
+//---------------------------------------------------------------------------
+template <class T>
+bool DWF_Polygon<T>::IsBetween(const DWF_Vector3<T>& value,
+                               const DWF_Vector3<T>& start,
+                               const DWF_Vector3<T>& end,
+                                     T               tolerance) const
+{
+    // check if each vector component is between start and end limits
+    return (DWF_MathHelper::IsBetween(value.m_X, start.m_X, end.m_X, tolerance) &&
+            DWF_MathHelper::IsBetween(value.m_Y, start.m_Y, end.m_Y, tolerance) &&
+            DWF_MathHelper::IsBetween(value.m_Z, start.m_Z, end.m_Z, tolerance));
 }
 //---------------------------------------------------------------------------

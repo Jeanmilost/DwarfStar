@@ -43,9 +43,9 @@ template <class T>
 class DWF_Vector3 : public DWF_Object
 {
     public:
-        T m_X; // vector x coordinate
-        T m_Y; // vector y coordinate
-        T m_Z; // vector z coordinate
+        T m_X = T(0.0); // vector x coordinate
+        T m_Y = T(0.0); // vector y coordinate
+        T m_Z = T(0.0); // vector z coordinate
 
         inline DWF_Vector3();
 
@@ -191,10 +191,7 @@ typedef DWF_Vector3<double> DWF_Vector3D;
 //---------------------------------------------------------------------------
 template <class T>
 DWF_Vector3<T>::DWF_Vector3() :
-    DWF_Object(),
-    m_X(T(0.0)),
-    m_Y(T(0.0)),
-    m_Z(T(0.0))
+    DWF_Object()
 {}
 //---------------------------------------------------------------------------
 template <class T>

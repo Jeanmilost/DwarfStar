@@ -234,7 +234,7 @@ bool DWF_Texture::GetPixelsFromBitmap(DWF_Buffer&  buffer,
 
         // read bitmap data
         buffer.Seek(0, dataOffset);
-        buffer.Read(&pBitmapData, bitmapSize);
+        buffer.Read(pBitmapData, bitmapSize);
 
         // search for bitmap format
         switch (format)
@@ -250,7 +250,8 @@ bool DWF_Texture::GetPixelsFromBitmap(DWF_Buffer&  buffer,
                     for (std::uint32_t x = 0; x < width; ++x)
                         for (std::uint8_t c = 0; c < 3; ++c)
                             pPixelArray[3 * (width * y + x) + c] =
-                                    pBitmapData[((std::size_t)bytesPerRow * (((std::size_t)height - 1) - (std::size_t)y)) + (3 * (std::size_t)x) + (2 - (std::size_t)c)];
+                                    pBitmapData[((std::size_t)bytesPerRow * (((std::size_t)height - 1) - (std::size_t)y)) +
+                                                                       (3 *   (std::size_t)x)     + (2 - (std::size_t)c)];
 
                 pPixels = pPixelArray;
                 break;

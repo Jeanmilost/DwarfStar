@@ -31,6 +31,7 @@
 
 // dwarfstar
 #include "DWF_Collider.h"
+#include "DWF_Box.h"
 
 /**
 * Box collider
@@ -39,7 +40,7 @@
 class DWF_Collider_Box : public DWF_Collider
 {
     public:
-        IBox m_Box;
+        DWF_Box m_Box;
 
         DWF_Collider_Box();
         virtual ~DWF_Collider_Box();

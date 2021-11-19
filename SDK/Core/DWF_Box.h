@@ -133,24 +133,9 @@ class DWF_Box : public DWF_Object
         virtual bool Intersect(const DWF_Box& other) const;
 
         /**
-        * Gets the box mesh
-        *@param width - box width (on the x axis)
-        *@param height - box height (on the y axis)
-        *@param depth - box depth (on the z axis)
-        *@param repeatTexOnEachFace - if true the texture will be repeated on each face
-        *@param format - the mesh format to use
-        *@param culling - the mesh culling to use
-        *@param material - the mesh material to use
-        *@param[out] mesh - the mesh to fill with box
-        *@param fOnGetVertexColor - get vertex color callback function to use, nullptr if not used
+        * Check if box intersects with a ray
+        *@param ray - ray
+        *@return true if box intersects ray, otherwise false
         */
-        static void GetMesh(float                                 width,
-                            float                                 height,
-                            float                                 depth,
-                            bool                                  repeatTexOnEachFace,
-                      const DWF_VertexBuffer::IFormat&            format,
-                      const DWF_VertexBuffer::ICulling&           culling,
-                      const DWF_Material&                         material,
-                            DWF_Mesh&                             mesh,
-                      const DWF_VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
+        virtual bool Intersect(const DWF_RayF& ray) const;
 };

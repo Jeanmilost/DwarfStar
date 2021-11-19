@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e39bd813-e0b5-4fbf-a85d-c86f0d6b4e39}</ProjectGuid>
-    <RootNamespace>CollisionsTest</RootNamespace>
+    <ProjectGuid>{1a50ec09-4926-46b8-96b0-57f512efdcc0}</ProjectGuid>
+    <RootNamespace>Landscape</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,23 +72,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -100,7 +100,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,7 +117,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,7 +147,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -155,11 +155,17 @@
     <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_MathHelper.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h" />
+    <ClInclude Include="..\..\SDK\Base\DWF_PixelBuffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_StdFileBuffer.h" />
     <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_AABBTree.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Box.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Camera.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Capsule.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Collider.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Box.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Collider_Capsule.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Collider_Sphere.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Color.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Entity.h" />
@@ -172,9 +178,12 @@
     <ClInclude Include="..\..\SDK\Core\DWF_Model.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Object.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Plane.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Polygon.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Ray.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Renderer.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Shader.h" />
+    <ClInclude Include="..\..\SDK\Core\DWF_Sphere.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Texture.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h" />
     <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h" />
@@ -182,18 +191,27 @@
     <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="Landscape.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_MathHelper.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Base\DWF_PixelBuffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_StdFileBuffer.cpp" />
     <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_AABBTree.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Box.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Camera.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Capsule.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Collider.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Box.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Collider_Capsule.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Collider_Sphere.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Entity.cpp" />
@@ -206,9 +224,12 @@
     <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Plane.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Polygon.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Ray.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Renderer.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Shader.cpp" />
+    <ClCompile Include="..\..\SDK\Core\DWF_Sphere.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp" />
     <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp" />
@@ -216,13 +237,14 @@
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp" />
-    <ClCompile Include="CollisionsTest.cpp" />
+    <ClCompile Include="Landscape.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CollisionsTest.rc" />
+    <ResourceCompile Include="Landscape.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />
+    <Image Include="Landscape.ico" />
+    <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

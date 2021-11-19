@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_FileBuffer ------------------------------------------------------*
+ * ==> DWF_PixelBuffer -----------------------------------------------------*
  ****************************************************************************
- * Description:  Generic file buffer                                        *
+ * Description:  Pixel buffer                                               *
  * Contained in: Base                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -32,51 +32,65 @@
 // std
 #include <string>
 
-// dwarfstar
+// dwarfstar engine
 #include "DWF_Buffer.h"
 
 /**
-* Generic file buffer
+* Pixel buffer
 *@author Jean-Milost Reymond
 */
-class DWF_FileBuffer : public DWF_Buffer
+class DWF_PixelBuffer
 {
     public:
         /**
-        * Constructor
+        * Image type
         */
-        DWF_FileBuffer();
-
-        /**
-        * Destructor
-        */
-        virtual ~DWF_FileBuffer();
-
-        /**
-        * Buffer read/write mode
-        */
-        enum class IEMode
+        enum class IEImageType
         {
-            IE_M_Unknown = 0,
-            IE_M_Read,
-            IE_M_Write,
-            IE_M_RW,
+            IE_IT_Raw,
+            IE_IT_Bitmap
         };
 
         /**
-        * Opens file in specified mode
-        *@param fileName - file name
-        *@param mode - opening mode
-        *@return true on success, otherwise false
+        * Pixel type
         */
-        virtual bool Open(const std::string&  fileName, IEMode mode);
-        virtual bool Open(const std::wstring& fileName, IEMode mode);
+        enum class IEPixelType
+        {
+            IE_PT_RGB,
+            IE_PT_BGR,
+            IE_PT_RGBA,
+            IE_PT_BGRA,
+            IE_PT_ARGB,
+            IE_PT_ABGR
+        };
 
-    protected:
-        IEMode m_Mode = IEMode::IE_M_Unknown;
+        IEImageType   m_ImageType    = DWF_PixelBuffer::IEImageType::IE_IT_Raw;
+        IEPixelType   m_PixelType    = DWF_PixelBuffer::IEPixelType::IE_PT_RGBA;
+        std::uint32_t m_Width        = 0;
+        std::uint32_t m_Height       = 0;
+        std::uint32_t m_Stride       = 0;
+        std::uint32_t m_BytePerPixel = 0;
+        std::size_t   m_DataLength   = 0;
+        void*         m_pData        = nullptr;
+
+        DWF_PixelBuffer();
+        virtual ~DWF_PixelBuffer();
 
         /**
-        * Closes file
+        * Read pixel buffer from a bitmap file
+        *@param fileName - bitmap file name to read from
         */
-        virtual void Close() = 0;
+        virtual bool FromBitmap(const std::string& fileName);
+
+        /**
+        * Read pixel buffer from a bitmap file
+        *@param fileName - bitmap file name to read from
+        */
+        virtual bool FromBitmap(const std::wstring& fileName);
+
+        /**
+        * Read pixel buffer from a bitmap buffer
+        *@param buffer - buffer containing bitmap to read
+        */
+        virtual bool FromBitmap(DWF_Buffer& buffer);
 };

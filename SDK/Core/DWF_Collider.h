@@ -32,7 +32,6 @@
 // dwarfstar
 #include "DWF_Object.h"
 #include "DWF_Vector3.h"
-#include "DWF_Capsule.h"
 
 /**
 * Generic collider object
@@ -41,24 +40,6 @@
 class DWF_Collider : public DWF_Object
 {
     public:
-        /**
-        * Geometrical box
-        */
-        struct IBox
-        {
-            DWF_Vector3F m_Min;
-            DWF_Vector3F m_Max;
-        };
-
-        /**
-        * Geometrical sphere
-        */
-        struct ISphere
-        {
-            DWF_Vector3F m_Center;
-            float        m_Radius = 0.0f;
-        };
-
         DWF_Collider();
         virtual ~DWF_Collider();
 

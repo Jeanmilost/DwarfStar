@@ -117,7 +117,7 @@ class DWF_StdFileBuffer : public DWF_FileBuffer
         virtual std::string ToStr();
 
     protected:
-        std::FILE* m_FileBuffer;
+        std::FILE* m_FileBuffer = nullptr;
 
         /**
         * Closes file

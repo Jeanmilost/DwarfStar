@@ -352,8 +352,8 @@ DWF_Matrix4x4<T> DWF_Renderer::GetPerspective(T    fov,
     // do use orthogonal perspective?
     if (ortho)
         return GetOrtho(-maxX, maxX, -maxY, maxY, zNear, zFar);
-    else
-        return GetFrustum(-maxX, maxX, -maxY, maxY, zNear, zFar);
+
+    return GetFrustum(-maxX, maxX, -maxY, maxY, zNear, zFar);
 }
 //---------------------------------------------------------------------------
 template <class T>
@@ -396,17 +396,17 @@ void DWF_Renderer::Unproject(const DWF_Matrix4x4<T>& projectionMatrix,
                                    DWF_Vector3<T>&   rayPos,
                                    DWF_Vector3<T>&   rayDir)
 {
-    float determinant = 0.0f;
+    T determinant = T(0.0);
 
     // unproject the ray to make it in the viewport coordinates
     const DWF_Matrix4x4<T> invertProj = const_cast<DWF_Matrix4x4<T>&>(projectionMatrix).Inverse(determinant);
-    rayPos                            = invertProj.Transform(rayPos);
-    rayDir                            = invertProj.Transform(rayDir);
-    rayDir                            = rayDir.Normalize();
+                           rayPos     = invertProj.Transform(rayPos);
+                           rayDir     = invertProj.Transform(rayDir);
+                           rayDir     = rayDir.Normalize();
 
     const DWF_Matrix4x4<T> invertView = const_cast<DWF_Matrix4x4<T>&>(viewMatrix).Inverse(determinant);
-    rayPos                            = invertView.Transform(rayPos);
-    rayDir                            = invertView.TransformNormal(rayDir);
-    rayDir                            = rayDir.Normalize();
+                           rayPos     = invertView.Transform(rayPos);
+                           rayDir     = invertView.TransformNormal(rayDir);
+                           rayDir     = rayDir.Normalize();
 }
 //---------------------------------------------------------------------------

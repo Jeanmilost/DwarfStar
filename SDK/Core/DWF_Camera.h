@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_Sphere ----------------------------------------------------------*
+ * ==> DWF_Camera ----------------------------------------------------------*
  ****************************************************************************
- * Description : Geometric sphere                                           *
+ * Description:  Camera system                                              *
  * Contained in: Core                                                       *
  * Developer:    Jean-Milost Reymond                                        *
  ****************************************************************************
@@ -27,53 +27,46 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_Sphere.h"
+#pragma once
 
-// std
-#include <memory>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <cmath>
+// dwarfstar
+#include "DWF_Object.h"
+#include "DWF_Vector3.h"
+#include "DWF_Matrix4x4.h"
 
-//---------------------------------------------------------------------------
-// DWF_Sphere
-//---------------------------------------------------------------------------
-DWF_Sphere::DWF_Sphere() :
-    DWF_Object()
-{}
-//---------------------------------------------------------------------------
-DWF_Sphere::DWF_Sphere(const DWF_Vector3F& center, float radius) :
-    DWF_Object(),
-    m_Center(center),
-    m_Radius(radius)
-{}
-//---------------------------------------------------------------------------
-DWF_Sphere::~DWF_Sphere()
-{}
-//---------------------------------------------------------------------------
-bool DWF_Sphere::Inside(float x, float y, float z) const
+/**
+* Camera system
+*@author Jean-Milost Reymond
+*/
+class DWF_Camera : public DWF_Object
 {
-    return Inside(DWF_Vector3F(x, y, z));
-}
-//---------------------------------------------------------------------------
-bool DWF_Sphere::Inside(const DWF_Vector3F& point) const
-{
-    // calculate the distance between test point and the center of the sphere
-    const DWF_Vector3F length   = point - m_Center;
-    const float        distance = length.Length();
+    public:
+        /**
+        * Matrix combination type
+        */
+        enum class IEMatCombType
+        {
+            IE_CT_Scale_Rotate_Translate,
+            IE_CT_Scale_Translate_Rotate,
+            IE_CT_Rotate_Translate_Scale,
+            IE_CT_Rotate_Scale_Translate,
+            IE_CT_Translate_Rotate_Scale,
+            IE_CT_Translate_Scale_Rotate
+        };
 
-    // check if distance is shorter than the sphere radius and return result
-    return (distance <= m_Radius);
-}
-//---------------------------------------------------------------------------
-bool DWF_Sphere::Intersect(const DWF_Sphere& other) const
-{
-    const DWF_Vector3F dist(std::fabs(m_Center.m_X - other.m_Center.m_X),
-                            std::fabs(m_Center.m_Y - other.m_Center.m_Y),
-                            std::fabs(m_Center.m_Z - other.m_Center.m_Z));
+        IEMatCombType m_MatCombType = DWF_Camera::IEMatCombType::IE_CT_Scale_Rotate_Translate;
+        float         m_xAngle      = 0.0f;
+        float         m_yAngle      = 0.0f;
+        float         m_zAngle      = 0.0f;
+        DWF_Vector3F  m_Factor      = DWF_Vector3F(1.0f, 1.0f, 1.0f);
+        DWF_Vector3F  m_Position;
 
-    const float length = dist.Length();
+        DWF_Camera();
+        virtual ~DWF_Camera();
 
-    return (length <= (m_Radius + other.m_Radius));
-}
-//---------------------------------------------------------------------------
+        /**
+        * Gets the camera matrix
+        * @return the camera matrix
+        */
+        virtual DWF_Matrix4x4F GetMatrix() const;
+};
