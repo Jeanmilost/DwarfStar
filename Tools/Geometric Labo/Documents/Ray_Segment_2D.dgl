@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<ray>
+			<pos x="520" y="248"/>
+			<dir x="-0.98163" y="0.19081"/>
+		</ray>
+		<segment>
+			<start x="349.293" y="281.707"/>
+			<end x="208.505" y="309.073"/>
+		</segment>
+	</shapes>
+</document>

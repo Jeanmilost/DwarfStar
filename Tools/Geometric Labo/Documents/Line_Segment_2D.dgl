@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<line>
+			<point x="249" y="223"/>
+			<dir x="0.0871558" y="-0.996199"/>
+		</line>
+		<segment>
+			<start x="128" y="232"/>
+			<end x="263.944" y="270.981"/>
+		</segment>
+	</shapes>
+</document>

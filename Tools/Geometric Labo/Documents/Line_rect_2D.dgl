@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<rect>
+			<left>78</left>
+			<top>250</top>
+			<right>378</right>
+			<bottom>370</bottom>
+		</rect>
+		<rect>
+			<left>515</left>
+			<top>208</top>
+			<right>551</right>
+			<bottom>238</bottom>
+		</rect>
+		<rect>
+			<left>375</left>
+			<top>5</top>
+			<right>425</right>
+			<bottom>187</bottom>
+		</rect>
+		<line>
+			<point x="447" y="251"/>
+			<dir x="-0.920506" y="-0.390732"/>
+		</line>
+	</shapes>
+</document>

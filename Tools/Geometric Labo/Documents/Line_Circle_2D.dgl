@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<line>
+			<point x="401" y="157"/>
+			<dir x="0.984808" y="-0.173648"/>
+		</line>
+		<circle>
+			<center x="586" y="242"/>
+			<radius>105</radius>
+		</circle>
+		<circle>
+			<center x="400" y="316"/>
+			<radius>33</radius>
+		</circle>
+		<circle>
+			<center x="195" y="139"/>
+			<radius>69</radius>
+		</circle>
+	</shapes>
+</document>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<line>
+			<point x="314" y="219"/>
+			<dir x="0.777149" y="-0.629322"/>
+		</line>
+		<line>
+			<point x="559" y="159"/>
+			<dir x="0.88295" y="0.469472"/>
+		</line>
+		<line>
+			<point x="506" y="278"/>
+			<dir x="0.997565" y="-0.0697566"/>
+		</line>
+	</shapes>
+</document>

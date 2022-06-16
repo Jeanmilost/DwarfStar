@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="2d">
+	<shapes>
+		<ray>
+			<pos x="185" y="217"/>
+			<dir x="0.891013" y="0.453993"/>
+		</ray>
+		<ray>
+			<pos x="500" y="378"/>
+			<dir x="0.559202" y="-0.82905"/>
+		</ray>
+	</shapes>
+</document>
