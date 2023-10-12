@@ -61,9 +61,9 @@ DWF_Vector3F DWF_Box::GetCenter() const
 DWF_Box::IEAxis DWF_Box::GetLongestAxis() const
 {
     // calculate each edge length
-    const float x = std::fabs(m_Max.m_X - m_Min.m_X);
-    const float y = std::fabs(m_Max.m_Y - m_Min.m_Y);
-    const float z = std::fabs(m_Max.m_Z - m_Min.m_Z);
+    const float x = std::fabsf(m_Max.m_X - m_Min.m_X);
+    const float y = std::fabsf(m_Max.m_Y - m_Min.m_Y);
+    const float z = std::fabsf(m_Max.m_Z - m_Min.m_Z);
 
     // search for longest axis
     if (x >= y && x >= z)
@@ -100,9 +100,9 @@ DWF_PlaneF DWF_Box::GetSplittingPlane(IEAxis axis, const DWF_Vector3F& center) c
 void DWF_Box::Cut(DWF_Box& leftBox, DWF_Box& rightBox)
 {
     // calculate each edge length
-    const float x = std::fabs(m_Max.m_X - m_Min.m_X);
-    const float y = std::fabs(m_Max.m_Y - m_Min.m_Y);
-    const float z = std::fabs(m_Max.m_Z - m_Min.m_Z);
+    const float x = std::fabsf(m_Max.m_X - m_Min.m_X);
+    const float y = std::fabsf(m_Max.m_Y - m_Min.m_Y);
+    const float z = std::fabsf(m_Max.m_Z - m_Min.m_Z);
 
     int longestAxis;
 

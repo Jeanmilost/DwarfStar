@@ -68,9 +68,9 @@ bool DWF_Sphere::Inside(const DWF_Vector3F& point) const
 //---------------------------------------------------------------------------
 bool DWF_Sphere::Intersect(const DWF_Sphere& other) const
 {
-    const DWF_Vector3F dist(std::fabs(m_Center.m_X - other.m_Center.m_X),
-                            std::fabs(m_Center.m_Y - other.m_Center.m_Y),
-                            std::fabs(m_Center.m_Z - other.m_Center.m_Z));
+    const DWF_Vector3F dist(std::fabsf(m_Center.m_X - other.m_Center.m_X),
+                            std::fabsf(m_Center.m_Y - other.m_Center.m_Y),
+                            std::fabsf(m_Center.m_Z - other.m_Center.m_Z));
 
     const float length = dist.Length();
 
