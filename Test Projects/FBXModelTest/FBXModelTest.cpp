@@ -27,12 +27,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
- // dwarfstar
-#include "Core\DWF_Model.h"
-#include "Model\DWF_Model_FBX.h"
-#include "Rendering\OpenGL\DWF_Texture_OpenGL.h"
-#include "Rendering\OpenGL\DWF_Shader_OpenGL.h"
-#include "Rendering\OpenGL\DWF_Renderer_OpenGL.h"
+// classes
+#include "DWF_PixelBuffer.h"
+#include "DWF_Model.h"
+#include "DWF_FBX.h"
+#include "DWF_Texture_OpenGL.h"
+#include "DWF_Shader_OpenGL.h"
+#include "DWF_Renderer_OpenGL.h"
 
 // openGL
 #define GLEW_STATIC
@@ -139,47 +140,38 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 //------------------------------------------------------------------------------
-DWF_Texture* OnLoadTexture(const std::string& textureName, bool is32bit)
+DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit)
 {
-    std::size_t width   = 0;
-    std::size_t height  = 0;
-    std::size_t format  = 0;
-    std::size_t length  = 0;
-    void*       pPixels = nullptr;
-
     const std::size_t separator = textureName.rfind('/');
     const std::string fileName  = textureName.substr(separator + 1, textureName.length() - (separator + 1));
 
-    if (!DWF_Texture::GetPixelsFromPng("Resources\\Models\\Laure\\Textures\\" + fileName,
-                                       is32bit,
-                                       width,
-                                       height,
-                                       format,
-                                       length,
-                                       pPixels))
+    std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
+
+    // load the texture
+    if (!pPixelBuffer->FromPng("..\\..\\Resources\\Model\\Laure\\Textures\\" + fileName, is32bit))
         return nullptr;
 
-    if (!pPixels)
+    if (!pPixelBuffer->m_pData)
         return nullptr;
 
-    std::unique_ptr<DWF_Texture_OpenGL> pTexture(new DWF_Texture_OpenGL());
-    pTexture->m_Width     = (std::int32_t)width;
-    pTexture->m_Height    = (std::int32_t)height;
-    pTexture->m_Format    = format == 24 ? DWF_Texture::IEFormat::IE_FT_24bit : DWF_Texture::IEFormat::IE_FT_32bit;
-    pTexture->m_WrapMode  = DWF_Texture::IEWrapMode::IE_WM_Clamp;
-    pTexture->m_MinFilter = DWF_Texture::IEMinFilter::IE_MI_Linear;
-    pTexture->m_MagFilter = DWF_Texture::IEMagFilter::IE_MA_Linear;
-    pTexture->Create(pPixels);
+    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
+    pTexture->m_Width     = (std::int32_t)pPixelBuffer->m_Width;
+    pTexture->m_Height    = (std::int32_t)pPixelBuffer->m_Height;
+    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 24 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
+    pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
+    pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
+    pTexture->Create(pPixelBuffer->m_pData);
 
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
-void DrawFBX(const DWF_Model_FBX&  fbxModel,
-             const DWF_Matrix4x4F& modelMatrix,
-             const DWF_Shader*     pShader,
-             const DWF_Renderer*   pRenderer,
-                   int             animSetIndex,
-                   double          elapsedTime)
+void DrawFBX(const DWF_Model::FBX&         fbxModel,
+             const DWF_Math::Matrix4x4F&   modelMatrix,
+             const DWF_Renderer::Shader*   pShader,
+             const DWF_Renderer::Renderer* pRenderer,
+                   int                     animSetIndex,
+                   double                  elapsedTime)
 {
     if (!pRenderer)
         return;
@@ -187,20 +179,21 @@ void DrawFBX(const DWF_Model_FBX&  fbxModel,
     if (!pShader)
         return;
 
-    DWF_Model* pModel = fbxModel.GetModel(animSetIndex, elapsedTime);
+    DWF_Model::Model* pModel = fbxModel.GetModel(animSetIndex, elapsedTime);
 
     // draw the model
-    pModel->Draw(*pRenderer, modelMatrix, *pShader);
+    for (std::size_t i = 0; i < pModel->m_Mesh.size(); ++i)
+        pRenderer->Draw(*pModel->m_Mesh[i], modelMatrix, pShader, false);
 }
 //---------------------------------------------------------------------------
-void DrawBone(const DWF_Model_FBX&    fbxModel,
-              const DWF_Model*        pModel,
-              const DWF_Model::IBone* pBone,
-              const DWF_Matrix4x4F&   modelMatrix,
-              const DWF_Shader*       pShader,
-              const DWF_Renderer*     pRenderer,
-                    int               animSetIndex,
-                    double            elapsedTime)
+void DrawBone(const DWF_Model::FBX&          fbxModel,
+              const DWF_Model::Model*        pModel,
+              const DWF_Model::Model::IBone* pBone,
+              const DWF_Math::Matrix4x4F&    modelMatrix,
+              const DWF_Renderer::Shader*    pShader,
+              const DWF_Renderer::Renderer*  pRenderer,
+                    int                      animSetIndex,
+                    double                   elapsedTime)
 {
     if (!pModel)
         return;
@@ -216,35 +209,35 @@ void DrawBone(const DWF_Model_FBX&    fbxModel,
 
     for (std::size_t i = 0; i < pBone->m_Children.size(); ++i)
     {
-        DWF_Model::IBone* pChild = pBone->m_Children[i];
+        DWF_Model::Model::IBone* pChild = pBone->m_Children[i];
 
-        DWF_Matrix4x4F topMatrix;
+        DWF_Math::Matrix4x4F topMatrix;
 
         if (pModel->m_PoseOnly)
-            pModel->GetBoneMatrix(pBone, DWF_Matrix4x4F::Identity(), topMatrix);
+            pModel->GetBoneMatrix(pBone, DWF_Math::Matrix4x4F::Identity(), topMatrix);
         else
             fbxModel.GetBoneAnimMatrix(pBone,
                                        pModel->m_AnimationSet[animSetIndex],
                                        std::fmod(elapsedTime, (double)pModel->m_AnimationSet[animSetIndex]->m_MaxValue / 46186158000.0),
-                                       DWF_Matrix4x4F::Identity(),
+                                       DWF_Math::Matrix4x4F::Identity(),
                                        topMatrix);
 
-        DWF_Matrix4x4F bottomMatrix;
+        DWF_Math::Matrix4x4F bottomMatrix;
 
         if (pModel->m_PoseOnly)
-            pModel->GetBoneMatrix(pChild, DWF_Matrix4x4F::Identity(), bottomMatrix);
+            pModel->GetBoneMatrix(pChild, DWF_Math::Matrix4x4F::Identity(), bottomMatrix);
         else
             fbxModel.GetBoneAnimMatrix(pChild,
                                        pModel->m_AnimationSet[animSetIndex],
                                        std::fmod(elapsedTime, (double)pModel->m_AnimationSet[animSetIndex]->m_MaxValue / 46186158000.0),
-                                       DWF_Matrix4x4F::Identity(),
+                                       DWF_Math::Matrix4x4F::Identity(),
                                        bottomMatrix);
 
         glDisable(GL_DEPTH_TEST);
-        pRenderer->DrawLine(DWF_Vector3F(topMatrix.m_Table[3][0],    topMatrix.m_Table[3][1],    topMatrix.m_Table[3][2]),
-                            DWF_Vector3F(bottomMatrix.m_Table[3][0], bottomMatrix.m_Table[3][1], bottomMatrix.m_Table[3][2]),
-                            DWF_ColorF(0.25f, 0.12f, 0.1f, 1.0f),
-                            DWF_ColorF(0.95f, 0.06f, 0.15f, 1.0f),
+        pRenderer->DrawLine(DWF_Math::Vector3F(topMatrix.m_Table[3][0],    topMatrix.m_Table[3][1],    topMatrix.m_Table[3][2]),
+                            DWF_Math::Vector3F(bottomMatrix.m_Table[3][0], bottomMatrix.m_Table[3][1], bottomMatrix.m_Table[3][2]),
+                            DWF_Model::ColorF(0.25f, 0.12f, 0.1f, 1.0f),
+                            DWF_Model::ColorF(0.95f, 0.06f, 0.15f, 1.0f),
                             modelMatrix,
                             pShader);
         glEnable(GL_DEPTH_TEST);
@@ -253,12 +246,12 @@ void DrawBone(const DWF_Model_FBX&    fbxModel,
     }
 }
 //---------------------------------------------------------------------------
-void DrawSkeleton(const DWF_Model_FBX&  fbxModel,
-                  const DWF_Matrix4x4F& modelMatrix,
-                  const DWF_Shader*     pShader,
-                  const DWF_Renderer*   pRenderer,
-                        int             animSetIndex,
-                        double          elapsedTime)
+void DrawSkeleton(const DWF_Model::FBX&         fbxModel,
+                  const DWF_Math::Matrix4x4F&   modelMatrix,
+                  const DWF_Renderer::Shader*   pShader,
+                  const DWF_Renderer::Renderer* pRenderer,
+                        int                     animSetIndex,
+                        double                  elapsedTime)
 {
     if (!pRenderer)
         return;
@@ -266,7 +259,7 @@ void DrawSkeleton(const DWF_Model_FBX&  fbxModel,
     if (!pShader)
         return;
 
-    DWF_Model* pModel = fbxModel.GetModel(animSetIndex, elapsedTime);
+    DWF_Model::Model* pModel = fbxModel.GetModel(animSetIndex, elapsedTime);
 
     DrawBone(fbxModel, pModel, pModel->m_pSkeleton, modelMatrix, pShader, pRenderer, animSetIndex, elapsedTime);
 }
@@ -333,7 +326,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     ::DrawText(hDC, L"Please wait...", 14, &clientRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
     ::ReleaseDC(hWnd, hDC);
 
-    DWF_Renderer_OpenGL renderer;
+    DWF_Renderer::Renderer_OpenGL renderer;
 
     // enable OpenGL for the window
     renderer.EnableOpenGL(hWnd);
@@ -353,24 +346,24 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         return 0;
     }
 
-    DWF_Shader_OpenGL shader;
+    DWF_Renderer::Shader_OpenGL shader;
     shader.CreateProgram();
-    shader.Attach(vertexShader,   DWF_Shader::IEType::IE_ST_Vertex);
-    shader.Attach(fragmentShader, DWF_Shader::IEType::IE_ST_Fragment);
+    shader.Attach(vertexShader,   DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    shader.Attach(fragmentShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     shader.Link(true);
 
-    DWF_Shader_OpenGL lineShader;
+    DWF_Renderer::Shader_OpenGL lineShader;
     lineShader.CreateProgram();
-    lineShader.Attach(lineVertShader, DWF_Shader::IEType::IE_ST_Vertex);
-    lineShader.Attach(lineFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    lineShader.Attach(lineVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    lineShader.Attach(lineFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     lineShader.Link(true);
 
-    DWF_Model_FBX fbx;
+    DWF_Model::FBX fbx;
     fbx.Set_OnLoadTexture(OnLoadTexture);
     //fbx.SetPoseOnly(true);
-    fbx.Open("Resources\\Models\\Laure\\Angry.fbx");
+    fbx.Open("..\\..\\Resources\\Model\\Laure\\Angry.fbx");
 
-    DWF_Matrix4x4F projMatrix;
+    DWF_Math::Matrix4x4F projMatrix;
 
     // create the viewport
     renderer.CreateViewport(float(clientRect.right  - clientRect.left),
@@ -384,11 +377,11 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
 
     // connect the view matrix to the both model and line shaders
-    DWF_Matrix4x4F viewMatrix = DWF_Matrix4x4F::Identity();
+    DWF_Math::Matrix4x4F viewMatrix = DWF_Math::Matrix4x4F::Identity();
     renderer.ConnectViewMatrixToShader(&shader,     viewMatrix);
     renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
 
-    DWF_ColorF bgColor;
+    DWF_Model::ColorF bgColor;
     bgColor.m_R = 0.08f;
     bgColor.m_G = 0.12f;
     bgColor.m_B = 0.17f;
@@ -414,25 +407,25 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         }
         else
         {
-            DWF_Matrix4x4F matrix = DWF_Matrix4x4F::Identity();
-            DWF_Vector3F   axis;
+            DWF_Math::Matrix4x4F matrix = DWF_Math::Matrix4x4F::Identity();
+            DWF_Math::Vector3F   axis;
 
             // create the X rotation matrix
-            DWF_Matrix4x4F rotMatX;
+            DWF_Math::Matrix4x4F rotMatX;
             axis.m_X = 1.0f;
             axis.m_Y = 0.0f;
             axis.m_Z = 0.0f;
             rotMatX  = matrix.Rotate(0.0f, axis);
 
             // create the Y rotation matrix
-            DWF_Matrix4x4F rotMatZ;
+            DWF_Math::Matrix4x4F rotMatZ;
             axis.m_X = 0.0f;
             axis.m_Y = 1.0f;
             axis.m_Z = 0.0f;
             rotMatZ  = matrix.Rotate(angle, axis);
 
             // create the scale matrix
-            DWF_Matrix4x4F scaleMat = DWF_Matrix4x4F::Identity();
+            DWF_Math::Matrix4x4F scaleMat = DWF_Math::Matrix4x4F::Identity();
             scaleMat.m_Table[0][0]  = 0.2f;
             scaleMat.m_Table[1][1]  = 0.2f;
             scaleMat.m_Table[2][2]  = 0.2f;
@@ -441,7 +434,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             rotMatZ.Multiply(rotMatX);
 
             // place the model in the 3d world (update the matrix directly)
-            DWF_Matrix4x4F modelMatrix =  rotMatZ.Multiply(scaleMat);
+            DWF_Math::Matrix4x4F modelMatrix =  rotMatZ.Multiply(scaleMat);
             modelMatrix.m_Table[3][1]  = -17.5f;
             modelMatrix.m_Table[3][2]  = -50.0f;
 
@@ -450,8 +443,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                    lastTime    = (double)::GetTickCount64();
 
             // draw the scene
-            renderer.BeginScene(bgColor, (DWF_Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::IESceneFlags::IE_SF_ClearColor |
-                                                                      (std::uint32_t)DWF_Renderer::IESceneFlags::IE_SF_ClearDepth));
+            renderer.BeginScene(bgColor, (DWF_Renderer::Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearColor |
+                                                                                (std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
             // draw the model
             DrawFBX(fbx, modelMatrix, &shader, &renderer, 0, g_PauseAnim ? 0.0f : lastTime * 0.001);

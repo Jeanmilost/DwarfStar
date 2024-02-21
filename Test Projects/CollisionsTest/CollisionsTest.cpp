@@ -27,12 +27,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
- // dwarfstar
-#include "Core\DWF_Capsule.h"
-#include "Core\DWF_MeshFactory.h"
-#include "Rendering\OpenGL\DWF_Texture_OpenGL.h"
-#include "Rendering\OpenGL\DWF_Shader_OpenGL.h"
-#include "Rendering\OpenGL\DWF_Renderer_OpenGL.h"
+// classes
+#include "DWF_PixelBuffer.h"
+#include "DWF_Capsule.h"
+#include "DWF_ModelFactory.h"
+#include "DWF_Texture_OpenGL.h"
+#include "DWF_Shader_OpenGL.h"
+#include "DWF_Renderer_OpenGL.h"
 
 // openGL
 #define GLEW_STATIC
@@ -47,13 +48,13 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
-const DWF_Vector3F g_DefCapsule1Top   (  0.0f,  40.0f,    0.0f);
-const DWF_Vector3F g_DefCapsule1Bottom(  0.0f,   0.0f,    0.0f);
-const DWF_Vector3F g_DefCapsule2Top   (  0.0f,  40.0f,    0.0f);
-const DWF_Vector3F g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
-      DWF_Vector3F g_Capsule1Pos      (-15.0f, -20.0f, -100.0f);
-      DWF_Vector3F g_Capsule2Pos      ( 15.0f, -20.0f, -100.0f);
-      bool         g_Rotate = false;
+const DWF_Math::Vector3F g_DefCapsule1Top   (  0.0f,  40.0f,    0.0f);
+const DWF_Math::Vector3F g_DefCapsule1Bottom(  0.0f,   0.0f,    0.0f);
+const DWF_Math::Vector3F g_DefCapsule2Top   (  0.0f,  40.0f,    0.0f);
+const DWF_Math::Vector3F g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
+      DWF_Math::Vector3F g_Capsule1Pos      (-15.0f, -20.0f, -100.0f);
+      DWF_Math::Vector3F g_Capsule2Pos      ( 15.0f, -20.0f, -100.0f);
+      bool               g_Rotate = false;
 //------------------------------------------------------------------------------
 const char vertexShader[] = "precision mediump float;"
                             "attribute    vec3 aVertices;"
@@ -170,8 +171,8 @@ const char dirLightFragShader[] = "precision mediump float;"
                                   "    gl_FragColor = vColor;"
                                   "}";
 //------------------------------------------------------------------------------
-DWF_Capsule g_Capsule1;
-DWF_Capsule g_Capsule2;
+DWF_Geometry::Capsule g_Capsule1;
+DWF_Geometry::Capsule g_Capsule2;
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -221,34 +222,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 //------------------------------------------------------------------------------
-DWF_Texture* LoadTexture()
+DWF_Model::Texture* LoadTexture()
 {
-    std::size_t width = 0;
-    std::size_t height = 0;
-    std::size_t format = 0;
-    std::size_t length = 0;
-    void* pPixels = nullptr;
+    std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
 
-    if (!DWF_Texture::GetPixelsFromPng("Resources\\earthmap.png",
-                                       false,
-                                       width,
-                                       height,
-                                       format,
-                                       length,
-                                       pPixels))
+    // load the texture
+    if (!pPixelBuffer->FromPng("..\\..\\Resources\\Texture\\earthmap.png", false))
         return nullptr;
 
-    if (!pPixels)
+    if (!pPixelBuffer->m_pData)
         return nullptr;
 
-    std::unique_ptr<DWF_Texture_OpenGL> pTexture(new DWF_Texture_OpenGL());
-    pTexture->m_Width     = (std::int32_t)width;
-    pTexture->m_Height    = (std::int32_t)height;
-    pTexture->m_Format    = format == 24 ? DWF_Texture::IEFormat::IE_FT_24bit : DWF_Texture::IEFormat::IE_FT_32bit;
-    pTexture->m_WrapMode  = DWF_Texture::IEWrapMode::IE_WM_Clamp;
-    pTexture->m_MinFilter = DWF_Texture::IEMinFilter::IE_MI_Linear;
-    pTexture->m_MagFilter = DWF_Texture::IEMagFilter::IE_MA_Linear;
-    pTexture->Create(pPixels);
+    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
+    pTexture->m_Width     = (std::int32_t)pPixelBuffer->m_Width;
+    pTexture->m_Height    = (std::int32_t)pPixelBuffer->m_Height;
+    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 24 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
+    pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
+    pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
+    pTexture->Create(pPixelBuffer->m_pData);
 
     return pTexture.release();
 }
@@ -270,8 +262,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     wcex.cbClsExtra    = 0;
     wcex.cbWndExtra    = 0;
     wcex.hInstance     = hInstance;
-    wcex.hIcon         = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_COLLISIONSTEST));
-    wcex.hIconSm       = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hIcon         = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
+    wcex.hIconSm       = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON_SMALL));
     wcex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName  = nullptr;
@@ -315,7 +307,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     ::DrawText(hDC, L"Please wait...", 14, &clientRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
     ::ReleaseDC(hWnd, hDC);
 
-    DWF_Renderer_OpenGL renderer;
+    DWF_Renderer::Renderer_OpenGL renderer;
 
     // enable OpenGL for the window
     renderer.EnableOpenGL(hWnd);
@@ -335,28 +327,28 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         return 0;
     }
 
-    DWF_Shader_OpenGL shader;
+    DWF_Renderer::Shader_OpenGL shader;
     shader.CreateProgram();
-    shader.Attach(vertexShader,   DWF_Shader::IEType::IE_ST_Vertex);
-    shader.Attach(fragmentShader, DWF_Shader::IEType::IE_ST_Fragment);
+    shader.Attach(vertexShader,   DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    shader.Attach(fragmentShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     shader.Link(true);
 
-    DWF_Shader_OpenGL lineShader;
+    DWF_Renderer::Shader_OpenGL lineShader;
     lineShader.CreateProgram();
-    lineShader.Attach(lineVertShader, DWF_Shader::IEType::IE_ST_Vertex);
-    lineShader.Attach(lineFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    lineShader.Attach(lineVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    lineShader.Attach(lineFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     lineShader.Link(true);
 
-    DWF_Shader_OpenGL dirLightShader;
+    DWF_Renderer::Shader_OpenGL dirLightShader;
     dirLightShader.CreateProgram();
-    dirLightShader.Attach(dirLightVertShader, DWF_Shader::IEType::IE_ST_Vertex);
-    dirLightShader.Attach(dirLightFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    dirLightShader.Attach(dirLightVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    dirLightShader.Attach(dirLightFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     dirLightShader.Link(true);
 
-    DWF_Shader_OpenGL colTestShader;
+    DWF_Renderer::Shader_OpenGL colTestShader;
     colTestShader.CreateProgram();
-    colTestShader.Attach(colTestVertShader, DWF_Shader::IEType::IE_ST_Vertex);
-    colTestShader.Attach(colTestFragShader, DWF_Shader::IEType::IE_ST_Fragment);
+    colTestShader.Attach(colTestVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    colTestShader.Attach(colTestFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     colTestShader.Link(true);
 
     g_Capsule1.m_Top    = g_DefCapsule1Top;
@@ -365,29 +357,29 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     g_Capsule2.m_Top    = g_DefCapsule2Top;
     g_Capsule2.m_Radius = 10.0f;
 
-    DWF_Material material;
-    material.m_Color = DWF_ColorF(1.0f, 0.1f, 0.05f, 1.0f);
+    DWF_Model::Material material;
+    material.m_Color = DWF_Model::ColorF(1.0f, 0.1f, 0.05f, 1.0f);
     //material.m_Wireframe = true;
 
-    DWF_VertexBuffer::ICulling culling;
+    DWF_Model::VertexCulling culling;
 
-    DWF_VertexBuffer::IFormat format;
-    //format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_TexCoords | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
-    //format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Normals | (std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
-    format.m_Format = (DWF_VertexBuffer::IFormat::IEFormat)((std::int32_t)DWF_VertexBuffer::IFormat::IEFormat::IE_VF_Colors);
-    format.m_Type   = DWF_VertexBuffer::IFormat::IEType::IE_VT_Triangles;
+    DWF_Model::VertexFormat format;
+    //format.m_Format = (DWF_Model::VertexFormat::IEFormat)((std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords | (std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors);
+    //format.m_Format = (DWF_Model::VertexFormat::IEFormat)((std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Normals | (std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors);
+    format.m_Format = (DWF_Model::VertexFormat::IEFormat)((std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors);
+    format.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
 
-    DWF_Mesh capsuleMesh1;
-    DWF_MeshFactory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh1);
-    //capsuleMesh1.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
+    std::unique_ptr<DWF_Model::Model> pCapsuleModel1;
+    pCapsuleModel1.reset(DWF_Model::Factory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material));
+    //pCapsuleModel1->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = LoadTexture();
 
-    material.m_Color = DWF_ColorF(0.05f, 0.1f, 1.0f, 1.0f);
+    material.m_Color = DWF_Model::ColorF(0.05f, 0.1f, 1.0f, 1.0f);
 
-    DWF_Mesh capsuleMesh2;
-    DWF_MeshFactory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material, capsuleMesh2);
+    std::unique_ptr<DWF_Model::Model> pCapsuleModel2;
+    pCapsuleModel2.reset(DWF_Model::Factory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material));
     //capsuleMesh2.m_VBs[0]->m_Material.m_pTexture = LoadTexture();
 
-    DWF_Matrix4x4F projMatrix;
+    DWF_Math::Matrix4x4F projMatrix;
 
     // create the viewport
     renderer.CreateViewport(float(clientRect.right - clientRect.left),
@@ -403,21 +395,23 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     renderer.ConnectProjectionMatrixToShader(&colTestShader, projMatrix);
 
     // connect the view matrix to the both model and line shaders
-    DWF_Matrix4x4F viewMatrix = DWF_Matrix4x4F::Identity();
+    DWF_Math::Matrix4x4F viewMatrix = DWF_Math::Matrix4x4F::Identity();
     //renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
     //renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
     //renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
     renderer.ConnectViewMatrixToShader(&colTestShader, viewMatrix);
 
+    /*
     dirLightShader.Use(true);
 
-    const GLint lightPos = renderer.GetUniform(&dirLightShader, DWF_Shader::IEAttribute::IE_SA_DirLight);
+    const GLint lightPos = renderer.GetUniform(&dirLightShader, DWF_Renderer::Shader::IEAttribute::IE_SA_DirLight);
 
     // found it?
     if (lightPos != -1)
         glUniform3f(lightPos, 0.5f, 0.5f, 0.0f);
 
     dirLightShader.Use(false);
+    */
 
     colTestShader.Use(true);
 
@@ -427,7 +421,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     if (isColliding != -1)
         glUniform1i(isColliding, 0);
 
-    DWF_ColorF bgColor;
+    DWF_Model::ColorF bgColor;
     bgColor.m_R = 0.08f;
     bgColor.m_G = 0.12f;
     bgColor.m_B = 0.17f;
@@ -453,79 +447,78 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         }
         else
         {
-            DWF_Matrix4x4F matrix = DWF_Matrix4x4F::Identity();
+            DWF_Math::Matrix4x4F matrix = DWF_Math::Matrix4x4F::Identity();
 
             // create the X rotation matrix
-            DWF_Matrix4x4F rotMatX;
-            DWF_Vector3F   axis;
+            DWF_Math::Matrix4x4F rotMatX;
+            DWF_Math::Vector3F   axis;
             axis.m_X = 1.0f;
             axis.m_Y = 0.0f;
             axis.m_Z = 0.0f;
             rotMatX = matrix.Rotate(0.0f, axis);
 
             // create the Y rotation matrix
-            DWF_Matrix4x4F rotMatY;
+            DWF_Math::Matrix4x4F rotMatY;
             axis.m_X = 0.0f;
             axis.m_Y = 1.0f;
             axis.m_Z = 0.0f;
             rotMatY = matrix.Rotate(0.0f, axis);
 
             // create the Y rotation matrix
-            DWF_Matrix4x4F rotMatZ;
+            DWF_Math::Matrix4x4F rotMatZ;
             axis.m_X = 0.0f;
             axis.m_Y = 0.0f;
             axis.m_Z = 1.0f;
             rotMatZ = matrix.Rotate(angle, axis);
 
-            DWF_Matrix4x4F rotMat;
+            DWF_Math::Matrix4x4F rotMat;
 
             // combine the rotation matrices
                      rotMatY.Multiply(rotMatX);
             rotMat = rotMatZ.Multiply(rotMatY);
 
             // place the models in the 3d world (update the matrix directly)
-            DWF_Matrix4x4F modelMatrixC1 = rotMat;
-            modelMatrixC1.m_Table[3][0]  = g_Capsule1Pos.m_X;
-            modelMatrixC1.m_Table[3][1]  = g_Capsule1Pos.m_Y;
-            modelMatrixC1.m_Table[3][2]  = g_Capsule1Pos.m_Z;
+            DWF_Math::Matrix4x4F modelMatrixC1 = rotMat;
+            modelMatrixC1.m_Table[3][0]        = g_Capsule1Pos.m_X;
+            modelMatrixC1.m_Table[3][1]        = g_Capsule1Pos.m_Y;
+            modelMatrixC1.m_Table[3][2]        = g_Capsule1Pos.m_Z;
 
-            matrix = DWF_Matrix4x4F::Identity();
+            matrix = DWF_Math::Matrix4x4F::Identity();
             rotMatZ = matrix.Rotate(-angle, axis);
             rotMat  = rotMatZ.Multiply(rotMatY);
 
-            DWF_Matrix4x4F modelMatrixC2 = rotMat;
-            modelMatrixC2.m_Table[3][0] = g_Capsule2Pos.m_X;
-            modelMatrixC2.m_Table[3][1] = g_Capsule2Pos.m_Y;
-            modelMatrixC2.m_Table[3][2] = g_Capsule2Pos.m_Z;
+            DWF_Math::Matrix4x4F modelMatrixC2 = rotMat;
+            modelMatrixC2.m_Table[3][0]        = g_Capsule2Pos.m_X;
+            modelMatrixC2.m_Table[3][1]        = g_Capsule2Pos.m_Y;
+            modelMatrixC2.m_Table[3][2]        = g_Capsule2Pos.m_Z;
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
             lastTime = (double)::GetTickCount64();
 
             // draw the scene
-            renderer.BeginScene(bgColor, (DWF_Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::IESceneFlags::IE_SF_ClearColor |
-                                                                      (std::uint32_t)DWF_Renderer::IESceneFlags::IE_SF_ClearDepth));
+            renderer.BeginScene(bgColor, (DWF_Renderer::Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearColor |
+                                                                                (std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
             // draw the capsule
-            //renderer.Draw(capsuleMesh, modelMatrix, &lineShader);
-            //renderer.Draw(capsuleMesh1, modelMatrix, &shader);
-            //renderer.Draw(capsuleMesh1, modelMatrix, &dirLightShader);
-            renderer.Draw(capsuleMesh1, modelMatrixC1, &colTestShader);
+            //renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &lineShader, false);
+            //renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &shader, false);
+            //renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &dirLightShader, false);
+            renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &colTestShader, false);
 
-            //renderer.Draw(capsuleMesh2, modelMatrix, &shader);
-            //renderer.Draw(capsuleMesh2, modelMatrix, &dirLightShader);
-            renderer.Draw(capsuleMesh2, modelMatrixC2, &colTestShader);
+            //renderer.Draw(*pCapsuleModel2->m_Mesh[0], modelMatrixC2, &shader, false);
+            //renderer.Draw(*pCapsuleModel2->m_Mesh[0], modelMatrixC2, &dirLightShader, false);
+            renderer.Draw(*pCapsuleModel2->m_Mesh[0], modelMatrixC2, &colTestShader, false);
 
+            //dirLightShader.Use(true);
             colTestShader.Use(true);
-
-            float depth;
 
             g_Capsule1.m_Top    = modelMatrixC1.Transform(g_DefCapsule1Top);
             g_Capsule1.m_Bottom = modelMatrixC1.Transform(g_DefCapsule1Bottom);
             g_Capsule2.m_Top    = modelMatrixC2.Transform(g_DefCapsule2Top);
             g_Capsule2.m_Bottom = modelMatrixC2.Transform(g_DefCapsule2Bottom);
 
-            if (g_Capsule1.Intersect(g_Capsule2, depth))
+            if (g_Capsule1.Intersect(g_Capsule2))
             {
                 if (isColliding != -1)
                     glUniform1i(isColliding, 1);

@@ -73,35 +73,44 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\Third-party\glew\include;..\..\Third-party\OpenAL\include;..\..\Third-party\libpng\include;..\..\SDK;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_PNG;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_PNG;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -119,19 +128,21 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_PNG;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,7 +151,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_PNG;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -149,62 +160,51 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\SDK\Base\DWF_Buffer.h" />
-    <ClInclude Include="..\..\SDK\Base\DWF_FileBuffer.h" />
-    <ClInclude Include="..\..\SDK\Base\DWF_MathHelper.h" />
-    <ClInclude Include="..\..\SDK\Base\DWF_MemoryBuffer.h" />
-    <ClInclude Include="..\..\SDK\Base\DWF_StdFileBuffer.h" />
-    <ClInclude Include="..\..\SDK\Base\DWF_StringHelper.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Color.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Drawable.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Material.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Matrix3x3.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Matrix4x4.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Mesh.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Model.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Object.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Quaternion.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Renderer.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Shader.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Texture.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Vector2.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_Vector3.h" />
-    <ClInclude Include="..\..\SDK\Core\DWF_VertexBuffer.h" />
-    <ClInclude Include="..\..\SDK\Model\DWF_Model_FBX.h" />
-    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.h" />
-    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.h" />
-    <ClInclude Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_Buffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_FileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_MemoryBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_PixelBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_StdFileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_MathHelper.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Quaternion.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_FBX.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Model.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Texture.h" />
+    <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
+    <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SDK\Base\DWF_Buffer.cpp" />
-    <ClCompile Include="..\..\SDK\Base\DWF_FileBuffer.cpp" />
-    <ClCompile Include="..\..\SDK\Base\DWF_MathHelper.cpp" />
-    <ClCompile Include="..\..\SDK\Base\DWF_MemoryBuffer.cpp" />
-    <ClCompile Include="..\..\SDK\Base\DWF_StdFileBuffer.cpp" />
-    <ClCompile Include="..\..\SDK\Base\DWF_StringHelper.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Color.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Drawable.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Material.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Matrix3x3.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Matrix4x4.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Mesh.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Model.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Object.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Quaternion.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Renderer.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Shader.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Texture.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Vector2.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_Vector3.cpp" />
-    <ClCompile Include="..\..\SDK\Core\DWF_VertexBuffer.cpp" />
-    <ClCompile Include="..\..\SDK\Model\DWF_Model_FBX.cpp" />
-    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Renderer_OpenGL.cpp" />
-    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Shader_OpenGL.cpp" />
-    <ClCompile Include="..\..\SDK\Rendering\OpenGL\DWF_Texture_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_Buffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_FileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_PixelBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_StdFileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_MathHelper.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Quaternion.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_FBX.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
     <ClCompile Include="FBXModelTest.cpp" />
   </ItemGroup>
   <ItemGroup>
