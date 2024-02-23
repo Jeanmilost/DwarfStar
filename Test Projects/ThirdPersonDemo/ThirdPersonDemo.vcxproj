@@ -239,7 +239,6 @@
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ThirdPersonDemo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Audio\DWF_Sound.cpp" />
