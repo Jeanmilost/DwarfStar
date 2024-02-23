@@ -112,6 +112,9 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Debug_Win32.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,6 +133,9 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Release_Win32.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -144,6 +150,9 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Debug_x64.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -162,6 +171,9 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Release_x64.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SDK\Buffer\DWF_Buffer.h" />

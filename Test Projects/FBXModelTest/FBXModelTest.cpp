@@ -1,11 +1,10 @@
 /****************************************************************************
  * ==> FBXModelTest --------------------------------------------------------*
  ****************************************************************************
- * Description:  DwarfStar FBX model test project                           *
- * Contained in: Benchmark                                                  *
- * Developer:    Jean-Milost Reymond                                        *
+ * Description: DwarfStar FBX model test project                            *
+ * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
- * MIT License - DwarfStar engine                                           *
+ * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *

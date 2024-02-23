@@ -72,9 +72,12 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Model.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Geometry\DWF_Polygon.h">
+      <Filter>SDK\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CollisionsTest.cpp">
+    <ClCompile Include="DirectionalLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Geometry\DWF_Capsule.cpp">
@@ -113,9 +116,12 @@
     <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp">
       <Filter>SDK\Model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Geometry\DWF_Polygon.cpp">
+      <Filter>SDK\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CollisionsTest.rc">
+    <ResourceCompile Include="DirectionalLight.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

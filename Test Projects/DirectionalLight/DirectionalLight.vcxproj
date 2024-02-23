@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e39bd813-e0b5-4fbf-a85d-c86f0d6b4e39}</ProjectGuid>
-    <RootNamespace>CollisionsTest</RootNamespace>
+    <ProjectGuid>{1AB2532B-5610-41EE-A2C7-5DF5FF7CF912}</ProjectGuid>
+    <RootNamespace>DirectionalLight</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SDK\Geometry\DWF_Capsule.h" />
+    <ClInclude Include="..\..\SDK\Geometry\DWF_Polygon.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
@@ -195,6 +196,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Geometry\DWF_Capsule.cpp" />
+    <ClCompile Include="..\..\SDK\Geometry\DWF_Polygon.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />
@@ -206,10 +208,10 @@
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
-    <ClCompile Include="CollisionsTest.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CollisionsTest.rc" />
+    <ResourceCompile Include="DirectionalLight.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />

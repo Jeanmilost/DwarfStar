@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> CollisionsTest ------------------------------------------------------*
+ * ==> DirectionalLight ----------------------------------------------------*
  ****************************************************************************
- * Description: Project to test the collisions between 2 capsules           *
+ * Description: This project is a test of a directional light               *
  * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -27,6 +27,8 @@
  ****************************************************************************/
 
 // classes
+#include "DWF_Vector3.h"
+#include "DWF_Polygon.h"
 #include "DWF_Capsule.h"
 #include "DWF_ModelFactory.h"
 #include "DWF_Texture_OpenGL.h"
@@ -46,39 +48,37 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
-      DWF_Geometry::Capsule g_Capsule1;
-      DWF_Geometry::Capsule g_Capsule2;
 const DWF_Math::Vector3F    g_DefCapsule1Top   (  0.0f,  40.0f,    0.0f);
 const DWF_Math::Vector3F    g_DefCapsule1Bottom(  0.0f,   0.0f,    0.0f);
 const DWF_Math::Vector3F    g_DefCapsule2Top   (  0.0f,  40.0f,    0.0f);
 const DWF_Math::Vector3F    g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
-      DWF_Math::Vector3F    g_Capsule1Pos      (-15.0f, -20.0f, -100.0f);
-      DWF_Math::Vector3F    g_Capsule2Pos      ( 15.0f, -20.0f, -100.0f);
+      DWF_Math::Vector3F    g_Capsule1Pos      (-25.0f, -10.0f, -100.0f);
+      DWF_Math::Vector3F    g_Capsule2Pos      ( 25.0f, -10.0f, -100.0f);
+      DWF_Math::Vector3F    g_LightDir;
       bool                  g_Rotate = false;
 //------------------------------------------------------------------------------
-const char colTestVertShader[] = "precision mediump float;"
-                                 "attribute    vec3 aVertices;"
-                                 "attribute    vec4 aColor;"
-                                 "uniform      int  uIsColliding;"
-                                 "uniform      mat4 uProjection;"
-                                 "uniform      mat4 uView;"
-                                 "uniform      mat4 uModel;"
-                                 "varying lowp vec4 vColor;"
-                                 "void main(void)"
-                                 "{"
-                                 "    if (uIsColliding == 1)"
-                                 "        vColor = vec4(0.0, 1.0, 0.0, 1.0);"
-                                 "    else"
-                                 "        vColor = aColor;"
-                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
-                                 "}";
+const char dirLightVertShader[] = "precision mediump float;"
+                                  "attribute    vec3 aVertices;"
+                                  "attribute    vec3 aNormal;"
+                                  "attribute    vec4 aColor;"
+                                  "uniform      vec3 aDirLight;"
+                                  "uniform      mat4 uProjection;"
+                                  "uniform      mat4 uView;"
+                                  "uniform      mat4 uModel;"
+                                  "varying lowp vec4 vColor;"
+                                  "void main(void)"
+                                  "{"
+                                  "    float intensity = dot(aDirLight, aNormal);"
+                                  "    vColor          = aColor * intensity;"
+                                  "    gl_Position     = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                                  "}";
 //------------------------------------------------------------------------------
-const char colTestFragShader[] = "precision mediump float;"
-                                 "varying lowp vec4 vColor;"
-                                 "void main(void)"
-                                 "{"
-                                 "    gl_FragColor = vColor;"
-                                 "}";
+const char dirLightFragShader[] = "precision mediump float;"
+                                  "varying lowp vec4 vColor;"
+                                  "void main(void)"
+                                  "{"
+                                  "    gl_FragColor = vColor;"
+                                  "}";
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -94,28 +94,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
-                case '1':
-                    break;
-
-                case '2':
-                    break;
-
                 case VK_SPACE:
                     g_Rotate = !g_Rotate;
                     break;
 
                 case VK_ESCAPE:
                     ::PostQuitMessage(0);
-                    break;
-
-                case VK_LEFT:
-                    g_Capsule1Pos.m_X += 0.5f;
-                    g_Capsule2Pos.m_X -= 0.5f;
-                    break;
-
-                case VK_RIGHT:
-                    g_Capsule1Pos.m_X -= 0.5f;
-                    g_Capsule2Pos.m_X += 0.5f;
                     break;
             }
 
@@ -150,15 +134,15 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     wcex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName  = nullptr;
-    wcex.lpszClassName = L"dwarfstarCollisionsTest";
+    wcex.lpszClassName = L"dwarfstarDirLight";
 
     if (!RegisterClassEx(&wcex))
         return 0;
 
     // create main window
     hWnd = ::CreateWindowEx(0,
-                            L"dwarfstarCollisionsTest",
-                            L"DwarfStar Collisions Test",
+                            L"dwarfstarDirLight",
+                            L"DwarfStar Directional Light",
                             WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
                             CW_USEDEFAULT,
                             CW_USEDEFAULT,
@@ -210,18 +194,12 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
         return 0;
     }
 
-    // compile the shader
-    DWF_Renderer::Shader_OpenGL colTestShader;
-    colTestShader.CreateProgram();
-    colTestShader.Attach(colTestVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    colTestShader.Attach(colTestFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    colTestShader.Link(true);
-
-    g_Capsule1.m_Top    = g_DefCapsule1Top;
-    g_Capsule1.m_Radius = 10.0f;
-
-    g_Capsule2.m_Top    = g_DefCapsule2Top;
-    g_Capsule2.m_Radius = 10.0f;
+    // compile the lighting shader
+    DWF_Renderer::Shader_OpenGL dirLightShader;
+    dirLightShader.CreateProgram();
+    dirLightShader.Attach(dirLightVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    dirLightShader.Attach(dirLightFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    dirLightShader.Link(true);
 
     // configure the material for the first capsule
     DWF_Model::Material material;
@@ -230,44 +208,57 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     // configure the culling
     DWF_Model::VertexCulling culling;
 
-    // configure the capsule format
+    // configure the vertex format
     DWF_Model::VertexFormat format;
-    format.m_Format = (DWF_Model::VertexFormat::IEFormat)((std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors);
+    format.m_Format = (DWF_Model::VertexFormat::IEFormat)((std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Normals |
+                                                          (std::int32_t)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors);
     format.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
 
-    // create the first capsule
+    // create first capsule
     std::unique_ptr<DWF_Model::Model> pCapsuleModel1;
-    pCapsuleModel1.reset(DWF_Model::Factory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material));
+    pCapsuleModel1.reset(DWF_Model::Factory::GetCapsule(20.0f, 7.5f, 16.0f, format, culling, material));
 
     // configure the material for the second capsule
     material.m_Color = DWF_Model::ColorF(0.05f, 0.1f, 1.0f, 1.0f);
 
-    // create the second capsule
+    // create second capsule
     std::unique_ptr<DWF_Model::Model> pCapsuleModel2;
-    pCapsuleModel2.reset(DWF_Model::Factory::GetCapsule(40.0f, 10.0f, 16.0f, format, culling, material));
+    pCapsuleModel2.reset(DWF_Model::Factory::GetCapsule(20.0f, 7.5f, 16.0f, format, culling, material));
 
     DWF_Math::Matrix4x4F projMatrix;
 
     // create the viewport
-    renderer.CreateViewport(float(clientRect.right - clientRect.left),
+    renderer.CreateViewport(float(clientRect.right  - clientRect.left),
                             float(clientRect.bottom - clientRect.top),
                             0.1f,
                             1000.0f,
-                            &colTestShader,
+                            &dirLightShader,
                             projMatrix);
 
-    // connect the view matrix to the shader
+    // connect the projection matrix to the shader
+    renderer.ConnectProjectionMatrixToShader(&dirLightShader, projMatrix);
+
+    // connect the view matrix to the both model and line shaders
     DWF_Math::Matrix4x4F viewMatrix = DWF_Math::Matrix4x4F::Identity();
-    renderer.ConnectViewMatrixToShader(&colTestShader, viewMatrix);
+    renderer.ConnectViewMatrixToShader(&dirLightShader, viewMatrix);
 
-    colTestShader.Use(true);
+    // create a light direction from a polygon normal
+    DWF_Geometry::Polygon polygon(DWF_Math::Vector3F(-1.0f, 0.0f, -0.2f),
+                                  DWF_Math::Vector3F( 0.0f, 1.0f,  6.4f),
+                                  DWF_Math::Vector3F( 1.0f, 0.0f, -3.7f));
+    g_LightDir = polygon.GetNormal();
 
-    // get the is colliding slot
-    const GLint isColliding = glGetUniformLocation((GLuint)colTestShader.GetProgramID(), "uIsColliding");
+    dirLightShader.Use(true);
+
+    // get the directional light slot
+    const GLint lightDirSlot = renderer.GetUniform(&dirLightShader, DWF_Renderer::Shader::IEAttribute::IE_SA_DirLight);
 
     // found it?
-    if (isColliding != -1)
-        glUniform1i(isColliding, 0);
+    if (lightDirSlot != -1)
+        // set the light direction
+        glUniform3f(lightDirSlot, g_LightDir.m_X, g_LightDir.m_Y, g_LightDir.m_Z);
+
+    dirLightShader.Use(false);
 
     DWF_Model::ColorF bgColor;
     bgColor.m_R = 0.08f;
@@ -312,7 +303,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             axis.m_Z = 0.0f;
             rotMatY = matrix.Rotate(0.0f, axis);
 
-            // create the Y rotation matrix
+            // create the Z rotation matrix
             DWF_Math::Matrix4x4F rotMatZ;
             axis.m_X = 0.0f;
             axis.m_Y = 0.0f;
@@ -325,16 +316,18 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                      rotMatY.Multiply(rotMatX);
             rotMat = rotMatZ.Multiply(rotMatY);
 
-            // place the models in the 3d world (update the matrix directly)
+            // build first capsule matrix
             DWF_Math::Matrix4x4F modelMatrixC1 = rotMat;
             modelMatrixC1.m_Table[3][0]        = g_Capsule1Pos.m_X;
             modelMatrixC1.m_Table[3][1]        = g_Capsule1Pos.m_Y;
             modelMatrixC1.m_Table[3][2]        = g_Capsule1Pos.m_Z;
 
+            // combine the invert rotation matrix
             matrix = DWF_Math::Matrix4x4F::Identity();
             rotMatZ = matrix.Rotate(-angle, axis);
             rotMat  = rotMatZ.Multiply(rotMatY);
 
+            // build second capsule matrix
             DWF_Math::Matrix4x4F modelMatrixC2 = rotMat;
             modelMatrixC2.m_Table[3][0]        = g_Capsule2Pos.m_X;
             modelMatrixC2.m_Table[3][1]        = g_Capsule2Pos.m_Y;
@@ -342,34 +335,43 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
-                   lastTime    = (double)::GetTickCount64();
+            lastTime = (double)::GetTickCount64();
 
             // draw the scene
             renderer.BeginScene(bgColor, (DWF_Renderer::Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearColor |
                                                                                 (std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
-            // draw the capsules
-            renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &colTestShader, false);
-            renderer.Draw(*pCapsuleModel2->m_Mesh[0], modelMatrixC2, &colTestShader, false);
+            dirLightShader.Use(true);
 
-            g_Capsule1.m_Top    = modelMatrixC1.Transform(g_DefCapsule1Top);
-            g_Capsule1.m_Bottom = modelMatrixC1.Transform(g_DefCapsule1Bottom);
-            g_Capsule2.m_Top    = modelMatrixC2.Transform(g_DefCapsule2Top);
-            g_Capsule2.m_Bottom = modelMatrixC2.Transform(g_DefCapsule2Bottom);
-
-            colTestShader.Use(true);
-
-            // detect collision between the 2 capsules, change color if a collision was found
-            if (g_Capsule1.Intersect(g_Capsule2))
+            // update the light direction in relation to the capsule matrix
+            if (lightDirSlot != -1)
             {
-                if (isColliding != -1)
-                    glUniform1i(isColliding, 1);
-            }
-            else
-            if (isColliding != -1)
-                glUniform1i(isColliding, 0);
+                float                    determinant;
+                const DWF_Math::Vector3F lightDir = modelMatrixC1.Inverse(determinant).TransformNormal(g_LightDir);
 
-            colTestShader.Use(false);
+                glUniform3f(lightDirSlot, lightDir.m_X, lightDir.m_Y, lightDir.m_Z);
+            }
+
+            dirLightShader.Use(false);
+
+            // draw the first capsules
+            renderer.Draw(*pCapsuleModel1->m_Mesh[0], modelMatrixC1, &dirLightShader, false);
+
+            dirLightShader.Use(true);
+
+            // update the light direction in relation to the capsule matrix
+            if (lightDirSlot != -1)
+            {
+                float                    determinant;
+                const DWF_Math::Vector3F lightDir = modelMatrixC2.Inverse(determinant).TransformNormal(g_LightDir);
+
+                glUniform3f(lightDirSlot, lightDir.m_X, lightDir.m_Y, lightDir.m_Z);
+            }
+
+            dirLightShader.Use(false);
+
+            // draw the second capsules
+            renderer.Draw(*pCapsuleModel2->m_Mesh[0], modelMatrixC2, &dirLightShader, false);
 
             renderer.EndScene();
 
