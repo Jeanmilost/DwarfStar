@@ -259,7 +259,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     // create main window
     HWND hWnd = ::CreateWindowEx(0,
                                  L"ThirdPersonDemo",
-                                 L"Third-Person Demo",
+                                 L"DwarfStar Third-Person Demo",
                                  WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
