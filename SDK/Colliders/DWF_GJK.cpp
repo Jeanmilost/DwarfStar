@@ -248,29 +248,29 @@ DWF_Math::Vector3F GJK::FindMinTranslationVec(const DWF_Math::Vector3F& a,
     faces[0][0] = a;
     faces[0][1] = b;
     faces[0][2] = c;
-    faces[0][3] = ((b - a).Cross(c - a)).Normalize(); // ABC
+    faces[0][3] = ((b - a).Cross(c - a)).Normalize();
 
     faces[1][0] = a;
     faces[1][1] = c;
     faces[1][2] = d;
-    faces[1][3] = ((c - a).Cross(d - a)).Normalize(); // ACD
+    faces[1][3] = ((c - a).Cross(d - a)).Normalize();
 
     faces[2][0] = a;
     faces[2][1] = d;
     faces[2][2] = b;
-    faces[2][3] = ((d - a).Cross(b - a)).Normalize(); // ADB
+    faces[2][3] = ((d - a).Cross(b - a)).Normalize();
 
     faces[3][0] = b;
     faces[3][1] = d;
     faces[3][2] = c;
-    faces[3][3] = ((d - b).Cross(c - b)).Normalize(); // BDC
+    faces[3][3] = ((d - b).Cross(c - b)).Normalize();
 
     std::size_t numFaces = 4;
     std::size_t closestFace;
 
+    // find face which is closest to origin
     for (std::size_t iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; ++iterations)
     {
-        // find face that's closest to origin
         float minDist = faces[0][0].Dot(faces[0][3]);
         closestFace   = 0;
 
@@ -285,16 +285,15 @@ DWF_Math::Vector3F GJK::FindMinTranslationVec(const DWF_Math::Vector3F& a,
             }
         }
 
-        //search normal to face that's closest to origin
-        const DWF_Math::Vector3F searchDir = faces[closestFace][3];
-        const DWF_Math::Vector3F p         = c2.Support(searchDir) - c1.Support(-searchDir);
+        //search normal to face which is closest to origin
+        const DWF_Math::Vector3F searchDir     = faces[closestFace][3];
+        const DWF_Math::Vector3F p             = c2.Support(searchDir) - c1.Support(-searchDir);
+        const float              pDotSearchDir = p.Dot(searchDir);
 
-        if (p.Dot(searchDir) - minDist < EPA_TOLERANCE)
-        {
-            // convergence (new point is not significantly further from origin), dot vertex
-            // with normal to resolve collision along normal!
-            return faces[closestFace][3] * p.Dot(searchDir);
-        }
+        // convergence (new point is not significantly further from origin), dot vertex
+        // with normal to resolve collision along normal!
+        if (pDotSearchDir - minDist < EPA_TOLERANCE)
+            return faces[closestFace][3] * pDotSearchDir;
 
         // keep track of edges we need to fix after removing faces
         DWF_Math::Vector3F looseEdges[EPA_MAX_NUM_LOOSE_EDGES][2];
@@ -306,10 +305,11 @@ DWF_Math::Vector3F GJK::FindMinTranslationVec(const DWF_Math::Vector3F& a,
             // triangle i faces p, remove it
             if (faces[i][3].Dot(p - faces[i][0]) > 0.0f)
             {
-                // add removed triangle's edges to loose edge list. If it's already there, remove it
-                // (both triangles it belonged to are gone)
-                for (std::size_t j = 0; j < 3; ++j) //Three edges per face
+                // three edges per face
+                for (std::size_t j = 0; j < 3; ++j)
                 {
+                    // add removed triangle edges to loose edge list. If already there, remove it (both triangles
+                    // it belonged to are gone)
                     DWF_Math::Vector3F currentEdge[2] =
                     {
                         faces[i][j],
@@ -320,14 +320,14 @@ DWF_Math::Vector3F GJK::FindMinTranslationVec(const DWF_Math::Vector3F& a,
 
                     // check if current edge is already in list
                     for (std::size_t k = 0; k < numLooseEdges; ++k)
+                        // edge is already in the list, remove it. THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES
+                        // (which should be true), THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which
+                        // should be true provided every triangle is wound CCW)
                         if (looseEdges[k][1] == currentEdge[0] && looseEdges[k][0] == currentEdge[1])
                         {
-                            // edge is already in the list, remove it
-                            // THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
-                            // THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which
-                            // should be true provided every triangle is wound CCW)
-                            looseEdges[k][0] = looseEdges[numLooseEdges - 1][0]; //Overwrite current edge
-                            looseEdges[k][1] = looseEdges[numLooseEdges - 1][1]; //with last edge in list
+                            // overwrite current edge with last edge in list
+                            looseEdges[k][0] = looseEdges[numLooseEdges - 1][0];
+                            looseEdges[k][1] = looseEdges[numLooseEdges - 1][1];
                             --numLooseEdges;
 
                             foundEdge = true;
@@ -372,9 +372,10 @@ DWF_Math::Vector3F GJK::FindMinTranslationVec(const DWF_Math::Vector3F& a,
             faces[numFaces][2] = p;
             faces[numFaces][3] = ((looseEdges[i][0] - looseEdges[i][1]).Cross(looseEdges[i][0] - p)).Normalize();
 
-            // check for wrong normal to maintain CCW winding
-            const float bias = 0.000001f; //in case dot result is only slightly < 0 (because origin is on face)
+            const float bias = 0.000001f;
 
+            // check for wrong normal to maintain CCW winding, in case dot result is only slightly < 0
+            // (because origin is on face)
             if (faces[numFaces][0].Dot(faces[numFaces][3]) + bias < 0)
             {
                 DWF_Math::Vector3F temp =  faces[numFaces][0];
