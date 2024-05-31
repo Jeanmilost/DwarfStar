@@ -147,7 +147,7 @@ namespace DWF_Model
             *@note This callback will be called only if the per-vertex color option is activated in the vertex
             *      buffer
             */
-            typedef ColorF(*ITfOnGetVertexColor)(const VertexBuffer* pVB, const DWF_Math::Vector3F* pNormal, std::size_t groupIndex);
+            typedef ColorF (*ITfOnGetVertexColor)(const VertexBuffer* pVB, const DWF_Math::Vector3F* pNormal, std::size_t groupIndex);
 
             VertexBuffer();
             virtual ~VertexBuffer();
