@@ -167,51 +167,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     return 0;
 }
-//------------------------------------------------------------------------------
-DWF_Model::Texture* OnLoadTextureCallback(const std::string& textureName, bool is32bit)
-{
-    Main* pMain = Main::GetInstance();
-
-    if (!pMain)
-        return nullptr;
-
-    return Main::GetInstance()->OnLoadTexture(textureName, is32bit);
-}
-//---------------------------------------------------------------------------
-void OnFrameCallback(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{
-    Main* pMain = Main::GetInstance();
-
-    if (!pMain)
-        return;
-
-    Main::GetInstance()->OnFrame(pAnim, pAnimDesc);
-}
-//---------------------------------------------------------------------------
-void OnEndReachedCallback(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{
-    Main* pMain = Main::GetInstance();
-
-    if (!pMain)
-        return;
-
-    Main::GetInstance()->OnEndReached(pAnim, pAnimDesc);
-}
-//---------------------------------------------------------------------------
-void OnCollisionCallback(const DWF_Scene::Scene*       pScene,
-                               DWF_Scene::SceneItem*   pItem1,
-                               DWF_Collider::Collider* pCollider1,
-                               DWF_Scene::SceneItem*   pItem2,
-                               DWF_Collider::Collider* pCollider2,
-                         const DWF_Math::Vector3F&     mtv)
-{
-    Main* pMain = Main::GetInstance();
-
-    if (!pMain)
-        return;
-
-    Main::GetInstance()->OnCollision(pScene, pItem1, pCollider1, pItem2, pCollider2, mtv);
-}
 //---------------------------------------------------------------------------
 Main* Main::m_This = nullptr;
 //---------------------------------------------------------------------------
@@ -714,17 +669,17 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
 
     // load idle IQM
     std::unique_ptr<DWF_Model::IQM> pIqmIdle = std::make_unique<DWF_Model::IQM>();
-    pIqmIdle->Set_OnLoadTexture(OnLoadTextureCallback);
+    pIqmIdle->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmIdle->Open("..\\..\\Resources\\Model\\Deborah\\Idle\\Deborah_Idle.iqm");
 
     // load walking IQM
     std::unique_ptr<DWF_Model::IQM> pIqmWalk = std::make_unique<DWF_Model::IQM>();
-    pIqmWalk->Set_OnLoadTexture(OnLoadTextureCallback);
+    pIqmWalk->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmWalk->Open("..\\..\\Resources\\Model\\Deborah\\Walk\\Deborah_Walk.iqm");
 
     // load jumping IQM
     std::unique_ptr<DWF_Model::IQM> pIqmJump = std::make_unique<DWF_Model::IQM>();
-    pIqmJump->Set_OnLoadTexture(OnLoadTextureCallback);
+    pIqmJump->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmJump->Open("..\\..\\Resources\\Model\\Deborah\\Jump\\Deborah_Jump.iqm");
 
     // create the background model item
@@ -742,8 +697,8 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     pIqmWalk.release();
     pAnim->AddAnim(pIqmJump.get(), 0, 24, 0.025, false);
     pIqmJump.release();
-    pAnim->Set_OnFrame(OnFrameCallback);
-    pAnim->Set_OnEndReached(OnEndReachedCallback);
+    pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
+    pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
 
     pAnim->SelectAnim(0);
 
@@ -962,7 +917,14 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    m_Scene.Set_OnCollision(OnCollisionCallback);
+    m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,
+                                      this,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2,
+                                      std::placeholders::_3,
+                                      std::placeholders::_4,
+                                      std::placeholders::_5,
+                                      std::placeholders::_6));
 
     // load footsteps sound
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();

@@ -437,11 +437,17 @@ void Scene::Render() const
                             (DWF_Renderer::Renderer::IESceneFlags)((unsigned)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearColor |
                                                                    (unsigned)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
+    if (m_fOnBeginScene)
+        m_fOnBeginScene();
+
     IGroup* pPOVs = GetGroup(IEGroupType::IE_GT_POV);
 
     // no point of views?
     if (!pPOVs)
     {
+        if (m_fOnEndScene)
+            m_fOnEndScene();
+
         m_pRenderer->EndScene();
         return;
     }
@@ -473,7 +479,20 @@ void Scene::Render() const
                 pTransparentModels->m_Items[j]->Render(viewMatrix, m_pRenderer);
     }
 
+    if (m_fOnEndScene)
+        m_fOnEndScene();
+
     m_pRenderer->EndScene();
+}
+//---------------------------------------------------------------------------
+void Scene::Set_OnBeginScene(ITfOnBeginScene fOnBeginScene)
+{
+    m_fOnBeginScene = fOnBeginScene;
+}
+//---------------------------------------------------------------------------
+void Scene::Set_OnEndScene(ITfOnEndScene fOnEndScene)
+{
+    m_fOnEndScene = fOnEndScene;
 }
 //---------------------------------------------------------------------------
 void Scene::Set_OnCollision(ITfOnCollision fOnCollision)

@@ -29,6 +29,7 @@
 #pragma once
 
 // std
+#include <functional>
 #include <string>
 
 // classes
@@ -49,10 +50,10 @@ namespace DWF_Renderer
         public:
             /**
             * Called when a generic attribute should be associated with a named variable
-            *@param programID - shader program identifier
-            *@param type - shader type
+            *@param arg1 - shader program identifier
+            *@param arg2 - shader type
             */
-            typedef void (*ITfOnBindAttribute)(std::uintptr_t programID, IEType type);
+            typedef std::function<void(std::uintptr_t, IEType)> ITfOnBindAttribute;
 
             Shader_OpenGL();
             virtual ~Shader_OpenGL();
@@ -115,7 +116,7 @@ namespace DWF_Renderer
             * Sets OnBindAttribute callback
             *@param fHandler - function handler
             */
-            virtual void Set_OnBindAttribute(ITfOnBindAttribute fHandler);
+            void Set_OnBindAttribute(ITfOnBindAttribute fHandler);
 
         protected:
             /**

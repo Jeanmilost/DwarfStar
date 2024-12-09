@@ -28,6 +28,9 @@
 
 #pragma once
 
+// std
+#include <functional>
+
 // classes
 #include "DWF_Color.h"
 #include "DWF_Material.h"
@@ -140,14 +143,14 @@ namespace DWF_Model
 
             /**
             * Called when a vertex color should be get
-            *@param pVB - vertex buffer that will contain the vertex for which the color should be get
-            *@param pNormal - vertex normal
-            *@param groupIndex - the vertex group index (e.g. the inner and outer vertices of a ring)
+            *@param arg1 - vertex buffer that will contain the vertex for which the color should be get
+            *@param arg2 - vertex normal
+            *@param arg3 - the vertex group index (e.g. the inner and outer vertices of a ring)
             *@return RGBA color to apply to the vertex
             *@note This callback will be called only if the per-vertex color option is activated in the vertex
             *      buffer
             */
-            typedef ColorF (*ITfOnGetVertexColor)(const VertexBuffer* pVB, const DWF_Math::Vector3F* pNormal, std::size_t groupIndex);
+            typedef std::function<ColorF(const VertexBuffer*, const DWF_Math::Vector3F*, std::size_t)> ITfOnGetVertexColor;
 
             VertexBuffer();
             virtual ~VertexBuffer();

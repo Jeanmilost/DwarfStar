@@ -26,6 +26,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
+// std
+#include <functional>
+
 // classes
 #include "DWF_PointOfView.h"
 #include "DWF_Camera.h"
@@ -83,20 +86,30 @@ namespace DWF_Scene
             };
 
             /**
-            * Called when a collision happened between 2 scene items
-            *@param pScene - scene in which the collision was detected
-            *@param pItem1 - first item in collision
-            *@param pCollider1 - collider in collision, belonging to the first item
-            *@param pItem2 - second item in collision
-            *@param pCollider2 - collider in collision, belonging to the second item
-            *@param mtv - minimum translation vector between the 2 colliders
+            * Called when a scene begins
             */
-            typedef void (*ITfOnCollision)(const Scene*                  pScene,
-                                                 SceneItem*              pItem1,
-                                                 DWF_Collider::Collider* pCollider1,
-                                                 SceneItem*              pItem2,
-                                                 DWF_Collider::Collider* pCollider,
-                                           const DWF_Math::Vector3F&     mtv);
+            typedef std::function<void()> ITfOnBeginScene;
+
+            /**
+            * Called when a scene ends
+            */
+            typedef std::function<void()> ITfOnEndScene;
+
+            /**
+            * Called when a collision happened between 2 scene items
+            *@param arg1 - scene in which the collision was detected
+            *@param arg2 - first item in collision
+            *@param arg3 - collider in collision, belonging to the first item
+            *@param arg4 - second item in collision
+            *@param arg5 - collider in collision, belonging to the second item
+            *@param arg6 - minimum translation vector between the 2 colliders
+            */
+            typedef std::function<void(const Scene*,
+                                             SceneItem*,
+                                             DWF_Collider::Collider*,
+                                             SceneItem*,
+                                             DWF_Collider::Collider*,
+                                       const DWF_Math::Vector3F&)> ITfOnCollision;
 
             Scene();
             virtual ~Scene();
@@ -236,10 +249,22 @@ namespace DWF_Scene
             virtual void Render() const;
 
             /**
+            * Set OnBeginScene function handler
+            *@param fOnBeginScene - function handler
+            */
+            void Set_OnBeginScene(ITfOnBeginScene fOnBeginScene);
+
+            /**
+            * Set OnEndScene function handler
+            *@param fOnEndScene - function handler
+            */
+            void Set_OnEndScene(ITfOnEndScene fOnEndScene);
+
+            /**
             * Set OnCollision function handler
             *@param fOnCollision - function handler
             */
-            virtual void Set_OnCollision(ITfOnCollision fOnCollision);
+            void Set_OnCollision(ITfOnCollision fOnCollision);
 
         private:
             /**
@@ -266,6 +291,8 @@ namespace DWF_Scene
             IItemDictionary         m_ItemCache;
             IAudioDictionary        m_AudioCache;
             DWF_Model::ColorF       m_Color;
+            ITfOnBeginScene         m_fOnBeginScene = nullptr;
+            ITfOnEndScene           m_fOnEndScene   = nullptr;
             ITfOnCollision          m_fOnCollision  = nullptr;
 
             /**

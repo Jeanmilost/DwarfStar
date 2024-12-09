@@ -27,6 +27,7 @@
  ****************************************************************************/
 
 // std
+#include <functional>
 #include <vector>
 
 // classes
@@ -65,17 +66,17 @@ namespace DWF_Scene
 
             /**
             * Called when the next frame was calculated
-            *@param pAnim - scene animation item in which the next frame was calculated
-            *@param pAnimDesc - animation description
+            *@param arg1 - scene animation item in which the next frame was calculated
+            *@param arg2 - animation description
             */
-            typedef void (*ITfOnFrame)(const SceneItem_Animation* pAnim, const IAnimDesc* pAnimDesc);
+            typedef std::function<void(const SceneItem_Animation*, const IAnimDesc*)> ITfOnFrame;
 
             /**
             * Called when an animation end was reached
-            *@param pAnim - scene animation item in which the end was reached
-            *@param pAnimDesc - animation description
+            *@param arg1 - scene animation item in which the end was reached
+            *@param arg2 - animation description
             */
-            typedef void (*ITfOnEndReached)(const SceneItem_Animation* pAnim, const IAnimDesc* pAnimDesc);
+            typedef std::function<void(const SceneItem_Animation*, const IAnimDesc*)> ITfOnEndReached;
 
             /**
             * Constructor

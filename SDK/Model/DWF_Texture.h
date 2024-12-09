@@ -29,6 +29,7 @@
 #pragma once
 
 // std
+#include <functional>
 #include <vector>
 #include <map>
 
@@ -46,12 +47,12 @@ namespace DWF_Model
         public:
             /**
             * Called when a texture should be loaded
-            *@param textureName - texture name to load
-            *@param is32bit - if true, the texture is a 32 bit texture
+            *@param arg1 - texture name to load
+            *@param arg2 - if true, the texture is a 32 bit texture
             *@return the loaded texture
             *@note The loaded texture will be deleted internally, and should no longer be deleted from outside
             */
-            typedef Texture* (*ITfOnLoadTexture)(const std::string& textureName, bool is32bit);
+            typedef std::function<Texture*(const std::string&, bool)> ITfOnLoadTexture;
 
             /**
             * Texture format
