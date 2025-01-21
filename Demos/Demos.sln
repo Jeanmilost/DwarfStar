@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThirdPersonDemo", "ThirdPer
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectionalLight", "DirectionalLight\DirectionalLight.vcxproj", "{1AB2532B-5610-41EE-A2C7-5DF5FF7CF912}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Platformer", "Platformer\Platformer.vcxproj", "{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{1AB2532B-5610-41EE-A2C7-5DF5FF7CF912}.Release|x64.Build.0 = Release|x64
 		{1AB2532B-5610-41EE-A2C7-5DF5FF7CF912}.Release|x86.ActiveCfg = Release|Win32
 		{1AB2532B-5610-41EE-A2C7-5DF5FF7CF912}.Release|x86.Build.0 = Release|Win32
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Debug|x64.ActiveCfg = Debug|x64
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Debug|x64.Build.0 = Debug|x64
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Debug|x86.ActiveCfg = Debug|Win32
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Debug|x86.Build.0 = Debug|Win32
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Release|x64.ActiveCfg = Release|x64
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Release|x64.Build.0 = Release|x64
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Release|x86.ActiveCfg = Release|Win32
+		{64E8C90B-A3FE-4A44-A787-011EDE5EF77E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

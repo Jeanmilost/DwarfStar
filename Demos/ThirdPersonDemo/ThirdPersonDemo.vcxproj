@@ -306,8 +306,7 @@
     <ResourceCompile Include="ThirdPersonDemo.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\Icons\DwarfStar.ico" />
-    <Image Include="..\Resources\Icons\DwarfStar_Small.ico" />
+    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />
     <Image Include="Resources\background.tga" />
     <Image Include="Resources\BalletFlats.tga" />
     <Image Include="Resources\brown_eye.tga" />

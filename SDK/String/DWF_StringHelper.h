@@ -79,6 +79,20 @@ namespace DWF_String
             static std::wstring ToUpperCase(const std::wstring& str);
 
             /**
+            * Converts string to wstring
+            *@param str - string to convert
+            *@return converted string
+            */
+            static std::wstring StrToWStr(const std::string& str);
+
+            /**
+            * Converts wstring to string
+            *@param str - string to convert
+            *@return converted string
+            */
+            static std::string WStrToStr(const std::wstring& str);
+
+            /**
             * Converts an Utf8 encoded string to Utf16
             *@param str - string to convert
             *@return converted string

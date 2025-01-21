@@ -41,6 +41,9 @@ namespace DWF_Math
 {
     /**
     * Helper class for math
+    *@note If some errors like below appear during the compilation:
+    *      DWF_MathHelper.h(101,21): error C2589: '(': illegal token on right side of '::'
+    *      please define NOMINMAX in the global preprocessor definitions (e.g. open the project options -> C/C++ -> Preprocessor -> Preprocessor Definitions)
     *@author Jean-Milost Reymond
     */
     class Helper

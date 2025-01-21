@@ -438,12 +438,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\Icons\DwarfStar.ico">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
-    <Image Include="..\Resources\Icons\DwarfStar_Small.ico">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
     <Image Include="Resources\background.tga">
       <Filter>Resource Files\Models\Textures</Filter>
     </Image>
@@ -467,6 +461,9 @@
     </Image>
     <Image Include="Resources\sleeveless.tga">
       <Filter>Resource Files\Models\Textures</Filter>
+    </Image>
+    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

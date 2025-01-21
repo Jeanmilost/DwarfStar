@@ -693,12 +693,8 @@ bool IQM::Open(const std::string& fileName)
 //---------------------------------------------------------------------------
 bool IQM::Open(const std::wstring& fileName)
 {
-    // delete the previous model, if exists
-    if (m_pModel)
-    {
-        delete m_pModel;
-        m_pModel = nullptr;
-    }
+    // clear the previous model, if exists
+    Clear();
 
     // no file name?
     if (fileName.empty())
@@ -719,12 +715,8 @@ bool IQM::Open(const std::wstring& fileName)
 //---------------------------------------------------------------------------
 bool IQM::Open(DWF_Buffer::Buffer& buffer)
 {
-    // delete the previous model, if exists
-    if (m_pModel)
-    {
-        delete m_pModel;
-        m_pModel = nullptr;
-    }
+    // clear the previous model, if exists
+    Clear();
 
     // read the buffer content
     return Read(buffer);
