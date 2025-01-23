@@ -375,7 +375,7 @@ namespace DWF_Math
     template <class T>
     T Vector2<T>::Length() const
     {
-        return (T)sqrt((T)(m_X * m_X) + (T)(m_Y * m_Y));
+        return T(sqrt((double(m_X) * double(m_X)) + (double(m_Y) * double(m_Y))));
     }
     //---------------------------------------------------------------------------
     template <class T>

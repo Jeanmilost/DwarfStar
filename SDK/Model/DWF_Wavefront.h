@@ -45,6 +45,13 @@ namespace DWF_Model
     class Wavefront
     {
         public:
+            /**
+            * Called when a material file buffer should be opened
+            *@param arg1 - material file name to open
+            *@param arg2 - file buffer in which the material file should be opened
+            */
+            typedef std::function<bool(const std::string&, DWF_Buffer::Buffer*&)> ITfOnOpenMaterialFile;
+
             Wavefront();
             virtual ~Wavefront();
 
@@ -100,6 +107,12 @@ namespace DWF_Model
             virtual void SetMaterial(const Material& materialTemplate);
 
             /**
+            * Sets the OnOpenMaterialFile callback
+            *@param fOnOpenMaterialFile - callback function handle
+            */
+            void Set_OnOpenMaterialFile(ITfOnOpenMaterialFile fOnOpenMaterialFile);
+
+            /**
             * Sets the OnGetVertexColor callback
             *@param fOnGetVertexColor - callback function handle
             */
@@ -112,15 +125,65 @@ namespace DWF_Model
             void Set_OnLoadTexture(Texture::ITfOnLoadTexture fOnLoadTexture);
 
         private:
-            typedef std::vector<float>        IVertexData;
-            typedef std::vector<std::int64_t> IFaceData;
+            /**
+            * Helper class to e.g. read from files
+            */
+            class IHelper
+            {
+                public:
+                    /**
+                    * Skip a line and go to the next one
+                    *@param data - data to read from
+                    *@param[in, out] index - current data index, data index located on the next line on function ends
+                    */
+                    static void SkipLine(const std::string data, std::size_t& index);
 
-            Model*                            m_pModel            = nullptr;
+                    /**
+                    * Reads a line from the WaveFront material file
+                    *@param data - data to read from
+                    *@param[in, out] index - current data index, new data index on function ends
+                    *@param[in, out] text - text read after the line identifier
+                    */
+                    static void ReadLine(const std::string data, std::size_t& index, std::string& text);
+            };
+
+            /**
+            * Wavefront material
+            */
+            class IMaterial
+            {
+                public:
+                    std::string m_Name;
+                    std::string m_TextureFileName;
+
+                    IMaterial();
+                    ~IMaterial();
+
+                    /**
+                    * Clears the material
+                    */
+                    void Clear();
+
+                    /**
+                    * Reads the buffer content
+                    *@param buffer - buffer to read
+                    *@return true on success, otherwise false
+                    */
+                    bool Read(DWF_Buffer::Buffer& buffer);
+            };
+
+            typedef std::map<std::string, IMaterial> IMaterials;
+            typedef std::vector<float>               IVertexData;
+            typedef std::vector<std::int64_t>        IFaceData;
+
+            Model*                            m_pModel              = nullptr;
             VertexFormat                      m_VertFormatTemplate;
             VertexCulling                     m_VertCullingTemplate;
             Material                          m_MaterialTemplate;
-            VertexBuffer::ITfOnGetVertexColor m_fOnGetVertexColor = nullptr;
-            Texture::ITfOnLoadTexture         m_fOnLoadTexture    = nullptr;
+            IMaterials                        m_Materials;
+            VertexBuffer::ITfOnGetVertexColor m_fOnGetVertexColor   = nullptr;
+            Texture::ITfOnLoadTexture         m_fOnLoadTexture      = nullptr;
+            ITfOnOpenMaterialFile             m_fOnOpenMaterialFile = nullptr;
 
             /**
             * Reads the buffer content
@@ -133,9 +196,17 @@ namespace DWF_Model
             * Reads a line from the WaveFront file
             *@param data - data to read from
             *@param[in, out] index - current data index, new data index on function ends
+            *@param[in, out] material - material to populate with the read data
+            */
+            void ReadLine(const std::string data, std::size_t& index, IMaterial& material) const;
+
+            /**
+            * Reads a line from the WaveFront file
+            *@param data - data to read from
+            *@param[in, out] index - current data index, new data index on function ends
             *@param[in, out] vertexData - vertex data in which the read values should be added
             */
-            void ReadLine(const std::string data, std::size_t& index, IVertexData& vertexData);
+            void ReadLine(const std::string data, std::size_t& index, IVertexData& vertexData) const;
 
             /**
             * Reads a line from the WaveFront file
@@ -143,14 +214,7 @@ namespace DWF_Model
             *@param[in, out] index - current data index, new data index on function ends
             *@param[in, out] faceData - face data in which the read values should be added
             */
-            void ReadLine(const std::string data, std::size_t& index, IFaceData& faceData);
-
-            /**
-            * Skip a line and go to the next one
-            *@param data - data to read from
-            *@param[in, out] index - current data index, data index located on the next line on function ends
-            */
-            void SkipLine(const std::string data, std::size_t& index);
+            void ReadLine(const std::string data, std::size_t& index, IFaceData& faceData) const;
 
             /**
             * Builds a face from WaveFront data
@@ -166,8 +230,9 @@ namespace DWF_Model
                            const IVertexData& normals,
                            const IVertexData& uvs,
                            const IFaceData&   faces,
-                           bool               objectChanging,
-                           bool               groupChanging);
+                           const std::string& matName,
+                                 bool         objectChanging,
+                                 bool         groupChanging) const;
 
             /**
             * Builds a vertex buffer from a WaveFront data
@@ -177,10 +242,10 @@ namespace DWF_Model
             *@param faces - face array read in WaveFront file
             *@param[in, out] pVB - vertex buffer in which the WaveFront data should be built
             */
-            void BuildVertexBuffer(const IVertexData& vertices,
-                                   const IVertexData& normals,
-                                   const IVertexData& uvs,
-                                   const IFaceData&   faces,
-                                   VertexBuffer*      pVB);
+            void BuildVertexBuffer(const IVertexData&  vertices,
+                                   const IVertexData&  normals,
+                                   const IVertexData&  uvs,
+                                   const IFaceData&    faces,
+                                         VertexBuffer* pVB) const;
     };
 }

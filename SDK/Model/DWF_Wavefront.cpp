@@ -34,13 +34,132 @@
 using namespace DWF_Model;
 
 //---------------------------------------------------------------------------
+// Wavefront::IHelper
+//---------------------------------------------------------------------------
+void Wavefront::IHelper::SkipLine(const std::string data, std::size_t& index)
+{
+    // skip line
+    while (index < data.length() && data[index] != '\r' && data[index] != '\n')
+        ++index;
+}
+//---------------------------------------------------------------------------
+void Wavefront::IHelper::ReadLine(const std::string data, std::size_t& index, std::string& text)
+{
+    bool doExit = false;
+
+    // read the line
+    while (index < data.length())
+    {
+        // dispatch the next char
+        switch (data[index])
+        {
+            case '\r':
+            case '\n':
+                return;
+
+            default:
+                text += data[index];
+                break;
+        }
+
+        // go to next char
+        ++index;
+    }
+}
+//---------------------------------------------------------------------------
+// Wavefront::IMaterial
+//---------------------------------------------------------------------------
+Wavefront::IMaterial::IMaterial()
+{}
+//---------------------------------------------------------------------------
+Wavefront::IMaterial::~IMaterial()
+{}
+//---------------------------------------------------------------------------
+void Wavefront::IMaterial::Clear()
+{
+    m_Name.clear();
+    m_TextureFileName.clear();
+}
+//---------------------------------------------------------------------------
+bool Wavefront::IMaterial::Read(DWF_Buffer::Buffer& buffer)
+{
+    const std::string data = buffer.ToStr();
+
+    if (!data.length())
+        return false;
+
+    Clear();
+
+    bool result = false;
+
+    // iterate through wavefront chars
+    for (std::size_t i = 0; i < data.length(); ++i)
+    {
+        // dispatch next char
+        switch (data[i])
+        {
+            case '#':
+                // found commented line
+                IHelper::SkipLine(data, i);
+                continue;
+
+            case 'm':
+                // is a texture file name line?
+                if (i + 5 < data.length())
+                    if (data[i + 1] == 'a' &&
+                        data[i + 2] == 'p' &&
+                        data[i + 3] == '_' &&
+                        data[i + 4] == 'K' &&
+                        data[i + 5] == 'd')
+                    {
+                        // skip the texture file identifier and the first space
+                        i += 7;
+
+                        IHelper::ReadLine(data, i, m_TextureFileName);
+                        continue;
+                    }
+
+                // unknown data, skip it
+                IHelper::SkipLine(data, i);
+                continue;
+
+            case 'n':
+                // is a material name line?
+                if (i + 5 < data.length())
+                    if (data[i + 1] == 'e' &&
+                        data[i + 2] == 'w' &&
+                        data[i + 3] == 'm' &&
+                        data[i + 4] == 't' &&
+                        data[i + 5] == 'l')
+                    {
+                        // skip the texture file identifier and the first space
+                        i += 7;
+
+                        IHelper::ReadLine(data, i, m_Name);
+                        continue;
+                    }
+
+                // unknown data, skip it
+                IHelper::SkipLine(data, i);
+                continue;
+
+            default:
+                // unknown line, skip it
+                IHelper::SkipLine(data, i);
+                continue;
+        }
+    }
+
+    return result;
+}
+//---------------------------------------------------------------------------
 // Wavefront
 //---------------------------------------------------------------------------
 Wavefront::Wavefront()
 {
     // configure the default vertex format
     m_VertFormatTemplate.m_Format = (VertexFormat::IEFormat)((unsigned)VertexFormat::IEFormat::IE_VF_Colors |
-            (unsigned)VertexFormat::IEFormat::IE_VF_TexCoords);
+                                                             (unsigned)VertexFormat::IEFormat::IE_VF_TexCoords);
     m_VertFormatTemplate.m_Type = VertexFormat::IEType::IE_VT_Triangles;
 
     // configure the default vertex culling
@@ -138,6 +257,11 @@ void Wavefront::SetMaterial(const Material& materialTemplate)
     m_MaterialTemplate = materialTemplate;
 }
 //---------------------------------------------------------------------------
+void Wavefront::Set_OnOpenMaterialFile(ITfOnOpenMaterialFile fOnOpenMaterialFile)
+{
+    m_fOnOpenMaterialFile = fOnOpenMaterialFile;
+}
+//---------------------------------------------------------------------------
 void Wavefront::Set_OnGetVertexColor(VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor)
 {
     m_fOnGetVertexColor = fOnGetVertexColor;
@@ -160,10 +284,12 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
     // create the model
     m_pModel = new Model();
 
+    IMaterial   material;
     IVertexData vertex;
     IVertexData normal;
     IVertexData uv;
     IFaceData   face;
+    std::string matName;
     bool        objectChanging = false;
     bool        groupChanging  = false;
     bool        result         = false;
@@ -176,7 +302,55 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
         {
             case '#':
                 // found commented line
-                SkipLine(data, i);
+                IHelper::SkipLine(data, i);
+                continue;
+
+            case 'm':
+                // is a material library line?
+                if (i + 5 < data.length())
+                    if (data[i + 1] == 't' &&
+                        data[i + 2] == 'l' &&
+                        data[i + 3] == 'l' &&
+                        data[i + 4] == 'i' &&
+                        data[i + 5] == 'b')
+                    {
+                        // skip the material identifier
+                        i += 7;
+
+                        // read the material
+                        ReadLine(data, i, material);
+
+                        // was the material read successfully?
+                        if (!material.m_Name.empty())
+                            m_Materials[material.m_Name] = material;
+
+                        material.Clear();
+                        continue;
+                    }
+
+                // unknown data, skip it
+                IHelper::SkipLine(data, i);
+                continue;
+
+            case 'u':
+                // is a material directive line?
+                if (i + 5 < data.length())
+                    if (data[i + 1] == 's' &&
+                        data[i + 2] == 'e' &&
+                        data[i + 3] == 'm' &&
+                        data[i + 4] == 't' &&
+                        data[i + 5] == 'l')
+                    {
+                        // skip the material identifier and the first space
+                        i += 7;
+
+                        // read the material name to use
+                        IHelper::ReadLine(data, i, matName);
+                        continue;
+                    }
+
+                // unknown data, skip it
+                IHelper::SkipLine(data, i);
                 continue;
 
             case 'v':
@@ -216,7 +390,7 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
                 ReadLine(data, i, face);
 
                 // build the face
-                if (!BuildFace(vertex, normal, uv, face, objectChanging, 0))
+                if (!BuildFace(vertex, normal, uv, face, matName, objectChanging, 0))
                 {
                     Clear();
                     return false;
@@ -230,9 +404,10 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
 
             case 'o':
                 // line contains an object
-                SkipLine(data, i);
+                IHelper::SkipLine(data, i);
 
                 // clear the local data (a new object will be built)
+                matName.clear();
                 vertex.clear();
                 normal.clear();
                 uv.clear();
@@ -243,9 +418,10 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
 
             case 'g':
                 // line contains a polygon group
-                SkipLine(data, i);
+                IHelper::SkipLine(data, i);
 
                 // clear the local data (a new group will be built)
+                matName.clear();
                 vertex.clear();
                 normal.clear();
                 uv.clear();
@@ -256,7 +432,7 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
 
             default:
                 // unknown line, skip it
-                SkipLine(data, i);
+                IHelper::SkipLine(data, i);
                 continue;
         }
     }
@@ -264,7 +440,53 @@ bool Wavefront::Read(DWF_Buffer::Buffer& buffer)
     return result;
 }
 //---------------------------------------------------------------------------
-void Wavefront::ReadLine(const std::string data, std::size_t& index, IVertexData& vertexData)
+void Wavefront::ReadLine(const std::string data, std::size_t& index, IMaterial& material) const
+{
+    std::string line;
+    bool        doExit = false;
+
+    // read the line
+    while (index < data.length())
+    {
+        // dispatch the next char
+        switch (data[index])
+        {
+            case '\r':
+            case '\n':
+                doExit = true;
+                break;
+
+            default:
+                line += data[index];
+                break;
+        }
+
+        if (doExit)
+            break;
+
+        // go to next char
+        ++index;
+    }
+
+    DWF_Buffer::Buffer* pMtlFileBuffer = nullptr;
+
+    if (!m_fOnOpenMaterialFile)
+        return;
+
+    // open the material file
+    if (!m_fOnOpenMaterialFile(line, pMtlFileBuffer))
+        return;
+
+    // received a valid file buffer?
+    if (!pMtlFileBuffer)
+        return;
+
+    std::unique_ptr<DWF_Buffer::Buffer> pBuffer(pMtlFileBuffer);
+
+    material.Read(*pBuffer.get());
+}
+//---------------------------------------------------------------------------
+void Wavefront::ReadLine(const std::string data, std::size_t& index, IVertexData& vertexData) const
 {
     std::string line;
     bool        doExit = false;
@@ -304,7 +526,7 @@ void Wavefront::ReadLine(const std::string data, std::size_t& index, IVertexData
     }
 }
 //---------------------------------------------------------------------------
-void Wavefront::ReadLine(const std::string data, std::size_t& index, IFaceData& faceData)
+void Wavefront::ReadLine(const std::string data, std::size_t& index, IFaceData& faceData) const
 {
     std::string line;
     bool        doExit = false;
@@ -345,19 +567,13 @@ void Wavefront::ReadLine(const std::string data, std::size_t& index, IFaceData& 
     }
 }
 //---------------------------------------------------------------------------
-void Wavefront::SkipLine(const std::string data, std::size_t& index)
-{
-    // skip line
-    while (index < data.length() && data[index] != '\r' && data[index] != '\n')
-        ++index;
-}
-//---------------------------------------------------------------------------
 bool Wavefront::BuildFace(const IVertexData& vertices,
                           const IVertexData& normals,
                           const IVertexData& uvs,
                           const IFaceData&   faces,
-                          bool               objectChanging,
-                          bool               groupChanging)
+                          const std::string& matName,
+                                bool         objectChanging,
+                                bool         groupChanging) const
 {
     Mesh*         pMesh = nullptr;
     VertexBuffer* pVB   = nullptr;
@@ -381,30 +597,35 @@ bool Wavefront::BuildFace(const IVertexData& vertices,
         {
             std::unique_ptr<VertexBuffer> pNewVB = std::make_unique<VertexBuffer>();
 
-            // apply the user wished vertex format
-            pNewVB->m_Format = m_VertFormatTemplate;
-
-            // apply the user wished vertex culling
-            pNewVB->m_Culling = m_VertCullingTemplate;
-
-            // apply the user wished material
+            pNewVB->m_Format   = m_VertFormatTemplate;
+            pNewVB->m_Culling  = m_VertCullingTemplate;
             pNewVB->m_Material = m_MaterialTemplate;
 
             // set the vertex type and format
             pNewVB->m_Format.m_Type   = VertexFormat::IEType::IE_VT_Triangles;
             pNewVB->m_Format.m_Format = VertexFormat::IEFormat::IE_VF_Colors;
 
-            if (normals.size())
+            // has normals?
+            if (normals.size() && ((int)m_VertFormatTemplate.m_Format & (int)VertexFormat::IEFormat::IE_VF_Normals))
                 pNewVB->m_Format.m_Format = (VertexFormat::IEFormat)((int)pNewVB->m_Format.m_Format | (int)VertexFormat::IEFormat::IE_VF_Normals);
 
-            if (uvs.size())
+            // has texture coordinates?
+            if (uvs.size() && ((int)m_VertFormatTemplate.m_Format & (int)VertexFormat::IEFormat::IE_VF_TexCoords))
                 pNewVB->m_Format.m_Format = (VertexFormat::IEFormat)((int)pNewVB->m_Format.m_Format | (int)VertexFormat::IEFormat::IE_VF_TexCoords);
 
             // calculate the vertex stride
             pNewVB->m_Format.CalculateStride();
 
-            // FIXME for Jean: fix and move to correct location
-            pNewVB->m_Material.m_pTexture = m_fOnLoadTexture("platform-texture.png", false);
+            // do use a material?
+            if (!matName.empty())
+            {
+                // search it in the list
+                IMaterials::const_iterator it = m_Materials.find(matName);
+
+                if (it != m_Materials.end())
+                    if (m_fOnLoadTexture)
+                        pNewVB->m_Material.m_pTexture = m_fOnLoadTexture(it->second.m_TextureFileName, false);
+            }
 
             pMesh->m_VB.push_back(pNewVB.get());
             pVB = pNewVB.release();
@@ -419,11 +640,11 @@ bool Wavefront::BuildFace(const IVertexData& vertices,
     return true;
 }
 //---------------------------------------------------------------------------
-void Wavefront::BuildVertexBuffer(const IVertexData& vertices,
-                                  const IVertexData& normals,
-                                  const IVertexData& uvs,
-                                  const IFaceData&   faces,
-                                  VertexBuffer*      pVB)
+void Wavefront::BuildVertexBuffer(const IVertexData&  vertices,
+                                  const IVertexData&  normals,
+                                  const IVertexData&  uvs,
+                                  const IFaceData&    faces,
+                                        VertexBuffer* pVB) const
 {
     // calculate the normal and uv offsets. Be careful, the face values follows one each other in
     // the file, without distinction, so the correct format (v, v/n, v/f or v/n/f) should be

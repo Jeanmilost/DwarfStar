@@ -101,6 +101,8 @@ class Main
 
         DWF_Model::Texture* OnLoadTexture2(const std::string& textureName, bool is32bit);
 
+        bool OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& pFileBuffer);
+
         /**
         * Called when a new frame is calculated in an animation
         *@param pAnim - the animation for which the frame is calculated

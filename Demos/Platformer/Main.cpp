@@ -483,6 +483,16 @@ DWF_Model::Texture* Main::OnLoadTexture2(const std::string& textureName, bool is
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
+bool Main::OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& pFileBuffer)
+{
+    std::unique_ptr<DWF_Buffer::StdFileBuffer> pBuffer = std::make_unique<DWF_Buffer::StdFileBuffer>();
+    pBuffer->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\" + fileName, DWF_Buffer::StdFileBuffer::IEMode::IE_M_Read);
+
+    pFileBuffer = pBuffer.release();
+
+    return true;
+}
+//---------------------------------------------------------------------------
 void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
 {
     if (!m_Jumping)
@@ -1000,8 +1010,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     // load platform
     std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
+    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform - Copy.obj");
+    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform");
     pModel->SetStatic(true);
