@@ -1014,16 +1014,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
+    // copy the generated platform model, and release the Wavefront object
+    std::unique_ptr<DWF_Model::Model> pPlatformModel = std::make_unique<DWF_Model::Model>(*pPlatform->GetModel());
+    pPlatform.release();
+
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform");
     pModel->SetStatic(true);
-    pModel->SetModel(pPlatform->GetModel());//FIXME MEMORY LEAK
+    pModel->SetModel(pPlatformModel.release());
     pModel->SetShader(&texShader);
     pModel->SetPos(DWF_Math::Vector3F(0.0f, 1.5f, 0.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pPlatform.release();
 
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
