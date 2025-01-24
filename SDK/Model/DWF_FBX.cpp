@@ -3030,44 +3030,44 @@ bool FBX::PopulateVertexBuffer(const IMeshTemplate*    pMeshTemplate,
             {
                 case 3:
                     // polygon, extract it
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[0] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[0] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[0] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[0] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[0] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[0] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[0] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[0] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[0], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[1] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[1] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[1] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[1] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[1] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[1] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[1] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[1] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[1] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[1] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[1] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[1] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[1] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[1] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[1] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[1] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[1], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[2] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[2] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[2] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[2] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[2] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[2] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[2] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[2] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[2], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
@@ -3076,87 +3076,87 @@ bool FBX::PopulateVertexBuffer(const IMeshTemplate*    pMeshTemplate,
 
                 case 4:
                     // quad, extract the first polygon...
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[0] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[0] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[0] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[0] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[0] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[0] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[0] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[0] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[0], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[1] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[1] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[1] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[1] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[1] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[1] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[1] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[1] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[1] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[1] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[1] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[1] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[1] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[1] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[1] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[1] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[1], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[2] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[2] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[2] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[2] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[2] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[2] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[2] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[2] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[2], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
                     // ...and the second
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[0] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[0] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[0] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[0] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[0] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[0] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[0] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[0] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[0] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[0] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[0] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[0] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[0], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[2] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[2] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[2] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[2] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[2] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[2] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[2] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[2] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[2] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[2] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[2] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[2] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[2], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
 
-                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[std::size_t( indices[3] * 3)];
-                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[3] * 3) + 1)];
-                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[std::size_t((indices[3] * 3) + 2)];
+                    vertex.m_X = (float)(*pMeshTemplate->m_pVertices)[ (std::size_t)indices[3] * 3];
+                    vertex.m_Y = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[3] * 3) + 1];
+                    vertex.m_Z = (float)(*pMeshTemplate->m_pVertices)[((std::size_t)indices[3] * 3) + 2];
 
-                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[std::size_t( normalIndices[3] * 3)];
-                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[3] * 3) + 1)];
-                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[std::size_t((normalIndices[3] * 3) + 2)];
+                    normal.m_X = (float)(*pMeshTemplate->m_pNormals)[ (std::size_t)normalIndices[3] * 3];
+                    normal.m_Y = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[3] * 3) + 1];
+                    normal.m_Z = (float)(*pMeshTemplate->m_pNormals)[((std::size_t)normalIndices[3] * 3) + 2];
 
-                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[std::size_t( uvIndices[3] * 2)];
-                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[std::size_t((uvIndices[3] * 2) + 1)];
+                    uv.m_X     = (float)(*pMeshTemplate->m_pUVs)[ (std::size_t)uvIndices[3] * 2];
+                    uv.m_Y     = (float)(*pMeshTemplate->m_pUVs)[((std::size_t)uvIndices[3] * 2) + 1];
 
                     AddWeightInfluence(pIndexToInfl, indices[3], pModelVB);
                     pModelVB->Add(&vertex, &normal, &uv, 0, m_fOnGetVertexColor);
