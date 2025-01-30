@@ -1,0 +1,30 @@
+# Written by MakeHuman 1.2.1 alpha
+version v1.2.1
+camera 17.5 45.5 0.5933293138427284 -1.0 0.051888933041324636 1.0625
+modifier head/head-age-decr|incr -1.000000
+modifier head/head-angle-in|out 0.018000
+modifier head/head-fat-decr|incr -0.592000
+modifier breast/BreastSize 0.000000
+modifier breast/BreastFirmness 0.000000
+modifier breast/breast-trans-down|up 0.462000
+modifier breast/breast-dist-decr|incr -0.126000
+modifier macrodetails/Gender 1.000000
+modifier macrodetails/Age 0.575000
+modifier macrodetails/African 0.069000
+modifier macrodetails/Asian 0.862000
+modifier macrodetails/Caucasian 0.069000
+modifier macrodetails-universal/Muscle 0.234000
+modifier macrodetails-universal/Weight 0.329000
+modifier macrodetails-height/Height 0.500000
+modifier macrodetails-proportions/BodyProportions 0.551000
+proxy male1591 d7e4934e-daed-4ad5-a055-18c9cba487dc
+hair maxwell_hair_mh cd6b67d9-0868-438b-b55c-5e727746eeb1
+skeleton game_engine.mhskel
+eyes HighPolyEyes 2c12f43b-1303-432c-b7ce-d78346baf2e6
+clothes male_casualsuit01 79ced554-1d8a-4c14-a6a8-e1de90b09c32
+clothes shoes01 6e0c552e-e207-44df-8f70-c9bfdeddd8c6
+clothesHideFaces True
+skinMaterial skins/middleage_asian_male/middleage_asian_male.mhmat
+material maxwell_hair_mh cd6b67d9-0868-438b-b55c-5e727746eeb1 maxwell_hair_mh.mhmat
+material HighPolyEyes 2c12f43b-1303-432c-b7ce-d78346baf2e6 eyes/materials/brown.mhmat
+subdivide False

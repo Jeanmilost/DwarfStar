@@ -418,7 +418,7 @@ DWF_Model::Texture* Main::OnLoadTexture(const std::string& textureName, bool is3
         std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
 
         // load the texture
-        if (!pPixelBuffer->FromTga("..\\..\\Resources\\Model\\Deborah\\Textures\\" + textureName))
+        if (!pPixelBuffer->FromPng("..\\..\\Resources\\Model\\Platformer\\Player\\Textures\\" + textureName, true))
             return nullptr;
 
         if (!pPixelBuffer->m_pData)
@@ -546,7 +546,7 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     m_zPos -= mtv.m_Z;
 }
 //---------------------------------------------------------------------------
-GLuint Main::LoadCubemap(const IFilenames fileNames)
+GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
 {
     try
     {
@@ -564,7 +564,7 @@ GLuint Main::LoadCubemap(const IFilenames fileNames)
             std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
 
             // load the texture
-            if (!pPixelBuffer->FromBitmap(fileNames[i]))
+            if (!pPixelBuffer->FromPng(fileNames[i], false))
                 return -1;
 
             GLint pixelType;
@@ -572,26 +572,49 @@ GLuint Main::LoadCubemap(const IFilenames fileNames)
             // select the correct pixel type to use
             switch (pPixelBuffer->m_BytePerPixel)
             {
-                case 3:  pixelType = GL_RGB;  break;
-                case 4:  pixelType = GL_RGBA; break;
+                case 24:  pixelType = GL_RGB;  break;
+                case 32:  pixelType = GL_RGBA; break;
                 default: return -1;
             }
 
-            // calculate image stride
-            const std::size_t stride = ((((std::size_t)pPixelBuffer->m_Width) * 3 + 3) / 4) * 4 - (((std::size_t)pPixelBuffer->m_Width) * 3 % 4);
-
-            // reorder the pixels
-            unsigned char* pPixels = new unsigned char[(std::size_t)pPixelBuffer->m_Width * (std::size_t)pPixelBuffer->m_Height * 3];
-
-            try
+            // do convert pixels?
+            if (convertPixels)
             {
-                // get bitmap data into right format
-                for (unsigned y = 0; y < pPixelBuffer->m_Height; ++y)
-                    for (unsigned x = 0; x < pPixelBuffer->m_Width; ++x)
-                        for (unsigned char c = 0; c < 3; ++c)
-                            pPixels[3 * (pPixelBuffer->m_Width * y + x) + c] =
-                                    ((unsigned char*)pPixelBuffer->m_pData)[stride * y + 3 * ((std::size_t)pPixelBuffer->m_Width - x - 1) + (2 - c)];
+                // calculate image stride
+                const std::size_t stride = ((((std::size_t)pPixelBuffer->m_Width) * 3 + 3) / 4) * 4 - (((std::size_t)pPixelBuffer->m_Width) * 3 % 4);
 
+                // reorder the pixels
+                unsigned char* pPixels = new unsigned char[(std::size_t)pPixelBuffer->m_Width * (std::size_t)pPixelBuffer->m_Height * 3];
+
+                try
+                {
+                    // get bitmap data into right format
+                    for (unsigned y = 0; y < pPixelBuffer->m_Height; ++y)
+                        for (unsigned x = 0; x < pPixelBuffer->m_Width; ++x)
+                            for (unsigned char c = 0; c < 3; ++c)
+                                pPixels[3 * (pPixelBuffer->m_Width * y + x) + c] =
+                                        ((unsigned char*)pPixelBuffer->m_pData)[stride * y + 3 * ((std::size_t)pPixelBuffer->m_Width - x - 1) + (2 - c)];
+
+                    // load the texture on the GPU
+                    glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
+                                 0,
+                                 pixelType,
+                                 (GLsizei)pPixelBuffer->m_Width,
+                                 (GLsizei)pPixelBuffer->m_Height,
+                                 0,
+                                 pixelType,
+                                 GL_UNSIGNED_BYTE,
+                                 pPixels);
+                }
+                catch (...)
+                {
+                    delete[] pPixels;
+                    throw;
+                }
+
+                delete[] pPixels;
+            }
+            else
                 // load the texture on the GPU
                 glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
                              0,
@@ -601,19 +624,11 @@ GLuint Main::LoadCubemap(const IFilenames fileNames)
                              0,
                              pixelType,
                              GL_UNSIGNED_BYTE,
-                             pPixels);
-            }
-            catch (...)
-            {
-                delete[] pPixels;
-                throw;
-            }
-
-            delete[] pPixels;
+                             (unsigned char*)pPixelBuffer->m_pData);
         }
 
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,     GL_CLAMP_TO_EDGE);
@@ -640,6 +655,7 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
+    /*REM
     POINT p;
 
     // get current mouse position
@@ -654,17 +670,20 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
     m_LastMouseYPos = p.y;
 
     // calculate the new direction from last mouse move
-    pArcballItem->SetY(pArcballItem->GetY() - std::fmodf((float)m_xDelta * 0.01f, (float)M_PI * 2.0f));
+    //REM pArcballItem->SetY(pArcballItem->GetY() - std::fmodf((float)m_xDelta * 0.01f, (float)M_PI * 2.0f));
 
     // reset the deltas (otherwise the player will turn forever)
     m_xDelta = 0;
     m_yDelta = 0;
+    */
+
+    float offset = 0.0f;
 
     // get the pressed key, if any, and convert it to the matching player state
     if (::GetKeyState(VK_SPACE) & 0x8000)
     {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
+        if (pModelItem->GetSelectedAnim() != 3)
+            pModelItem->SelectAnim(3);
 
         m_Jumping = true;
 
@@ -672,15 +691,28 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
     }
     else
     if (!m_Jumping)
-        if ((::GetKeyState(VK_UP) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
+        if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
         {
-            if (pModelItem->GetSelectedAnim() != 1)
-                pModelItem->SelectAnim(1);
+            if (pModelItem->GetSelectedAnim() != 2)
+                pModelItem->SelectAnim(2);
 
             if (!pSoundItem->GetSound()->IsPlaying())
                 pSoundItem->GetSound()->Play();
 
             m_Walking = true;
+            offset    = -1.0f;
+        }
+        else
+        if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
+        {
+            if (pModelItem->GetSelectedAnim() != 2)
+                pModelItem->SelectAnim(2);
+
+            if (!pSoundItem->GetSound()->IsPlaying())
+                pSoundItem->GetSound()->Play();
+
+            m_Walking = true;
+            offset    = 1.0f;
         }
         else
         {
@@ -696,14 +728,21 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
     if (m_Walking || (m_Jumping && m_WasWalking))
     {
         // move player forward
-        m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
-        m_zPos += m_Velocity * std::sinf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
+        //REM m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.05);
+        //REM m_zPos += m_Velocity * std::sinf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.05);
+        m_zPos -= m_Velocity * offset * (float)(elapsedTime * 0.05);
+
+        if (offset < 0.0f)
+            pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
+        else
+        if (offset > 0.0f)
+            pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
     }
 
     // calculate the next arcball position
     pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -0.5f, 2.0f + m_zPos));
     pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, 0.0f, -2.0f - m_zPos));
-    pModelItem->SetY      (-pArcballItem->GetY() + (float)M_PI);
+    //pModelItem->SetY      (-pArcballItem->GetY() + (float)M_PI);
     pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
@@ -724,17 +763,17 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.SetColor(bgColor);
 
     IFilenames cubemapFilenames;
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\right.bmp");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\left.bmp");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\top.bmp");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\bottom.bmp");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\front.bmp");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Storm\\back.bmp");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\right.png");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\left.png");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\top.png");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\bottom.png");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\front.png");
+    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\back.png");
 
     // load the skybox textures
     std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture = std::make_unique<DWF_Model::Texture_OpenGL>();
     pTexture->m_Target = DWF_Model::Texture::IETarget::IE_TT_Cubemap;
-    m_SkyboxTexId = LoadCubemap(cubemapFilenames);
+    m_SkyboxTexId = LoadCubemap(cubemapFilenames, false);
     pTexture->SetID(m_SkyboxTexId);
 
     // set the skybox in scene
@@ -744,7 +783,8 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // create the player arcball
     std::unique_ptr<DWF_Scene::Arcball> pArcball = std::make_unique<DWF_Scene::Arcball>();
     pArcball->m_AngleX = 0.25f;
-    pArcball->m_Radius = 2.0f;
+    pArcball->m_AngleY = (float)(M_PI / 2.0);
+    pArcball->m_Radius = 4.0f;
 
     // create an arcball point of view
     std::unique_ptr<DWF_Scene::SceneItem_PointOfView> pPOV = std::make_unique<DWF_Scene::SceneItem_PointOfView>(L"scene_arcball");
@@ -756,19 +796,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pPOV.release();
 
     // load idle IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmIdle = std::make_unique<DWF_Model::IQM>();
-    pIqmIdle->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pIqmIdle->Open("..\\..\\Resources\\Model\\Deborah\\Idle\\Deborah_Idle.iqm");
-
-    // load walking IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmWalk = std::make_unique<DWF_Model::IQM>();
-    pIqmWalk->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pIqmWalk->Open("..\\..\\Resources\\Model\\Deborah\\Walk\\Deborah_Walk.iqm");
-
-    // load jumping IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmJump = std::make_unique<DWF_Model::IQM>();
-    pIqmJump->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pIqmJump->Open("..\\..\\Resources\\Model\\Deborah\\Jump\\Deborah_Jump.iqm");
+    std::unique_ptr<DWF_Model::IQM> pIqm = std::make_unique<DWF_Model::IQM>();
+    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
+    pIqm->Open("..\\..\\Resources\\Model\\Platformer\\Player\\player.iqm");
 
     // create the background model item
     std::unique_ptr<DWF_Scene::SceneItem_Animation> pAnim = std::make_unique<DWF_Scene::SceneItem_Animation>(L"scene_player_model");
@@ -778,13 +808,13 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pAnim->SetRoll(-(float)M_PI / 2.0f);
     pAnim->SetPitch(0.0f);
     pAnim->SetYaw(0.0f);
-    pAnim->SetScale(DWF_Math::Vector3F(0.005f, 0.005f, 0.005f));
-    pAnim->AddAnim(pIqmIdle.get(), 0, 180, 0.025, true);
-    pIqmIdle.release();
-    pAnim->AddAnim(pIqmWalk.get(), 0, 30, 0.025, true);
-    pIqmWalk.release();
-    pAnim->AddAnim(pIqmJump.get(), 0, 24, 0.025, false);
-    pIqmJump.release();
+    pAnim->SetScale(DWF_Math::Vector3F(0.05f, 0.05f, 0.05f));
+    pAnim->SetModel(pIqm.get());
+    pIqm.release();
+    pAnim->AddAnim((std::size_t)0, 0,   60, 0.025, true);  // idle
+    pAnim->AddAnim((std::size_t)0, 60,  70, 0.025, false); // idle jump
+    pAnim->AddAnim((std::size_t)0, 130, 19, 0.025, true);  // run
+    pAnim->AddAnim((std::size_t)0, 149, 26, 0.025, false); // run jump
     pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
     pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -803,6 +833,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
                                                       (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
 
+    /*REM
     // set material
     mat.m_Color.m_B = 1.0f;
     mat.m_Color.m_G = 1.0f;
@@ -810,7 +841,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the background surface
-    std::unique_ptr<DWF_Model::Model> pBackground(DWF_Model::Factory::GetSurface(20.0f, 20.0f, vf, vc, mat));
+    std::unique_ptr<DWF_Model::Model> pBackground(DWF_Model::Factory::GetSurface(2.0f, 2.0f, vf, vc, mat));
     pBackground->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTexture("background.tga", false);
 
     // create the background model item
@@ -828,6 +859,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+    */
 
     // set vertex format for colored models
     vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
@@ -842,7 +874,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     std::unique_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
 
     // create the capsule model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
     pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pPlayerCapsule.get());
@@ -1022,11 +1054,11 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(true);
     pModel->SetModel(pPlatformModel.release());
     pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 1.5f, 0.0f));
+    pModel->SetPos(DWF_Math::Vector3F(0.75f, -0.5f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
 
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
@@ -1047,7 +1079,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     // load footsteps sound
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
-    pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps.wav");
+    pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps_run_grass.wav");
     pSound->Loop(false);
 
     // create a sound item

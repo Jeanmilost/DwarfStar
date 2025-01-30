@@ -147,10 +147,10 @@ class Main
         float                         m_yPos             =  0.0f;
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.025f;
-        int                           m_LastMouseXPos    =  0;
-        int                           m_LastMouseYPos    =  0;
-        int                           m_xDelta           =  0;
-        int                           m_yDelta           =  0;
+        //REM int                           m_LastMouseXPos    =  0;
+        //REM int                           m_LastMouseYPos    =  0;
+        //REM int                           m_xDelta           =  0;
+        //REM int                           m_yDelta           =  0;
         bool                          m_Walking          =  false;
         bool                          m_Jumping          =  false;
         bool                          m_WasWalking       =  false;
@@ -162,9 +162,10 @@ class Main
         /**
         * Loads the cubemap textures
         *@param fileNames - texture file names
+        *@param convertPixels - if true, image pixels will be converted from BGR(A) to RGB(A)
         *@return texture identifier
         */
-        GLuint LoadCubemap(const IFilenames fileNames);
+        GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
 
         /**
         * Moves the player to the next position

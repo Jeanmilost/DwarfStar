@@ -53,6 +53,9 @@ SceneItem_Animation::SceneItem_Animation(const std::wstring& name) :
 //---------------------------------------------------------------------------
 SceneItem_Animation::~SceneItem_Animation()
 {
+    if (m_pModel)
+        delete m_pModel;
+
     if (m_ShaderIsLocal && m_pShader)
         delete m_pShader;
 
@@ -61,7 +64,26 @@ SceneItem_Animation::~SceneItem_Animation()
         delete m_Animations[i];
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::AddAnim(DWF_Model::IQM* pAnim,
+void SceneItem_Animation::AddAnim(std::size_t animSetIndex,
+                                  std::size_t frameStart,
+                                  std::size_t frameCount,
+                                  double      frameDuration,
+                                  bool        loop)
+{
+    // create new animation description
+    std::unique_ptr<IAnimDesc> pAnimDesc = std::make_unique<IAnimDesc>();
+    pAnimDesc->m_AnimSetIndex            = animSetIndex;
+    pAnimDesc->m_FrameStart              = frameStart;
+    pAnimDesc->m_FrameCount              = frameCount;
+    pAnimDesc->m_FrameDuration           = frameDuration;
+    pAnimDesc->m_Loop                    = loop;
+
+    // add animation to item
+    m_Animations.push_back(pAnimDesc.get());
+    pAnimDesc.release();
+}
+//---------------------------------------------------------------------------
+void SceneItem_Animation::AddAnim(DWF_Model::IQM* pModel,
                                   std::size_t     animSetIndex,
                                   std::size_t     frameCount,
                                   double          frameDuration,
@@ -69,7 +91,7 @@ void SceneItem_Animation::AddAnim(DWF_Model::IQM* pAnim,
 {
     // create new animation description
     std::unique_ptr<IAnimDesc> pAnimDesc = std::make_unique<IAnimDesc>();
-    pAnimDesc->m_pModel                  = pAnim;
+    pAnimDesc->m_pModel                  = pModel;
     pAnimDesc->m_AnimSetIndex            = animSetIndex;
     pAnimDesc->m_FrameCount              = frameCount;
     pAnimDesc->m_FrameDuration           = frameDuration;
@@ -77,7 +99,7 @@ void SceneItem_Animation::AddAnim(DWF_Model::IQM* pAnim,
 
     // search if animation already exists, in order to not add it twice
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
-        if (m_Animations[i]->m_pModel == pAnim)
+        if (m_Animations[i]->m_pModel == pModel)
             return;
 
     // add animation to item
@@ -159,7 +181,7 @@ void SceneItem_Animation::ResetAnim(std::size_t index)
         return;
 
     // restart the timer associated with the model
-    DWF_Scene::Timer::GetInstance()->StartTimerForItem(m_Animations[index]->m_pModel);
+    DWF_Scene::Timer::GetInstance()->StartTimerForItem(m_Animations[index]->m_pModel ? m_Animations[index]->m_pModel : m_pModel);
 
     // reset the frame count
     m_Animations[index]->m_FrameIndex     = 0;
@@ -189,8 +211,10 @@ void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     // connect the view matrix to the shader
     pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
 
+    DWF_Model::IQM* pModel = m_Animations[m_Index]->m_pModel ? m_Animations[m_Index]->m_pModel : m_pModel;
+
     // get elapsed time
-    const double timeStamp                   = DWF_Scene::Timer::GetInstance()->GetElapsedTimeForItem(m_Animations[m_Index]->m_pModel);
+    const double timeStamp                   = DWF_Scene::Timer::GetInstance()->GetElapsedTimeForItem(pModel);
     const double elapsedTime                 = timeStamp - m_Animations[m_Index]->m_FrameTimeStamp;
     m_Animations[m_Index]->m_FrameTimeStamp  = timeStamp;
     m_Animations[m_Index]->m_FrameAnimTime  += (elapsedTime / 1500.0);
@@ -207,9 +231,9 @@ void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
                                                           endReached);
 
     // draw the model
-    DrawIQM(m_Animations[m_Index]->m_pModel,
+    DrawIQM(pModel,
             m_Animations[m_Index]->m_AnimSetIndex,
-            m_Animations[m_Index]->m_FrameIndex,
+            m_Animations[m_Index]->m_FrameStart + m_Animations[m_Index]->m_FrameIndex,
             m_Animations[m_Index]->m_FrameCount,
             m_pShader,
             pRenderer);
