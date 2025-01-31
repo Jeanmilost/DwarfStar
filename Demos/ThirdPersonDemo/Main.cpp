@@ -142,21 +142,21 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
-            case '1':
-                if (Main::GetInstance())
-                    Main::GetInstance()->SetShowSkeleton(!Main::GetInstance()->GetShowSkeleton());
+                case '1':
+                    if (Main::GetInstance())
+                        Main::GetInstance()->SetShowSkeleton(!Main::GetInstance()->GetShowSkeleton());
 
-                break;
+                    break;
 
-            case '2':
-                if (Main::GetInstance())
-                    Main::GetInstance()->SetShowPlayerCap(!Main::GetInstance()->GetShowPlayerCap());
+                case '2':
+                    if (Main::GetInstance())
+                        Main::GetInstance()->SetShowPlayerCap(!Main::GetInstance()->GetShowPlayerCap());
 
-                break;
+                    break;
 
-            case VK_ESCAPE:
-                ::PostQuitMessage(0);
-                break;
+                case VK_ESCAPE:
+                    ::PostQuitMessage(0);
+                    break;
             }
 
             break;
