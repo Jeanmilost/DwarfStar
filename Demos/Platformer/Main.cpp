@@ -174,21 +174,21 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
-            case '1':
-                if (Main::GetInstance())
-                    Main::GetInstance()->SetShowSkeleton(!Main::GetInstance()->GetShowSkeleton());
+                case '1':
+                    if (Main::GetInstance())
+                        Main::GetInstance()->SetShowSkeleton(!Main::GetInstance()->GetShowSkeleton());
 
-                break;
+                    break;
 
-            case '2':
-                if (Main::GetInstance())
-                    Main::GetInstance()->SetShowPlayerCap(!Main::GetInstance()->GetShowPlayerCap());
+                case '2':
+                    if (Main::GetInstance())
+                        Main::GetInstance()->SetShowColliders(!Main::GetInstance()->GetShowColliders());
 
-                break;
+                    break;
 
-            case VK_ESCAPE:
-                ::PostQuitMessage(0);
-                break;
+                case VK_ESCAPE:
+                    ::PostQuitMessage(0);
+                    break;
             }
 
             break;
@@ -238,15 +238,15 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     wcex.hCursor       = ::LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName  = nullptr;
-    wcex.lpszClassName = L"ThirdPersonDemo";
+    wcex.lpszClassName = L"PlatformerDemo";
 
     if (!RegisterClassEx(&wcex))
         return 0;
 
     // create main window
     HWND hWnd = ::CreateWindowEx(0,
-                                 L"ThirdPersonDemo",
-                                 L"DwarfStar Third-Person Demo",
+                                 L"PlatformerDemo",
+                                 L"DwarfStar Platformer Demo",
                                  WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -380,15 +380,30 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                 m_OldShowSkeleton = m_ShowSkeleton;
             }
 
-            // do show or hide the player collider?
-            if (m_ShowPlayerCap != m_OldShowPlayerCap)
+            // do show or hide the colliders?
+            if (m_ShowColliders != m_OldShowColliders)
             {
                 DWF_Scene::SceneItem_Model* pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_player_collider"));
 
                 if (pModelCollider)
-                    pModelCollider->SetVisible(m_ShowPlayerCap);
+                    pModelCollider->SetVisible(m_ShowColliders);
 
-                m_OldShowPlayerCap = m_ShowPlayerCap;
+                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider"));
+
+                if (pModelCollider)
+                    pModelCollider->SetVisible(m_ShowColliders);
+
+                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider_2"));
+
+                if (pModelCollider)
+                    pModelCollider->SetVisible(m_ShowColliders);
+
+                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider_3"));
+
+                if (pModelCollider)
+                    pModelCollider->SetVisible(m_ShowColliders);
+
+                m_OldShowColliders = m_ShowColliders;
             }
 
             // move the player
@@ -896,165 +911,21 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // set material
-    mat.m_Color.m_B = 0.0f;
-    mat.m_Color.m_G = 0.0f;
-    mat.m_Color.m_R = 1.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the capsule
-    std::unique_ptr<DWF_Model::Model> pCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
-
-    // create the capsule model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_capsule");
-    pModel->SetStatic(true);
-    pModel->SetModel(pCapsule.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.0f, -2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pCapsule.release();
-
-    // capsule collider
-    std::unique_ptr<DWF_Collider::Capsule_Collider> pCapsCol =
-            std::make_unique<DWF_Collider::Capsule_Collider>(DWF_Math::Vector3F(),
-                                                             DWF_Math::Matrix4x4F::Identity(),
-                                                             0.17f,
-                                                             0.85f,
-                                                             0.0f,
-                                                             true);
-    pModel->AddCollider(pCapsCol.get());
-    pCapsCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // set front culling
-    vc.m_Type = DWF_Model::VertexCulling::IECullingType::IE_CT_Front;
-
-    // set material
-    mat.m_Color.m_B = 0.0f;
-    mat.m_Color.m_G = 1.0f;
-    mat.m_Color.m_R = 0.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the box
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(0.8f, 3.4f, 2.6f, false, vf, vc, mat));
-
-    // create the box model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_box");
-    pModel->SetStatic(true);
-    pModel->SetModel(pBox.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(-5.0f, 0.0f, 3.5f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch((float)M_PI * 0.25);
-    pModel->SetYaw((float)M_PI * 0.15);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
-
-    // box collider
-    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
-                                                         DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-0.4f, -1.7f, -1.3f),
-                                                         DWF_Math::Vector3F(0.4f, 1.7f, 1.3f));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // set material
-    mat.m_Color.m_B = 0.0f;
-    mat.m_Color.m_G = 1.0f;
-    mat.m_Color.m_R = 1.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the sphere
-    std::unique_ptr<DWF_Model::Model> pSphere(DWF_Model::Factory::GetSphere(1.2f, 20, 20, vf, vc, mat));
-
-    // create the sphere model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_sphere");
-    pModel->SetStatic(true);
-    pModel->SetModel(pSphere.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(-5.0f, 0.2f, -3.5f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pSphere.release();
-
-    // sphere collider
-    std::unique_ptr<DWF_Collider::Sphere_Collider> pSphCol =
-            std::make_unique<DWF_Collider::Sphere_Collider>(DWF_Math::Vector3F(),
-                                                            DWF_Math::Matrix4x4F::Identity(),
-                                                            1.2f);
-    pModel->AddCollider(pSphCol.get());
-    pSphCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // set material
-    mat.m_Color.m_B = 1.0f;
-    mat.m_Color.m_G = 1.0f;
-    mat.m_Color.m_R = 0.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the cylinder
-    std::unique_ptr<DWF_Model::Model> pCylinder(DWF_Model::Factory::GetCylinder(2.1f, 2.1f, 1.5f, 20, vf, vc, mat));
-
-    // create the cylinder model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_cylinder");
-    pModel->SetStatic(true);
-    pModel->SetModel(pCylinder.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.2f, 4.1f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pCylinder.release();
-
-    // cylinder collider
-    std::unique_ptr<DWF_Collider::Cylinder_Collider> pCylCol =
-            std::make_unique<DWF_Collider::Cylinder_Collider>(DWF_Math::Vector3F(),
-                                                              DWF_Math::Matrix4x4F::Identity(),
-                                                              2.1f,
-                                                              1.5f,
-                                                              0.0f);
-    pModel->AddCollider(pCylCol.get());
-    pCylCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-
-
-
-    // load platform
+    // load first platform
     std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
-    // copy the generated platform model, and release the Wavefront object
-    std::unique_ptr<DWF_Model::Model> pPlatformModel = std::make_unique<DWF_Model::Model>(*pPlatform->GetModel());
+    // take the ownership of the generated platform model, and release the Wavefront object
+    std::unique_ptr<DWF_Model::Model> pPlatformModel(pPlatform->ReleaseModel());
     pPlatform.release();
 
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform");
     pModel->SetStatic(true);
     pModel->SetModel(pPlatformModel.release());
     pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.75f, -0.5f, -2.0f));
+    pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
@@ -1064,10 +935,149 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
+    // set material
+    mat.m_Color.m_B = 0.0f;
+    mat.m_Color.m_G = 0.0f;
+    mat.m_Color.m_R = 1.0f;
+    mat.m_Color.m_A = 1.0f;
 
+    // create the matching collision box model
+    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
 
+    // create the box model item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider");
+    pModel->SetStatic(true);
+    pModel->SetVisible(false);
+    pModel->SetModel(pBox.get());
+    pModel->SetShader(&colShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+    pBox.release();
 
+    // box collider
+    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
+                                                         DWF_Math::Matrix4x4F::Identity(),
+                                                         DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
+                                                         DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
 
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+    // -------------------
+    // todo -cFeature -oJean: allow assets to be copied and thus reused
+    // load second platform
+    pPlatform = std::make_unique<DWF_Model::Wavefront>();
+    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
+
+    // take the ownership of the generated platform model, and release the Wavefront object
+    pPlatformModel.reset(pPlatform->ReleaseModel());
+    pPlatform.release();
+
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_2");
+    pModel->SetStatic(true);
+    pModel->SetModel(pPlatformModel.release());
+    pModel->SetShader(&texShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.0f, 2.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+    // create the matching collision box model
+    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
+
+    // create the box model item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_2");
+    pModel->SetStatic(true);
+    pModel->SetVisible(false);
+    pModel->SetModel(pBox.get());
+    pModel->SetShader(&colShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.25, 0.0f, 2.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+    pBox.release();
+
+    // box collider
+    pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),
+                                                 DWF_Math::Matrix4x4F::Identity(),
+                                                 DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
+                                                 DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f)));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+    // -------------------
+    // load third platform
+    pPlatform = std::make_unique<DWF_Model::Wavefront>();
+    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
+
+    // take the ownership of the generated platform model, and release the Wavefront object
+    pPlatformModel.reset(pPlatform->ReleaseModel());
+    pPlatform.release();
+
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_3");
+    pModel->SetStatic(true);
+    pModel->SetModel(pPlatformModel.release());
+    pModel->SetShader(&texShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+    // create the matching collision box model
+    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
+
+    // create the box model item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_3");
+    pModel->SetStatic(true);
+    pModel->SetVisible(false);
+    pModel->SetModel(pBox.get());
+    pModel->SetShader(&colShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+    pBox.release();
+
+    // box collider
+    pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),
+                                                 DWF_Math::Matrix4x4F::Identity(),
+                                                 DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
+                                                 DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f)));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+    // bind the collision notification callback to the scene
     m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,
                                       this,
                                       std::placeholders::_1,

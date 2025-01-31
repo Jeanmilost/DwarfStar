@@ -242,6 +242,13 @@ Model* Wavefront::GetModel() const
     return m_pModel;
 }
 //---------------------------------------------------------------------------
+Model* Wavefront::ReleaseModel()
+{
+    Model* pModel = m_pModel;
+    m_pModel      = nullptr;
+    return pModel;
+}
+//---------------------------------------------------------------------------
 void Wavefront::SetVertFormatTemplate(const VertexFormat& vertFormatTemplate)
 {
     m_VertFormatTemplate = vertFormatTemplate;

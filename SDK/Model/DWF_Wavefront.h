@@ -89,6 +89,12 @@ namespace DWF_Model
             virtual Model* GetModel() const;
 
             /**
+            * Releases the model
+            *@return the model, nullptr if no model or on error
+            */
+            virtual Model* ReleaseModel();
+
+            /**
             * Changes the vertex format template
             *@param vertFormatTemplate - new vertex format template
             */

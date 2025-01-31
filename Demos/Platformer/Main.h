@@ -74,16 +74,16 @@ class Main
         virtual inline void SetShowSkeleton(bool value);
 
         /**
-        * Gets if show player capsule should be shown
-        *@return true if show player capsule should be shown, otherwise false
+        * Gets if colliders should be shown
+        *@return true if colliders should be shown, otherwise false
         */
-        virtual inline bool GetShowPlayerCap();
+        virtual inline bool GetShowColliders();
 
         /**
-        * Sets if show player capsule should be shown
-        *@param value - if true, show player capsule should be shown
+        * Sets if colliders should be shown
+        *@param value - if true, colliders should be shown
         */
-        virtual inline void SetShowPlayerCap(bool value);
+        virtual inline void SetShowColliders(bool value);
 
         /**
         * Runs the form
@@ -156,8 +156,8 @@ class Main
         bool                          m_WasWalking       =  false;
         bool                          m_ShowSkeleton     =  false;
         bool                          m_OldShowSkeleton  =  false;
-        bool                          m_ShowPlayerCap    =  false;
-        bool                          m_OldShowPlayerCap =  false;
+        bool                          m_ShowColliders    =  false;
+        bool                          m_OldShowColliders =  false;
 
         /**
         * Loads the cubemap textures
@@ -202,13 +202,13 @@ inline void Main::SetShowSkeleton(bool value)
     m_ShowSkeleton = value;
 }
 //---------------------------------------------------------------------------
-inline bool Main::GetShowPlayerCap()
+inline bool Main::GetShowColliders()
 {
-    return m_ShowPlayerCap;
+    return m_ShowColliders;
 }
 //---------------------------------------------------------------------------
-inline void Main::SetShowPlayerCap(bool value)
+inline void Main::SetShowColliders(bool value)
 {
-    m_ShowPlayerCap = value;
+    m_ShowColliders = value;
 }
 //---------------------------------------------------------------------------
