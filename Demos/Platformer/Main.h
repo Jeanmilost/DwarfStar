@@ -99,8 +99,14 @@ class Main
         */
         DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit);
 
+        // FIXME for Jean: find a better name, or better, unify the OnLoadTexture functions
         DWF_Model::Texture* OnLoadTexture2(const std::string& textureName, bool is32bit);
 
+        /**
+        * Called when attached Wavefront material file should be opened
+        *@param fileName - material file name
+        *@param[out] pFileBuffer - file buffer to open with the Wavefront material content
+        */
         bool OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& pFileBuffer);
 
         /**
@@ -143,14 +149,11 @@ class Main
         DWF_Renderer::Renderer_OpenGL m_Renderer;
         Textures                      m_TextureItems;
         GLuint                        m_SkyboxTexId      = -1;
-        float                         m_xPos             =  0.0f;
-        float                         m_yPos             =  0.0f;
+        float                         m_xPos             =  0.5f;
+        float                         m_yPos             =  0.5f;
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.025f;
-        //REM int                           m_LastMouseXPos    =  0;
-        //REM int                           m_LastMouseYPos    =  0;
-        //REM int                           m_xDelta           =  0;
-        //REM int                           m_yDelta           =  0;
+        float                         m_Gravity          =  0.05f;
         bool                          m_Walking          =  false;
         bool                          m_Jumping          =  false;
         bool                          m_WasWalking       =  false;

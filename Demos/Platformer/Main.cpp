@@ -541,6 +541,11 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    // use the minimum translation vector to correct the cached position
+    m_xPos -= mtv.m_X;
+    m_yPos += mtv.m_Y;
+    m_zPos -= mtv.m_Z;
+
     if (!pItem1)
         return;
 
@@ -550,15 +555,17 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     if (!pPOV)
         return;
 
-    // use the minimum translation vector to correct the position
-    pPOV->SetPos(pPOV->GetPos() - DWF_Math::Vector3F(mtv.m_X, 0.0f, mtv.m_Z));
+    // get the player model from the scene
+    DWF_Scene::SceneItem_Animation* pPlayer = static_cast<DWF_Scene::SceneItem_Animation*>(pScene->SearchItem(L"scene_player_model"));
 
-    // also correct the collider position
-    pItem1->SetPos(pItem1->GetPos() + DWF_Math::Vector3F(mtv.m_X, 0.0f, mtv.m_Z));
+    if (!pPlayer)
+        return;
 
-    // and finally, correct the cached position
-    m_xPos -= mtv.m_X;
-    m_zPos -= mtv.m_Z;
+    // apply modifications to player (to avoid a parasite thrill effect)
+    pPOV->SetPos      (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
+    pPlayer->SetPos   (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
+    pItem1->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
+    pCollider1->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
 }
 //---------------------------------------------------------------------------
 GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
@@ -670,28 +677,6 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
-    /*REM
-    POINT p;
-
-    // get current mouse position
-    ::GetCursorPos(&p);
-
-    // calculate delta on x and y axis
-    m_xDelta = m_LastMouseXPos - p.x;
-    m_yDelta = m_LastMouseYPos - p.y;
-
-    // update the last known position
-    m_LastMouseXPos = p.x;
-    m_LastMouseYPos = p.y;
-
-    // calculate the new direction from last mouse move
-    //REM pArcballItem->SetY(pArcballItem->GetY() - std::fmodf((float)m_xDelta * 0.01f, (float)M_PI * 2.0f));
-
-    // reset the deltas (otherwise the player will turn forever)
-    m_xDelta = 0;
-    m_yDelta = 0;
-    */
-
     float offset = 0.0f;
 
     // get the pressed key, if any, and convert it to the matching player state
@@ -739,14 +724,21 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
             m_Walking = false;
         }
 
+    // apply the gravity
+    if (!m_ShowSkeleton)
+        m_yPos -= m_Gravity * (float)(elapsedTime * 0.05);
+    else
+        // if the skeleton is shown, the elapsed time may become too slow and prevent the collision to be detected. For that reason
+        // hardcode the value in this case
+        m_yPos -= m_Gravity * (float)(75.0f * 0.05);
+
     // is player walking or was previously walking before jumping?
     if (m_Walking || (m_Jumping && m_WasWalking))
     {
-        // move player forward
-        //REM m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.05);
-        //REM m_zPos += m_Velocity * std::sinf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.05);
+        // move the player
         m_zPos -= m_Velocity * offset * (float)(elapsedTime * 0.05);
 
+        // rotate the player
         if (offset < 0.0f)
             pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
         else
@@ -754,10 +746,9 @@ void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
     }
 
-    // calculate the next arcball position
-    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -0.5f, 2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, 0.0f, -2.0f - m_zPos));
-    //pModelItem->SetY      (-pArcballItem->GetY() + (float)M_PI);
+    // calculate the next player position (arcball, model and collider)
+    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -m_yPos - 0.5f, 2.0f + m_zPos));
+    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
     pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
@@ -819,7 +810,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     std::unique_ptr<DWF_Scene::SceneItem_Animation> pAnim = std::make_unique<DWF_Scene::SceneItem_Animation>(L"scene_player_model");
     pAnim->SetStatic(true);
     pAnim->SetShader(&texShader);
-    pAnim->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -2.0f));
+    pAnim->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pAnim->SetRoll(-(float)M_PI / 2.0f);
     pAnim->SetPitch(0.0f);
     pAnim->SetYaw(0.0f);
@@ -848,34 +839,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
                                                       (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
 
-    /*REM
-    // set material
-    mat.m_Color.m_B = 1.0f;
-    mat.m_Color.m_G = 1.0f;
-    mat.m_Color.m_R = 1.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the background surface
-    std::unique_ptr<DWF_Model::Model> pBackground(DWF_Model::Factory::GetSurface(2.0f, 2.0f, vf, vc, mat));
-    pBackground->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTexture("background.tga", false);
-
-    // create the background model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_bg");
-    pModel->SetStatic(true);
-    pModel->SetModel(pBackground.get());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -2.0f));
-    pModel->SetRoll((float)M_PI / 2.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBackground.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-    */
-
     // set vertex format for colored models
     vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
 
@@ -894,7 +857,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetVisible(false);
     pModel->SetModel(pPlayerCapsule.get());
     pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.0f, -2.0f));
+    pModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
@@ -970,7 +933,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // -------------------
     // todo -cFeature -oJean: allow assets to be copied and thus reused
     // load second platform
     pPlatform = std::make_unique<DWF_Model::Wavefront>();
@@ -1024,7 +986,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // -------------------
     // load third platform
     pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
