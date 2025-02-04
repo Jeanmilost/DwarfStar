@@ -406,11 +406,8 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                 m_OldShowColliders = m_ShowColliders;
             }
 
-            // move the player
-            MovePlayer(&m_Scene, elapsedTime);
-
             // render the scene
-            m_Scene.Render();
+            m_Scene.Render(elapsedTime);
         }
 
     // shutdown OpenGL
@@ -532,6 +529,90 @@ void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_S
 
     // reset the jump animation
     pAnimItem->ResetAnim(2);
+}
+//------------------------------------------------------------------------------
+void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
+{
+    if (!pScene)
+        return;
+
+    // get the objects of interest from scene
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
+    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
+    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
+
+    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
+        return;
+
+    float offset = 0.0f;
+
+    // get the pressed key, if any, and convert it to the matching player state
+    if (::GetKeyState(VK_SPACE) & 0x8000)
+    {
+        if (pModelItem->GetSelectedAnim() != 3)
+            pModelItem->SelectAnim(3);
+
+        m_Jumping = true;
+
+        pSoundItem->GetSound()->Stop();
+    }
+    else
+    if (!m_Jumping)
+        if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+        {
+            if (pModelItem->GetSelectedAnim() != 2)
+                pModelItem->SelectAnim(2);
+
+            if (!pSoundItem->GetSound()->IsPlaying())
+                pSoundItem->GetSound()->Play();
+
+            m_Walking = true;
+            offset    = -1.0f;
+        }
+        else
+        if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+        {
+            if (pModelItem->GetSelectedAnim() != 2)
+                pModelItem->SelectAnim(2);
+
+            if (!pSoundItem->GetSound()->IsPlaying())
+                pSoundItem->GetSound()->Play();
+
+            m_Walking = true;
+            offset    = 1.0f;
+        }
+        else
+        {
+            if (pModelItem->GetSelectedAnim() != 0)
+                pModelItem->SelectAnim(0);
+
+            pSoundItem->GetSound()->Stop();
+
+            m_Walking = false;
+        }
+
+    // apply the gravity
+    m_yPos -= m_Gravity * (float)(elapsedTime * 0.05);
+
+    // is player walking or was previously walking before jumping?
+    if (m_Walking || (m_Jumping && m_WasWalking))
+    {
+        // move the player
+        m_zPos -= m_Velocity * offset * (float)(elapsedTime * 0.05);
+
+        // rotate the player
+        if (offset < 0.0f)
+            pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
+        else
+        if (offset > 0.0f)
+            pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
+    }
+
+    // calculate the next player position (arcball, model and collider)
+    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -m_yPos - 0.5f, 2.0f + m_zPos));
+    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
+    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
 void Main::OnCollision(const DWF_Scene::Scene*       pScene,
@@ -661,95 +742,6 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
     {
         return -1;
     }
-}
-//------------------------------------------------------------------------------
-void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
-{
-    if (!pScene)
-        return;
-
-    // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
-    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
-
-    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
-        return;
-
-    float offset = 0.0f;
-
-    // get the pressed key, if any, and convert it to the matching player state
-    if (::GetKeyState(VK_SPACE) & 0x8000)
-    {
-        if (pModelItem->GetSelectedAnim() != 3)
-            pModelItem->SelectAnim(3);
-
-        m_Jumping = true;
-
-        pSoundItem->GetSound()->Stop();
-    }
-    else
-    if (!m_Jumping)
-        if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
-
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
-
-            m_Walking = true;
-            offset    = -1.0f;
-        }
-        else
-        if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
-
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
-
-            m_Walking = true;
-            offset    = 1.0f;
-        }
-        else
-        {
-            if (pModelItem->GetSelectedAnim() != 0)
-                pModelItem->SelectAnim(0);
-
-            pSoundItem->GetSound()->Stop();
-
-            m_Walking = false;
-        }
-
-    // apply the gravity
-    if (!m_ShowSkeleton)
-        m_yPos -= m_Gravity * (float)(elapsedTime * 0.05);
-    else
-        // if the skeleton is shown, the elapsed time may become too slow and prevent the collision to be detected. For that reason
-        // hardcode the value in this case
-        m_yPos -= m_Gravity * (float)(75.0f * 0.05);
-
-    // is player walking or was previously walking before jumping?
-    if (m_Walking || (m_Jumping && m_WasWalking))
-    {
-        // move the player
-        m_zPos -= m_Velocity * offset * (float)(elapsedTime * 0.05);
-
-        // rotate the player
-        if (offset < 0.0f)
-            pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-        else
-        if (offset > 0.0f)
-            pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-    }
-
-    // calculate the next player position (arcball, model and collider)
-    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -m_yPos - 0.5f, 2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
-    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
 bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
@@ -1037,6 +1029,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+
+    // bind the update scene callback to the scene
+    m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
 
     // bind the collision notification callback to the scene
     m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,

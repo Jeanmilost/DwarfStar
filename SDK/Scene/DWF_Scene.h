@@ -96,6 +96,13 @@ namespace DWF_Scene
             typedef std::function<void()> ITfOnEndScene;
 
             /**
+            * Called when a scene should be updated
+            *@param arg1 - scene to update
+            *@param arg2 - elapsed time since the last update
+            */
+            typedef std::function<void(const Scene*, double)> ITfOnUpdateScene;
+
+            /**
             * Called when a collision happened between 2 scene items
             *@param arg1 - scene in which the collision was detected
             *@param arg2 - first item in collision
@@ -118,6 +125,18 @@ namespace DWF_Scene
             * Clears the scene
             */
             virtual void Clear();
+
+            /**
+            * Gets the frame duration, in milliseconds
+            *@return the frame duration, in milliseconds
+            */
+            virtual inline double GetFrameDuration() const;
+
+            /**
+            * Sets the frame duration, in milliseconds
+            *@param duration - the frame duration, in milliseconds
+            */
+            virtual inline void SetFrameDuration(double duration);
 
             /**
             * Gets the renderer to use
@@ -245,8 +264,9 @@ namespace DWF_Scene
 
             /**
             * Renders the scene
+            *@param elapsedTime - elapsed time since last rendering
             */
-            virtual void Render() const;
+            virtual void Render(double elapsedTime) const;
 
             /**
             * Set OnBeginScene function handler
@@ -259,6 +279,12 @@ namespace DWF_Scene
             *@param fOnEndScene - function handler
             */
             void Set_OnEndScene(ITfOnEndScene fOnEndScene);
+
+            /**
+            * Set OnUpdateScene function handler
+            *@param fUpdateScene - function handler
+            */
+            void Set_OnUpdateScene(ITfOnUpdateScene fUpdateScene);
 
             /**
             * Set OnCollision function handler
@@ -291,8 +317,10 @@ namespace DWF_Scene
             IItemDictionary         m_ItemCache;
             IAudioDictionary        m_AudioCache;
             DWF_Model::ColorF       m_Color;
+            double                  m_FrameDuration = 75.0;
             ITfOnBeginScene         m_fOnBeginScene = nullptr;
             ITfOnEndScene           m_fOnEndScene   = nullptr;
+            ITfOnUpdateScene        m_fUpdateScene  = nullptr;
             ITfOnCollision          m_fOnCollision  = nullptr;
 
             /**
@@ -319,6 +347,16 @@ namespace DWF_Scene
 
     //---------------------------------------------------------------------------
     // Scene
+    //---------------------------------------------------------------------------
+    inline double Scene::GetFrameDuration() const
+    {
+        return m_FrameDuration;
+    }
+    //---------------------------------------------------------------------------
+    inline void Scene::SetFrameDuration(double duration)
+    {
+        m_FrameDuration = duration;
+    }
     //---------------------------------------------------------------------------
     inline DWF_Renderer::Renderer* Scene::GetRenderer() const
     {

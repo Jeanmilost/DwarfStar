@@ -424,8 +424,22 @@ void Scene::DetectCollisions() const
                     DetectCollisionsForItem(m_Groups[i]->m_Items[j], m_Groups[i]->m_Items[j]->GetCollider(k));
 }
 //---------------------------------------------------------------------------
-void Scene::Render() const
+void Scene::Render(double elapsedTime) const
 {
+    // process the missing frames in case elapsed time is higher than a frame duration
+    while (elapsedTime > m_FrameDuration)
+    {
+        if (m_fUpdateScene)
+            m_fUpdateScene(this, m_FrameDuration);
+
+        DetectCollisions();
+
+        elapsedTime -= m_FrameDuration;
+    }
+
+    if (m_fUpdateScene)
+        m_fUpdateScene(this, elapsedTime);
+
     DetectCollisions();
 
     // no renderer?
@@ -493,6 +507,11 @@ void Scene::Set_OnBeginScene(ITfOnBeginScene fOnBeginScene)
 void Scene::Set_OnEndScene(ITfOnEndScene fOnEndScene)
 {
     m_fOnEndScene = fOnEndScene;
+}
+//---------------------------------------------------------------------------
+void Scene::Set_OnUpdateScene(ITfOnUpdateScene fUpdateScene)
+{
+    m_fUpdateScene = fUpdateScene;
 }
 //---------------------------------------------------------------------------
 void Scene::Set_OnCollision(ITfOnCollision fOnCollision)

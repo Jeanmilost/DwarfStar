@@ -69,7 +69,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     // for debug purposes
     /*
-    DWF_Logger::Logger::GetInstance()->Open(L"x64\\Debug\\__Log.txt");
+    DWF_Logger::Logger::GetInstance()->Open(L"bin\\x64\\Debug\\__Log.txt");
     (*DWF_Logger::Logger::GetInstance()) << L"This is a demo message - here is a number - " << 123.456f << L"\n";
     */
 

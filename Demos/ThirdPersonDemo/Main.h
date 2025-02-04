@@ -92,43 +92,6 @@ class Main
         */
         virtual int Run(HINSTANCE hInstance, int nCmdShow);
 
-        /**
-        * Called when a texture should be loaded
-        *@param textureName - texture file name, without path
-        *@param is32bit - if true, the texture is a 32 bit texture
-        */
-        DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit);
-
-        /**
-        * Called when a new frame is calculated in an animation
-        *@param pAnim - the animation for which the frame is calculated
-        *@param pAnimDesc - animation description
-        */
-        void OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
-
-        /**
-        * Called when an animation end is reached
-        *@param pAnim - the animation for which the end was reached
-        *@param pAnimDesc - animation description
-        */
-        void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
-
-        /**
-        * Called when a collision was detected in the scene
-        *@param pScene - the scene in which the collision happened
-        *@param pItem1 - first item in collision
-        *@param pCollider1 - collider belonging to the first item
-        *@param pItem2 - second item in collision
-        *@param pCollider2 - collider belonging to the second item
-        *@param mtv - minimum translation vector resulting from the collision
-        */
-        void OnCollision(const DWF_Scene::Scene*       pScene,
-                               DWF_Scene::SceneItem*   pItem1,
-                               DWF_Collider::Collider* pCollider1,
-                               DWF_Scene::SceneItem*   pItem2,
-                               DWF_Collider::Collider* pCollider2,
-                         const DWF_Math::Vector3F&     mtv);
-
     private:
         typedef std::map<std::string, DWF_Model::Texture*> Textures;
         typedef std::vector<std::string>                   IFilenames;
@@ -156,18 +119,54 @@ class Main
         bool                          m_OldShowPlayerCap =  false;
 
         /**
+        * Called when a texture should be loaded
+        *@param textureName - texture file name, without path
+        *@param is32bit - if true, the texture is a 32 bit texture
+        */
+        DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit);
+
+        /**
+        * Called when a new frame is calculated in an animation
+        *@param pAnim - the animation for which the frame is calculated
+        *@param pAnimDesc - animation description
+        */
+        void OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
+
+        /**
+        * Called when an animation end is reached
+        *@param pAnim - the animation for which the end was reached
+        *@param pAnimDesc - animation description
+        */
+        void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
+
+        /**
+        * Called when a scene should be updated
+        *@param elapsedTime - elapsed time since the last update
+        */
+        void OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+        /**
+        * Called when a collision was detected in the scene
+        *@param pScene - the scene in which the collision happened
+        *@param pItem1 - first item in collision
+        *@param pCollider1 - collider belonging to the first item
+        *@param pItem2 - second item in collision
+        *@param pCollider2 - collider belonging to the second item
+        *@param mtv - minimum translation vector resulting from the collision
+        */
+        void OnCollision(const DWF_Scene::Scene*       pScene,
+                               DWF_Scene::SceneItem*   pItem1,
+                               DWF_Collider::Collider* pCollider1,
+                               DWF_Scene::SceneItem*   pItem2,
+                               DWF_Collider::Collider* pCollider2,
+                         const DWF_Math::Vector3F&     mtv);
+
+        /**
         * Loads the cubemap textures
         *@param fileNames - texture file names
         *@return texture identifier
         */
         GLuint LoadCubemap(const IFilenames fileNames);
-
-        /**
-        * Moves the player to the next position
-        *@param pScene - scene containing the player
-        *@param elapsedTime - elapsed time since last move
-        */
-        void MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime);
 
         /**
         * Loads the scene

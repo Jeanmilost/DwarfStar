@@ -352,11 +352,8 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                 m_OldShowPlayerCap = m_ShowPlayerCap;
             }
 
-            // move the player
-            MovePlayer(&m_Scene, elapsedTime);
-
             // render the scene
-            m_Scene.Render();
+            m_Scene.Render(elapsedTime);
         }
 
     // shutdown OpenGL
@@ -430,6 +427,87 @@ void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_S
 
     // reset the jump animation
     pAnimItem->ResetAnim(2);
+}
+//------------------------------------------------------------------------------
+void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
+{
+    if (!pScene)
+        return;
+
+    // get the objects of interest from scene
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
+    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
+    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
+
+    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
+        return;
+
+    POINT p;
+
+    // get current mouse position
+    ::GetCursorPos(&p);
+
+    // calculate delta on x and y axis
+    m_xDelta = m_LastMouseXPos - p.x;
+    m_yDelta = m_LastMouseYPos - p.y;
+
+    // update the last known position
+    m_LastMouseXPos = p.x;
+    m_LastMouseYPos = p.y;
+
+    // calculate the new direction from last mouse move
+    pArcballItem->SetY(pArcballItem->GetY() - std::fmodf((float)m_xDelta * 0.01f, (float)M_PI * 2.0f));
+
+    // reset the deltas (otherwise the player will turn forever)
+    m_xDelta = 0;
+    m_yDelta = 0;
+
+    // get the pressed key, if any, and convert it to the matching player state
+    if (::GetKeyState(VK_SPACE) & 0x8000)
+    {
+        if (pModelItem->GetSelectedAnim() != 2)
+            pModelItem->SelectAnim(2);
+
+        m_Jumping = true;
+
+        pSoundItem->GetSound()->Stop();
+    }
+    else
+    if (!m_Jumping)
+        if ((::GetKeyState(VK_UP) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
+        {
+            if (pModelItem->GetSelectedAnim() != 1)
+                pModelItem->SelectAnim(1);
+
+            if (!pSoundItem->GetSound()->IsPlaying())
+                pSoundItem->GetSound()->Play();
+
+            m_Walking = true;
+        }
+        else
+        {
+            if (pModelItem->GetSelectedAnim() != 0)
+                pModelItem->SelectAnim(0);
+
+            pSoundItem->GetSound()->Stop();
+
+            m_Walking = false;
+        }
+
+    // is player walking or was previously walking before jumping?
+    if (m_Walking || (m_Jumping && m_WasWalking))
+    {
+        // move player forward
+        m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
+        m_zPos += m_Velocity * std::sinf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
+    }
+
+    // calculate the next arcball position
+    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -0.5f, 2.0f + m_zPos));
+    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, 0.0f, -2.0f - m_zPos));
+    pModelItem->SetY      (-pArcballItem->GetY() + (float)M_PI);
+    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
 void Main::OnCollision(const DWF_Scene::Scene*       pScene,
@@ -537,87 +615,6 @@ GLuint Main::LoadCubemap(const IFilenames fileNames)
     {
         return -1;
     }
-}
-//------------------------------------------------------------------------------
-void Main::MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime)
-{
-    if (!pScene)
-        return;
-
-    // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
-    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
-
-    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
-        return;
-
-    POINT p;
-
-    // get current mouse position
-    ::GetCursorPos(&p);
-
-    // calculate delta on x and y axis
-    m_xDelta = m_LastMouseXPos - p.x;
-    m_yDelta = m_LastMouseYPos - p.y;
-
-    // update the last known position
-    m_LastMouseXPos = p.x;
-    m_LastMouseYPos = p.y;
-
-    // calculate the new direction from last mouse move
-    pArcballItem->SetY(pArcballItem->GetY() - std::fmodf((float)m_xDelta * 0.01f, (float)M_PI * 2.0f));
-
-    // reset the deltas (otherwise the player will turn forever)
-    m_xDelta = 0;
-    m_yDelta = 0;
-
-    // get the pressed key, if any, and convert it to the matching player state
-    if (::GetKeyState(VK_SPACE) & 0x8000)
-    {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
-
-        m_Jumping = true;
-
-        pSoundItem->GetSound()->Stop();
-    }
-    else
-    if (!m_Jumping)
-        if ((::GetKeyState(VK_UP) & 0x8000) || (::GetKeyState(87) & 0x8000) || (::GetKeyState(119) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 1)
-                pModelItem->SelectAnim(1);
-
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
-
-            m_Walking = true;
-        }
-        else
-        {
-            if (pModelItem->GetSelectedAnim() != 0)
-                pModelItem->SelectAnim(0);
-
-            pSoundItem->GetSound()->Stop();
-
-            m_Walking = false;
-        }
-
-    // is player walking or was previously walking before jumping?
-    if (m_Walking || (m_Jumping && m_WasWalking))
-    {
-        // move player forward
-        m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
-        m_zPos += m_Velocity * std::sinf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
-    }
-
-    // calculate the next arcball position
-    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -0.5f, 2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, 0.0f, -2.0f - m_zPos));
-    pModelItem->SetY      (-pArcballItem->GetY() + (float)M_PI);
-    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
 }
 //------------------------------------------------------------------------------
 bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
@@ -917,6 +914,10 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
+    // bind the update scene callback to the scene
+    m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
+
+    // bind the collision notification callback to the scene
     m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,
                                       this,
                                       std::placeholders::_1,

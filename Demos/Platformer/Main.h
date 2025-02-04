@@ -92,6 +92,29 @@ class Main
         */
         virtual int Run(HINSTANCE hInstance, int nCmdShow);
 
+    private:
+        typedef std::map<std::string, DWF_Model::Texture*> Textures;
+        typedef std::vector<std::string>                   IFilenames;
+
+        static Main* m_This;
+
+        DWF_Scene::Scene              m_Scene;
+        DWF_Renderer::Renderer_OpenGL m_Renderer;
+        Textures                      m_TextureItems;
+        GLuint                        m_SkyboxTexId      = -1;
+        float                         m_xPos             =  0.5f;
+        float                         m_yPos             =  0.5f;
+        float                         m_zPos             =  0.0f;
+        float                         m_Velocity         =  0.025f;
+        float                         m_Gravity          =  0.05f;
+        bool                          m_Walking          =  false;
+        bool                          m_Jumping          =  false;
+        bool                          m_WasWalking       =  false;
+        bool                          m_ShowSkeleton     =  false;
+        bool                          m_OldShowSkeleton  =  false;
+        bool                          m_ShowColliders    =  false;
+        bool                          m_OldShowColliders =  false;
+
         /**
         * Called when a texture should be loaded
         *@param textureName - texture file name, without path
@@ -124,6 +147,12 @@ class Main
         void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
 
         /**
+        * Called when a scene should be updated
+        *@param elapsedTime - elapsed time since the last update
+        */
+        void OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+        /**
         * Called when a collision was detected in the scene
         *@param pScene - the scene in which the collision happened
         *@param pItem1 - first item in collision
@@ -139,29 +168,6 @@ class Main
                                DWF_Collider::Collider* pCollider2,
                          const DWF_Math::Vector3F&     mtv);
 
-    private:
-        typedef std::map<std::string, DWF_Model::Texture*> Textures;
-        typedef std::vector<std::string>                   IFilenames;
-
-        static Main* m_This;
-
-        DWF_Scene::Scene              m_Scene;
-        DWF_Renderer::Renderer_OpenGL m_Renderer;
-        Textures                      m_TextureItems;
-        GLuint                        m_SkyboxTexId      = -1;
-        float                         m_xPos             =  0.5f;
-        float                         m_yPos             =  0.5f;
-        float                         m_zPos             =  0.0f;
-        float                         m_Velocity         =  0.025f;
-        float                         m_Gravity          =  0.05f;
-        bool                          m_Walking          =  false;
-        bool                          m_Jumping          =  false;
-        bool                          m_WasWalking       =  false;
-        bool                          m_ShowSkeleton     =  false;
-        bool                          m_OldShowSkeleton  =  false;
-        bool                          m_ShowColliders    =  false;
-        bool                          m_OldShowColliders =  false;
-
         /**
         * Loads the cubemap textures
         *@param fileNames - texture file names
@@ -169,13 +175,6 @@ class Main
         *@return texture identifier
         */
         GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
-
-        /**
-        * Moves the player to the next position
-        *@param pScene - scene containing the player
-        *@param elapsedTime - elapsed time since last move
-        */
-        void MovePlayer(DWF_Scene::Scene* pScene, double elapsedTime);
 
         /**
         * Loads the scene
