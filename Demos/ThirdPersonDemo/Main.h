@@ -112,7 +112,6 @@ class Main
         int                           m_yDelta           =  0;
         bool                          m_Walking          =  false;
         bool                          m_Jumping          =  false;
-        bool                          m_WasWalking       =  false;
         bool                          m_ShowSkeleton     =  false;
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowPlayerCap    =  false;

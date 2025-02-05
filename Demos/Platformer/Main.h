@@ -110,7 +110,6 @@ class Main
         float                         m_WalkOffset       =  0.0f;
         bool                          m_Walking          =  false;
         bool                          m_Jumping          =  false;
-        bool                          m_WasWalking       =  false;
         bool                          m_ShowSkeleton     =  false;
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowColliders    =  false;

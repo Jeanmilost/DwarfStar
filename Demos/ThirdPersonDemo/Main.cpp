@@ -496,7 +496,7 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
         }
 
     // is player walking or was previously walking before jumping?
-    if (m_Walking || (m_Jumping && m_WasWalking))
+    if (m_Walking)
     {
         // move player forward
         m_xPos += m_Velocity * std::cosf(pArcballItem->GetY() + (float)(M_PI * 0.5)) * (float)(elapsedTime * 0.025);
