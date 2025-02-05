@@ -513,13 +513,12 @@ void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene:
     if (!pAnimDesc)
         return;
 
-    m_yPos = std::sinf((pAnimDesc->m_FrameIndex * (float)M_PI) / 23.0f) * 0.5f;
+    m_yPos += std::sinf((pAnimDesc->m_FrameIndex * (float)M_PI) / 23.0f) * 0.5f;
 }
 //---------------------------------------------------------------------------
 void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
 {
     m_Jumping = false;
-    m_yPos    = 0.0f;
 
     if (!pAnim)
         return;
@@ -545,8 +544,6 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
-    float offset = 0.0f;
-
     // get the pressed key, if any, and convert it to the matching player state
     if (::GetKeyState(VK_SPACE) & 0x8000)
     {
@@ -567,8 +564,8 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
             if (!pSoundItem->GetSound()->IsPlaying())
                 pSoundItem->GetSound()->Play();
 
-            m_Walking = true;
-            offset    = -1.0f;
+            m_Walking    =  true;
+            m_WalkOffset = -1.0f;
         }
         else
         if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
@@ -579,8 +576,8 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
             if (!pSoundItem->GetSound()->IsPlaying())
                 pSoundItem->GetSound()->Play();
 
-            m_Walking = true;
-            offset    = 1.0f;
+            m_Walking    = true;
+            m_WalkOffset = 1.0f;
         }
         else
         {
@@ -596,16 +593,16 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     m_yPos -= m_Gravity * (float)(elapsedTime * 0.05);
 
     // is player walking or was previously walking before jumping?
-    if (m_Walking || (m_Jumping && m_WasWalking))
+    if (m_Walking)
     {
         // move the player
-        m_zPos -= m_Velocity * offset * (float)(elapsedTime * 0.05);
+        m_zPos -= m_Velocity * m_WalkOffset * (float)(elapsedTime * 0.05);
 
         // rotate the player
-        if (offset < 0.0f)
+        if (m_WalkOffset < 0.0f)
             pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
         else
-        if (offset > 0.0f)
+        if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
     }
 
