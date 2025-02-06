@@ -1,7 +1,7 @@
 /****************************************************************************
  * ==> Platformer Demo -----------------------------------------------------*
  ****************************************************************************
- * Description : Small platformer demo                                      *
+ * Description : Very minimalist platformer demo                            *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -45,9 +45,6 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
-
-//REM
-#include "DWF_StringHelper.h"
 
 //------------------------------------------------------------------------------
 int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
