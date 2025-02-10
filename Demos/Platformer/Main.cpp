@@ -419,7 +419,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     return (int)msg.wParam;
 }
 //------------------------------------------------------------------------------
-DWF_Model::Texture* Main::OnLoadTexture(const std::string& textureName, bool is32bit)
+DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool is32bit)
 {
     // search for an existing texture
     Textures::iterator it = m_TextureItems.find(textureName);
@@ -457,7 +457,7 @@ DWF_Model::Texture* Main::OnLoadTexture(const std::string& textureName, bool is3
     return pTexture.release();
 }
 //------------------------------------------------------------------------------
-DWF_Model::Texture* Main::OnLoadTexture2(const std::string& textureName, bool is32bit)
+DWF_Model::Texture* Main::OnLoadPlatformTexture(const std::string& textureName, bool is32bit)
 {
     // search for an existing texture
     Textures::iterator it = m_TextureItems.find(textureName);
@@ -506,18 +506,13 @@ bool Main::OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& 
 }
 //---------------------------------------------------------------------------
 void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
+{}
+//---------------------------------------------------------------------------
+void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
 {
     if (!m_Jumping)
         return;
 
-    if (!pAnimDesc)
-        return;
-
-    m_yPos += std::sinf((pAnimDesc->m_FrameIndex * (float)M_PI) / 23.0f) * 0.5f;
-}
-//---------------------------------------------------------------------------
-void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{
     m_Jumping = false;
 
     if (!pAnim)
@@ -550,6 +545,7 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
         if (pModelItem->GetSelectedAnim() != 3)
             pModelItem->SelectAnim(3);
 
+        m_Frame   = 0;
         m_Jumping = true;
 
         pSoundItem->GetSound()->Stop();
@@ -604,6 +600,14 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
         else
         if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
+    }
+
+    // is player jumping?
+    if (m_Jumping)
+    {
+        // todo -cFeature -oJean: this is an ugly workaround, better to implement a real body object to manage physics
+        m_yPos += std::sinf((m_Frame * (float)M_PI) / 20.0f) * 0.2f;
+        ++m_Frame;
     }
 
     // calculate the next player position (arcball, model and collider)
@@ -792,7 +796,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     // load idle IQM
     std::unique_ptr<DWF_Model::IQM> pIqm = std::make_unique<DWF_Model::IQM>();
-    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
+    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadCharTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqm->Open("..\\..\\Resources\\Model\\Platformer\\Player\\player.iqm");
 
     // create the background model item
@@ -866,7 +870,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // load first platform
     std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
     // take the ownership of the generated platform model, and release the Wavefront object
@@ -926,7 +930,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // load second platform
     pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
     // take the ownership of the generated platform model, and release the Wavefront object
@@ -978,7 +982,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // load third platform
     pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture2, this, std::placeholders::_1, std::placeholders::_2));
+    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
     // take the ownership of the generated platform model, and release the Wavefront object

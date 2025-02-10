@@ -102,6 +102,7 @@ class Main
         DWF_Renderer::Renderer_OpenGL m_Renderer;
         Textures                      m_TextureItems;
         GLuint                        m_SkyboxTexId      = -1;
+        std::size_t                   m_Frame            =  0;
         float                         m_xPos             =  0.5f;
         float                         m_yPos             =  0.5f;
         float                         m_zPos             =  0.0f;
@@ -116,14 +117,18 @@ class Main
         bool                          m_OldShowColliders =  false;
 
         /**
-        * Called when a texture should be loaded
+        * Called when a texture should be loaded for the character
         *@param textureName - texture file name, without path
         *@param is32bit - if true, the texture is a 32 bit texture
         */
-        DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit);
+        DWF_Model::Texture* OnLoadCharTexture(const std::string& textureName, bool is32bit);
 
-        // FIXME for Jean: find a better name, or better, unify the OnLoadTexture functions
-        DWF_Model::Texture* OnLoadTexture2(const std::string& textureName, bool is32bit);
+        /**
+        * Called when a texture should be loaded for the platform
+        *@param textureName - texture file name, without path
+        *@param is32bit - if true, the texture is a 32 bit texture
+        */
+        DWF_Model::Texture* OnLoadPlatformTexture(const std::string& textureName, bool is32bit);
 
         /**
         * Called when attached Wavefront material file should be opened
