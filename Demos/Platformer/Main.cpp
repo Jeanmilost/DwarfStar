@@ -606,7 +606,7 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     if (m_Jumping)
     {
         // todo -cFeature -oJean: this is an ugly workaround, better to implement a real body object to manage physics
-        m_yPos += std::sinf((m_Frame * (float)M_PI) / 20.0f) * (float)elapsedTime  * 0.005f;
+        m_yPos += std::sinf((m_Frame * (float)M_PI) / 20.0f) * (float)elapsedTime * 0.005f;
         ++m_Frame;
     }
 
