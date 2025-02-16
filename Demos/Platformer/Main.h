@@ -152,6 +152,12 @@ class Main
         void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
 
         /**
+        * Called when a scene physics should be updated
+        *@param elapsedTime - elapsed time since the last update
+        */
+        void OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+        /**
         * Called when a scene should be updated
         *@param elapsedTime - elapsed time since the last update
         */
