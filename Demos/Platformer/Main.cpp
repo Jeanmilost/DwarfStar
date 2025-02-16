@@ -592,7 +592,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     if (m_Walking)
     {
         // move the player
-        m_zPos -= m_Velocity * m_WalkOffset;//REM  *(float)(elapsedTime * 0.05);
+        m_zPos -= m_Velocity * m_WalkOffset;
 
         // rotate the player
         if (m_WalkOffset < 0.0f)
