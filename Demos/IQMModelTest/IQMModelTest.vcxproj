@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{6E49C0C7-F2B2-4598-8AF5-6253136CA06A}</ProjectGuid>
+    <RootNamespace>IQMModelTest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>IQMModelTest</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\Win32;..\..\Third-party\OpenAL\libs\Win32;..\..\Third-party\libpng\lib\x86;..\..\Third-party\zlib\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Third-party\glew\lib\Release\x64;..\..\Third-party\OpenAL\libs\Win64;..\..\Third-party\libpng\lib\x64;..\..\Third-party\zlib\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>USE_PNG;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Debug_Win32.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>USE_PNG;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x86\;..\..\Third-Party\glew\lib\Release\Win32\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Release_Win32.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>USE_PNG;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Debug_x64.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>USE_PNG;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Third-Party\libpng\lib\x64\;..\..\Third-Party\glew\lib\Release\x64\</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>_postbuild_Release_x64.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_Buffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_FileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_MemoryBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_PixelBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_StdFileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_MathHelper.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Quaternion.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_IQM.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Model.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_Texture.h" />
+    <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
+    <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.h" />
+    <ClInclude Include="Resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_Buffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_FileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_PixelBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_StdFileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_MathHelper.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Quaternion.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_IQM.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
+    <ClCompile Include="IQMModelTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IQMModelTest.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
