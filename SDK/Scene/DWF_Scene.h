@@ -96,6 +96,13 @@ namespace DWF_Scene
             typedef std::function<void()> ITfOnEndScene;
 
             /**
+            * Called when the physics of a scene should be updated
+            *@param arg1 - scene to update
+            *@param arg2 - elapsed time since the last update
+            */
+            typedef std::function<void(const Scene*, double)> ITfOnUpdatePhysics;
+
+            /**
             * Called when a scene should be updated
             *@param arg1 - scene to update
             *@param arg2 - elapsed time since the last update
@@ -266,7 +273,7 @@ namespace DWF_Scene
             * Renders the scene
             *@param elapsedTime - elapsed time since last rendering
             */
-            virtual void Render(double elapsedTime) const;
+            virtual void Render(double elapsedTime);
 
             /**
             * Set OnBeginScene function handler
@@ -281,10 +288,16 @@ namespace DWF_Scene
             void Set_OnEndScene(ITfOnEndScene fOnEndScene);
 
             /**
-            * Set OnUpdateScene function handler
-            *@param fUpdateScene - function handler
+            * Set OnUpdatePhysics function handler
+            *@param fOnUpdatePhysics - function handler
             */
-            void Set_OnUpdateScene(ITfOnUpdateScene fUpdateScene);
+            void Set_OnUpdatePhysics(ITfOnUpdatePhysics fOnUpdatePhysics);
+
+            /**
+            * Set OnUpdateScene function handler
+            *@param fOnUpdateScene - function handler
+            */
+            void Set_OnUpdateScene(ITfOnUpdateScene fOnUpdateScene);
 
             /**
             * Set OnCollision function handler
@@ -309,19 +322,22 @@ namespace DWF_Scene
             typedef std::map<std::wstring, SceneItem*>      IItemDictionary;
             typedef std::map<std::wstring, SceneAudioItem*> IAudioDictionary;
 
-            DWF_Renderer::Renderer* m_pRenderer     = nullptr;
-            DWF_Model::Model*       m_pSkybox       = nullptr;
-            DWF_Renderer::Shader*   m_pSkyboxShader = nullptr;
+            DWF_Renderer::Renderer* m_pRenderer        = nullptr;
+            DWF_Model::Model*       m_pSkybox          = nullptr;
+            DWF_Renderer::Shader*   m_pSkyboxShader    = nullptr;
             IGroups                 m_Groups;
             SceneAudioItems         m_AudioItems;
             IItemDictionary         m_ItemCache;
             IAudioDictionary        m_AudioCache;
             DWF_Model::ColorF       m_Color;
-            double                  m_FrameDuration = 75.0;
-            ITfOnBeginScene         m_fOnBeginScene = nullptr;
-            ITfOnEndScene           m_fOnEndScene   = nullptr;
-            ITfOnUpdateScene        m_fUpdateScene  = nullptr;
-            ITfOnCollision          m_fOnCollision  = nullptr;
+            double                  m_FPS              = 60.0;
+            double                  m_FrameDuration    = 0.0;
+            double                  m_Time             = 0.0;
+            ITfOnBeginScene         m_fOnBeginScene    = nullptr;
+            ITfOnEndScene           m_fOnEndScene      = nullptr;
+            ITfOnUpdatePhysics      m_fOnUpdatePhysics = nullptr;
+            ITfOnUpdateScene        m_fOnUpdateScene   = nullptr;
+            ITfOnCollision          m_fOnCollision     = nullptr;
 
             /**
             * Get the group from the groups
@@ -336,6 +352,12 @@ namespace DWF_Scene
             *@param pItem - item to add
             */
             void AddItem(IGroup* pGroup, SceneItem* pItem);
+
+            /**
+            * Processes the game physics for the curent frame
+            *@param elapsedTime - elapsed time since last rendering
+            */
+            void ProcessPhysics(double elapsedTime) const;
 
             /**
             * Detects the collisions in the scene

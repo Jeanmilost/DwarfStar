@@ -62,7 +62,8 @@ Scene::IGroup::~IGroup()
 //---------------------------------------------------------------------------
 // Scene
 //---------------------------------------------------------------------------
-Scene::Scene()
+Scene::Scene() :
+    m_FrameDuration(1000.0 / m_FPS)
 {}
 //---------------------------------------------------------------------------
 Scene::~Scene()
@@ -424,23 +425,21 @@ void Scene::DetectCollisions() const
                     DetectCollisionsForItem(m_Groups[i]->m_Items[j], m_Groups[i]->m_Items[j]->GetCollider(k));
 }
 //---------------------------------------------------------------------------
-void Scene::Render(double elapsedTime) const
+void Scene::Render(double elapsedTime)
 {
+    m_Time += elapsedTime;
+
     // process the missing frames in case elapsed time is higher than a frame duration
-    while (elapsedTime > m_FrameDuration)
+    while (m_Time >= m_FrameDuration)
     {
-        if (m_fUpdateScene)
-            m_fUpdateScene(this, m_FrameDuration);
-
-        DetectCollisions();
-
-        elapsedTime -= m_FrameDuration;
+        ProcessPhysics(m_Time);
+        m_Time -= m_FrameDuration;
     }
 
-    if (m_fUpdateScene)
-        m_fUpdateScene(this, elapsedTime);
+    ProcessPhysics(m_Time);
 
-    DetectCollisions();
+    if (m_fOnUpdateScene)
+        m_fOnUpdateScene(this, elapsedTime);
 
     // no renderer?
     if (!m_pRenderer)
@@ -509,9 +508,14 @@ void Scene::Set_OnEndScene(ITfOnEndScene fOnEndScene)
     m_fOnEndScene = fOnEndScene;
 }
 //---------------------------------------------------------------------------
-void Scene::Set_OnUpdateScene(ITfOnUpdateScene fUpdateScene)
+void Scene::Set_OnUpdatePhysics(ITfOnUpdatePhysics fOnUpdatePhysics)
 {
-    m_fUpdateScene = fUpdateScene;
+    m_fOnUpdatePhysics = fOnUpdatePhysics;
+}
+//---------------------------------------------------------------------------
+void Scene::Set_OnUpdateScene(ITfOnUpdateScene fOnUpdateScene)
+{
+    m_fOnUpdateScene = fOnUpdateScene;
 }
 //---------------------------------------------------------------------------
 void Scene::Set_OnCollision(ITfOnCollision fOnCollision)
@@ -565,6 +569,16 @@ void Scene::AddItem(IGroup* pGroup, SceneItem* pItem)
 
     // also add it to the cache
     m_ItemCache[itemName] = pItem;
+}
+//---------------------------------------------------------------------------
+void Scene::ProcessPhysics(double elapsedTime) const
+{
+    // update the physics in the scene
+    if (m_fOnUpdatePhysics)
+        m_fOnUpdatePhysics(this, elapsedTime);
+
+    // detect the collisions after scene objects have moved
+    DetectCollisions();
 }
 //---------------------------------------------------------------------------
 void Scene::DetectCollisionsForItem(SceneItem* pItem, DWF_Collider::Collider* pCollider) const

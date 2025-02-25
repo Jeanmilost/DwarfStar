@@ -509,23 +509,9 @@ void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene:
 {}
 //---------------------------------------------------------------------------
 void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{
-    if (!m_Jumping)
-        return;
-
-    m_Jumping = false;
-
-    if (!pAnim)
-        return;
-
-    // gain write access to animation item
-    DWF_Scene::SceneItem_Animation* pAnimItem = const_cast<DWF_Scene::SceneItem_Animation*>(pAnim);
-
-    // reset the jump animation
-    pAnimItem->ResetAnim(2);
-}
+{}
 //------------------------------------------------------------------------------
-void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
+void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
     if (!pScene)
         return;
@@ -539,19 +525,25 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
+    // apply the jump effect
+    m_yPos += m_JumpForce;
+
+    // apply the gravity
+    m_yPos -= m_Gravity;
+
     // get the pressed key, if any, and convert it to the matching player state
-    if (::GetKeyState(VK_SPACE) & 0x8000)
-    {
-        if (pModelItem->GetSelectedAnim() != 3)
-            pModelItem->SelectAnim(3);
+    if (!m_Jumping && m_Grounded)
+        if (::GetKeyState(VK_SPACE) & 0x8000)
+        {
+            if (pModelItem->GetSelectedAnim() != 3)
+                pModelItem->SelectAnim(3);
 
-        m_Frame   = 0;
-        m_Jumping = true;
+            m_JumpForce = 0.6f;
+            m_Jumping   = true;
 
-        pSoundItem->GetSound()->Stop();
-    }
-    else
-    if (!m_Jumping)
+            pSoundItem->GetSound()->Stop();
+        }
+        else
         if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
         {
             if (pModelItem->GetSelectedAnim() != 2)
@@ -585,14 +577,11 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
             m_Walking = false;
         }
 
-    // apply the gravity
-    m_yPos -= m_Gravity * (float)(elapsedTime * 0.05);
-
     // is player walking or was previously walking before jumping?
     if (m_Walking)
     {
         // move the player
-        m_zPos -= m_Velocity * m_WalkOffset * (float)(elapsedTime * 0.05);
+        m_zPos -= m_Velocity * m_WalkOffset;
 
         // rotate the player
         if (m_WalkOffset < 0.0f)
@@ -605,15 +594,27 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     // is player jumping?
     if (m_Jumping)
     {
-        // todo -cFeature -oJean: this is an ugly workaround, better to implement a real body object to manage physics
-        m_yPos += std::sinf((m_Frame * (float)M_PI) / 20.0f) * (float)elapsedTime * 0.005f;
-        ++m_Frame;
+        m_JumpForce -= 0.06f;
+
+        if (m_JumpForce <= 0.0f)
+        {
+            m_JumpForce = 0.0f;
+            m_Jumping   = false;
+        }
     }
 
     // calculate the next player position (arcball, model and collider)
-    pArcballItem->SetPos  (DWF_Math::Vector3F(m_xPos, -m_yPos - 0.5f, 2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
-    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos, m_yPos, -2.0f - m_zPos));
+    pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
+    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
+    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
+
+    m_Grounded = false;
+}
+//------------------------------------------------------------------------------
+void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
+{
+    if (!pScene)
+        return;
 }
 //------------------------------------------------------------------------------
 void Main::OnCollision(const DWF_Scene::Scene*       pScene,
@@ -623,6 +624,8 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    m_Grounded = true;
+
     // use the minimum translation vector to correct the cached position
     m_xPos -= mtv.m_X;
     m_yPos += mtv.m_Y;
@@ -1030,6 +1033,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+
+    // bind the update physicy callback to the scene
+    m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));
 
     // bind the update scene callback to the scene
     m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
