@@ -187,6 +187,7 @@ namespace DWF_Model
     {
         public:
             std::vector<VertexBuffer*> m_VB;
+            double                     m_Time = 0.0;
 
             Mesh();
             virtual ~Mesh();

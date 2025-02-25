@@ -89,7 +89,8 @@ namespace DWF_Model
             *@param animSetIndex - animation set index
             *@param frameCount - frame count
             *@param frameInex - frame index
-            *@return the model, nullptr if no model or on error
+            *@return a ready-to-draw copy of the model, nullptr on error
+            *@note The model will be deleted internally, do not delete it from outside
             */
             virtual Model* GetModel(int animSetIndex, int frameCount, int frameIndex) const;
 

@@ -821,6 +821,7 @@ namespace DWF_Model
             *@param animSetIndex - animation set index
             *@param elapsedTime - elapsed time in milliseconds
             *@return a ready-to-draw copy of the model, nullptr on error
+            *@note The model will be deleted internally, do not delete it from outside
             */
             virtual Model* GetModel(std::int32_t animSetIndex, double elapsedTime) const;
 
