@@ -168,9 +168,6 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Model\DWF_FBX.h">
-      <Filter>SDK\Model</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\SDK\Model\DWF_IQM.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
@@ -351,9 +348,6 @@
       <Filter>SDK\Math</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp">
-      <Filter>SDK\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Model\DWF_FBX.cpp">
       <Filter>SDK\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_IQM.cpp">

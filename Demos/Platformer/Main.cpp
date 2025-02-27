@@ -612,10 +612,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 }
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
-{
-    if (!pScene)
-        return;
-}
+{}
 //------------------------------------------------------------------------------
 void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Scene::SceneItem*   pItem1,

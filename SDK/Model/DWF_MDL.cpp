@@ -798,43 +798,14 @@ bool MDL::Open(DWF_Buffer::Buffer& buffer)
     return Read(buffer);
 }
 //---------------------------------------------------------------------------
-Model* MDL::GetModel(std::size_t fps, std::size_t animationIndex, double elapsedTime) const
-{
-    std::size_t skinIndex       = m_SkinIndex;
-    std::size_t modelIndex      = m_ModelIndex;
-    std::size_t meshIndex       = m_MeshIndex;
-    float       textureLastTime = m_TextureLastTime;
-    float       modelLastTime   = m_ModelLastTime;
-    float       meshLastTime    = m_MeshLastTime;
-
-    Model* pModel = GetModel(fps,
-                             animationIndex,
-                             skinIndex,
-                             modelIndex,
-                             meshIndex,
-                             textureLastTime,
-                             modelLastTime,
-                             meshLastTime,
-                             elapsedTime);
-
-    const_cast<std::size_t&>(m_SkinIndex)       = skinIndex;
-    const_cast<std::size_t&>(m_ModelIndex)      = modelIndex;
-    const_cast<std::size_t&>(m_MeshIndex)       = meshIndex;
-    const_cast<float&>      (m_TextureLastTime) = textureLastTime;
-    const_cast<float&>      (m_ModelLastTime)   = modelLastTime;
-    const_cast<float&>      (m_MeshLastTime)    = meshLastTime;
-
-    return pModel;
-}
-//---------------------------------------------------------------------------
 Model* MDL::GetModel(std::size_t  fps,
                      std::size_t  animationIndex,
                      std::size_t& skinIndex,
                      std::size_t& modelIndex,
                      std::size_t& meshIndex,
-                     float&       textureLastTime,
-                     float&       modelLastTime,
-                     float&       meshLastTime,
+                     double&      textureLastTime,
+                     double&      modelLastTime,
+                     double&      meshLastTime,
                      double       elapsedTime) const
 {
     // previous cached model?
@@ -853,16 +824,16 @@ Model* MDL::GetModel(std::size_t  fps,
     if (m_Textures.size() > 1)
     {
         // apply the elapsed time
-        textureLastTime += (float)elapsedTime;
+        textureLastTime += elapsedTime;
 
         // certify that the skin index is inside the limits
         skinIndex = (skinIndex % m_Textures.size());
 
         // do get the next skin?
-        while (textureLastTime >= (m_TextureTimes[skinIndex]))
+        while (textureLastTime >= ((double)m_TextureTimes[skinIndex]))
         {
             // decrease the counted time
-            textureLastTime -= m_TextureTimes[skinIndex];
+            textureLastTime -= (double)m_TextureTimes[skinIndex];
 
             // go to next index
             skinIndex = ((skinIndex + 1) % m_Textures.size());
@@ -879,9 +850,9 @@ Model* MDL::GetModel(std::size_t  fps,
         skinIndex       = 0;
         modelIndex      = 0;
         meshIndex       = 0;
-        textureLastTime = 0.0f;
-        modelLastTime   = 0.0f;
-        meshLastTime    = 0.0f;
+        textureLastTime = 0.0;
+        modelLastTime   = 0.0;
+        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -895,9 +866,9 @@ Model* MDL::GetModel(std::size_t  fps,
         skinIndex       = 0;
         modelIndex      = 0;
         meshIndex       = 0;
-        textureLastTime = 0.0f;
-        modelLastTime   = 0.0f;
-        meshLastTime    = 0.0f;
+        textureLastTime = 0.0;
+        modelLastTime   = 0.0;
+        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -906,7 +877,7 @@ Model* MDL::GetModel(std::size_t  fps,
     if (m_Models[modelIndex]->m_Mesh.size() > 1 && pMesh->m_Time)
     {
         // apply the elapsed time
-        meshLastTime += (float)elapsedTime;
+        meshLastTime += elapsedTime;
 
         // certify that the mesh index is inside the limits
         meshIndex = (meshIndex % m_Models[modelIndex]->m_Mesh.size());
@@ -915,7 +886,7 @@ Model* MDL::GetModel(std::size_t  fps,
         while (meshLastTime >= pMesh->m_Time)
         {
             // decrease the counted time
-            meshLastTime -= (float)pMesh->m_Time;
+            meshLastTime -= pMesh->m_Time;
 
             // go to next index
             meshIndex = ((meshIndex + 1) % m_Models[modelIndex]->m_Mesh.size());
@@ -931,9 +902,9 @@ Model* MDL::GetModel(std::size_t  fps,
         skinIndex       = 0;
         modelIndex      = 0;
         meshIndex       = 0;
-        textureLastTime = 0.0f;
-        modelLastTime   = 0.0f;
-        meshLastTime    = 0.0f;
+        textureLastTime = 0.0;
+        modelLastTime   = 0.0;
+        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -945,9 +916,9 @@ Model* MDL::GetModel(std::size_t  fps,
         skinIndex       = 0;
         modelIndex      = 0;
         meshIndex       = 0;
-        textureLastTime = 0.0f;
-        modelLastTime   = 0.0f;
-        meshLastTime    = 0.0f;
+        textureLastTime = 0.0;
+        modelLastTime   = 0.0;
+        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -970,10 +941,10 @@ Model* MDL::GetModel(std::size_t  fps,
     }
 
     // apply the elapsed time
-    modelLastTime += (float)elapsedTime;
+    modelLastTime += elapsedTime;
 
     // calculate the frame interval
-    float interval = 1.0f / (float)fps;
+    const double interval = 1.0 / (double)fps;
 
     // calculate the model animation index, and certify that is it inside the limits
     std::size_t animIndex = ((modelIndex - m_Animations[animationIndex]->m_Start) % animLength);
@@ -1101,7 +1072,7 @@ bool MDL::Read(DWF_Buffer::Buffer& buffer)
     // do generate skins?
     if (skins.size() && ((std::size_t)m_VertFormatTemplate.m_Format & (std::size_t)VertexFormat::IEFormat::IE_VF_TexCoords))
     {
-        float lastKnownTime = 0.0f;
+        double lastKnownTime = 0.0f;
 
         // iterate through textures to extract
         for (std::size_t i = 0; i < skins.size(); ++i)
@@ -1140,7 +1111,7 @@ bool MDL::Read(DWF_Buffer::Buffer& buffer)
             // also get the animation time
             if (skins[i].m_pTime)
             {
-                float time = *(skins[i].m_pTime);
+                double time = *(skins[i].m_pTime);
                 m_TextureTimes.push_back(time - lastKnownTime);
                 lastKnownTime = time;
             }

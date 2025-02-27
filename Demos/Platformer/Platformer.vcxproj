@@ -206,7 +206,6 @@
     <ClInclude Include="..\..\SDK\Math\DWF_Vector2.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
-    <ClInclude Include="..\..\SDK\Model\DWF_FBX.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_IQM.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Model.h" />
@@ -269,7 +268,6 @@
     <ClCompile Include="..\..\SDK\Math\DWF_Vector2.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
-    <ClCompile Include="..\..\SDK\Model\DWF_FBX.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_IQM.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp" />

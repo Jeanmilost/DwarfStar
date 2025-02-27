@@ -180,6 +180,9 @@ void DrawFBX(const DWF_Model::FBX&         fbxModel,
 
     DWF_Model::Model* pModel = fbxModel.GetModel(animSetIndex, elapsedTime);
 
+    if (!pModel)
+        return;
+
     // draw the model
     for (std::size_t i = 0; i < pModel->m_Mesh.size(); ++i)
         pRenderer->Draw(*pModel->m_Mesh[i], modelMatrix, pShader, false);
@@ -387,7 +390,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     bgColor.m_A = 1.0f;
 
     float  angle    = 0.0f;
-    double lastTime = 0.0f;
+    double lastTime = 0.0;
+    double time     = 0.0;
 
     // program main loop
     while (!bQuit)
@@ -446,13 +450,15 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                                                                                 (std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
             // draw the model
-            DrawFBX(fbx, modelMatrix, &shader, &renderer, 0, g_PauseAnim ? 0.0f : lastTime * 0.001);
+            DrawFBX(fbx, modelMatrix, &shader, &renderer, 0, g_PauseAnim ? 0.0f : time);
 
             // draw the skeleton
             if (g_ShowSkeleton)
-                DrawSkeleton(fbx, modelMatrix, &lineShader, &renderer, 0, g_PauseAnim ? 0.0f : lastTime * 0.001);
+                DrawSkeleton(fbx, modelMatrix, &lineShader, &renderer, 0, g_PauseAnim ? 0.0f : time);
 
             renderer.EndScene();
+
+            time += elapsedTime * 0.001;
 
             // calculate the next angle
             if (g_Rotate)

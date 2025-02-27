@@ -89,11 +89,25 @@ namespace DWF_Model
             * Gets the model
             *@param fps - frame per seconds
             *@param animationIndex - animation index
+            *@param[in, out] textureIndex - texture index, new texture index on function ends
+            *@param[in, out] modelIndex - model index, new model index on function ends
+            *@param[in, out] meshIndex - mesh index, new mesh index on function ends
+            *@param[in, out] textureLastTime - texture last time, new texture last time on function ends
+            *@param[in, out] modelLastTime - model last time, new model last time on function ends
+            *@param[in, out] meshLastTime - mesh last time, new mesh last time on function ends
             *@param elapsedTime - elapsed time since last frame, in milliseconds
             *@return a ready-to-draw copy of the model, nullptr on error
             *@note The model will be deleted internally, do not delete it from outside
             */
-            virtual Model* GetModel(std::size_t fps, std::size_t animationIndex, double elapsedTime) const;
+            virtual Model* GetModel(std::size_t  fps,
+                                    std::size_t  animationIndex,
+                                    std::size_t& textureIndex,
+                                    std::size_t& modelIndex,
+                                    std::size_t& meshIndex,
+                                    double&      textureLastTime,
+                                    double&      modelLastTime,
+                                    double&      meshLastTime,
+                                    double       elapsedTime) const;
 
             /**
             * Changes the vertex format template
@@ -322,18 +336,12 @@ namespace DWF_Model
             std::vector<Model*>               m_Models;
             Model*                            m_pCachedModel      = nullptr;
             std::vector<DWF_Model::Texture*>  m_Textures;
-            std::vector<float>                m_TextureTimes;
+            std::vector<double>               m_TextureTimes;
             std::vector<std::string>          m_TextureNames;
             IAnimations                       m_Animations;
             VertexFormat                      m_VertFormatTemplate;
             VertexCulling                     m_VertCullingTemplate;
             Material                          m_MaterialTemplate;
-            std::size_t                       m_SkinIndex         = 0;
-            std::size_t                       m_ModelIndex        = 0;
-            std::size_t                       m_MeshIndex         = 0;
-            float                             m_TextureLastTime   = 0.0f;
-            float                             m_ModelLastTime     = 0.0f;
-            float                             m_MeshLastTime      = 0.0f;
             VertexBuffer::ITfOnGetVertexColor m_fOnGetVertexColor = nullptr;
             ITfOnCreateTexture                m_fOnCreateTexture  = nullptr;
 
@@ -379,30 +387,6 @@ namespace DWF_Model
             *@return uncompressed vertex
             */
             DWF_Math::Vector3F UncompressVertex(const IHeader& header, const IVertex& vertex) const;
-
-            /**
-            * Gets the model
-            *@param fps - frame per seconds
-            *@param animationIndex - animation index
-            *@param[in, out] textureIndex - texture index, new texture index on function ends
-            *@param[in, out] modelIndex - model index, new model index on function ends
-            *@param[in, out] meshIndex - mesh index, new mesh index on function ends
-            *@param[in, out] textureLastTime - texture last time, new texture last time on function ends
-            *@param[in, out] modelLastTime - model last time, new model last time on function ends
-            *@param[in, out] meshLastTime - mesh last time, new mesh last time on function ends
-            *@param elapsedTime - elapsed time since last frame, in milliseconds
-            *@return a ready-to-draw copy of the model, nullptr on error
-            *@note The model will be deleted internally, do not delete it from outside
-            */
-            Model* GetModel(std::size_t  fps,
-                            std::size_t  animationIndex,
-                            std::size_t& textureIndex,
-                            std::size_t& modelIndex,
-                            std::size_t& meshIndex,
-                            float&       textureLastTime,
-                            float&       modelLastTime,
-                            float&       meshLastTime,
-                            double       elapsedTime) const;
 
             /**
             * Get the mesh at index in the model at index

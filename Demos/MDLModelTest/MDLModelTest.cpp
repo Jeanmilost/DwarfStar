@@ -163,7 +163,14 @@ void DrawMDL(const DWF_Model::MDL&         mdlModel,
              const DWF_Math::Matrix4x4F&   modelMatrix,
              const DWF_Renderer::Shader*   pShader,
              const DWF_Renderer::Renderer* pRenderer,
-                   int                     animSetIndex,
+                   std::size_t             fps,
+                   std::size_t             animSetIndex,
+                   std::size_t&            skinIndex,
+                   std::size_t&            modelIndex,
+                   std::size_t&            meshIndex,
+                   double&                 textureLastTime,
+                   double&                 modelLastTime,
+                   double&                 meshLastTime,
                    double                  elapsedTime)
 {
     if (!pRenderer)
@@ -172,7 +179,18 @@ void DrawMDL(const DWF_Model::MDL&         mdlModel,
     if (!pShader)
         return;
 
-    DWF_Model::Model* pModel = mdlModel.GetModel(15, 0, (float)(elapsedTime * 0.000000025));
+    DWF_Model::Model* pModel = mdlModel.GetModel(fps,
+                                                 animSetIndex,
+                                                 skinIndex,
+                                                 modelIndex,
+                                                 meshIndex,
+                                                 textureLastTime,
+                                                 modelLastTime,
+                                                 meshLastTime,
+                                                 elapsedTime);// (elapsedTime * 0.000000025));
+
+    if (!pModel)
+        return;
 
     // draw the model
     for (std::size_t i = 0; i < pModel->m_Mesh.size(); ++i)
@@ -301,8 +319,14 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     bgColor.m_B = 0.17f;
     bgColor.m_A = 1.0f;
 
-    float  angle    = 0.0f;
-    double lastTime = 0.0f;
+    std::size_t skinIndex       = 0;
+    std::size_t modelIndex      = 0;
+    std::size_t meshIndex       = 0;
+    double      textureLastTime = 0.0;
+    double      modelLastTime   = 0.0;
+    double      meshLastTime    = 0.0;
+    double      lastTime        = 0.0f;
+    float       angle           = 0.0f;
 
     // program main loop
     while (!bQuit)
@@ -360,7 +384,19 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                                                                                 (std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearDepth));
 
             // draw the model
-            DrawMDL(mdl, modelMatrix, &shader, &renderer, 0, g_PauseAnim ? 0.0f : lastTime * 0.001);
+            DrawMDL(mdl,
+                    modelMatrix,
+                   &shader,
+                   &renderer,
+                    15,
+                    0,
+                    skinIndex,
+                    modelIndex,
+                    meshIndex,
+                    textureLastTime,
+                    modelLastTime,
+                    meshLastTime,
+                    g_PauseAnim ? 0.0f : elapsedTime * 0.001);
 
             renderer.EndScene();
 
