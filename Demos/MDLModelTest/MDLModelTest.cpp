@@ -167,10 +167,8 @@ void DrawMDL(const DWF_Model::MDL&         mdlModel,
                    std::size_t             animSetIndex,
                    std::size_t&            skinIndex,
                    std::size_t&            modelIndex,
-                   std::size_t&            meshIndex,
                    double&                 textureLastTime,
                    double&                 modelLastTime,
-                   double&                 meshLastTime,
                    double                  elapsedTime)
 {
     if (!pRenderer)
@@ -183,11 +181,9 @@ void DrawMDL(const DWF_Model::MDL&         mdlModel,
                                                  animSetIndex,
                                                  skinIndex,
                                                  modelIndex,
-                                                 meshIndex,
                                                  textureLastTime,
                                                  modelLastTime,
-                                                 meshLastTime,
-                                                 elapsedTime);// (elapsedTime * 0.000000025));
+                                                 elapsedTime);
 
     if (!pModel)
         return;
@@ -321,10 +317,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     std::size_t skinIndex       = 0;
     std::size_t modelIndex      = 0;
-    std::size_t meshIndex       = 0;
     double      textureLastTime = 0.0;
     double      modelLastTime   = 0.0;
-    double      meshLastTime    = 0.0;
     double      lastTime        = 0.0f;
     float       angle           = 0.0f;
 
@@ -392,10 +386,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                     0,
                     skinIndex,
                     modelIndex,
-                    meshIndex,
                     textureLastTime,
                     modelLastTime,
-                    meshLastTime,
                     g_PauseAnim ? 0.0f : elapsedTime * 0.001);
 
             renderer.EndScene();

@@ -91,10 +91,8 @@ namespace DWF_Model
             *@param animationIndex - animation index
             *@param[in, out] textureIndex - texture index, new texture index on function ends
             *@param[in, out] modelIndex - model index, new model index on function ends
-            *@param[in, out] meshIndex - mesh index, new mesh index on function ends
             *@param[in, out] textureLastTime - texture last time, new texture last time on function ends
             *@param[in, out] modelLastTime - model last time, new model last time on function ends
-            *@param[in, out] meshLastTime - mesh last time, new mesh last time on function ends
             *@param elapsedTime - elapsed time since last frame, in milliseconds
             *@return a ready-to-draw copy of the model, nullptr on error
             *@note The model will be deleted internally, do not delete it from outside
@@ -103,10 +101,8 @@ namespace DWF_Model
                                     std::size_t  animationIndex,
                                     std::size_t& textureIndex,
                                     std::size_t& modelIndex,
-                                    std::size_t& meshIndex,
                                     double&      textureLastTime,
                                     double&      modelLastTime,
-                                    double&      meshLastTime,
                                     double       elapsedTime) const;
 
             /**
@@ -334,7 +330,7 @@ namespace DWF_Model
             typedef std::vector<IAnimation*> IAnimations;
 
             std::vector<Model*>               m_Models;
-            Model*                            m_pCachedModel      = nullptr;
+            std::unique_ptr<Model>            m_pCachedModel;
             std::vector<DWF_Model::Texture*>  m_Textures;
             std::vector<double>               m_TextureTimes;
             std::vector<std::string>          m_TextureNames;
@@ -387,14 +383,6 @@ namespace DWF_Model
             *@return uncompressed vertex
             */
             DWF_Math::Vector3F UncompressVertex(const IHeader& header, const IVertex& vertex) const;
-
-            /**
-            * Get the mesh at index in the model at index
-            *@param modelIndex - model index
-            *@param meshIndex - mesh index
-            *@return the mesh, nullptr on error
-            */
-            Mesh* GetMesh(std::size_t modelIndex, std::size_t meshIndex) const;
 
             /**
             * Gets the memory endianness

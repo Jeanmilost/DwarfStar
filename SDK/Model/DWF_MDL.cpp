@@ -693,11 +693,17 @@ MDL::MDL()
 //---------------------------------------------------------------------------
 MDL::~MDL()
 {
-    // unlink the previously linked textures, they are cached internally and should not be deleted with the model
-    if (m_pCachedModel)
+    // cached model?
+    if (m_pCachedModel.get())
+    {
+        // remove the references to textures, otherwise they will be wrongly deleted with the cached model
         for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
             for (std::size_t j = 0; j < m_pCachedModel->m_Mesh[i]->m_VB.size(); ++j)
                 m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
+
+        // delete the cached model
+        m_pCachedModel.reset();
+    }
 
     const std::size_t modelCount = m_Models.size();
 
@@ -717,11 +723,17 @@ MDL::~MDL()
 //---------------------------------------------------------------------------
 void MDL::Clear()
 {
-    // unlink the previously linked textures, they are cached internally and should not be deleted with the model
-    if (m_pCachedModel)
+    // cached model?
+    if (m_pCachedModel.get())
+    {
+        // remove the references to textures, otherwise they will be wrongly deleted with the cached model
         for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
             for (std::size_t j = 0; j < m_pCachedModel->m_Mesh[i]->m_VB.size(); ++j)
                 m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
+
+        // delete the cached model
+        m_pCachedModel.reset();
+    }
 
     const std::size_t modelCount = m_Models.size();
 
@@ -800,24 +812,22 @@ bool MDL::Open(DWF_Buffer::Buffer& buffer)
 //---------------------------------------------------------------------------
 Model* MDL::GetModel(std::size_t  fps,
                      std::size_t  animationIndex,
-                     std::size_t& skinIndex,
+                     std::size_t& textureIndex,
                      std::size_t& modelIndex,
-                     std::size_t& meshIndex,
                      double&      textureLastTime,
                      double&      modelLastTime,
-                     double&      meshLastTime,
                      double       elapsedTime) const
 {
     // previous cached model?
-    if (m_pCachedModel)
+    if (m_pCachedModel.get())
     {
-        // unlink the previously linked textures, they are cached internally and should not be deleted with the model
+        // remove the references to textures, otherwise they will be wrongly deleted with the cached model
         for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
             for (std::size_t j = 0; j < m_pCachedModel->m_Mesh[i]->m_VB.size(); ++j)
                 m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
 
-        // delete the cached model
-        const_cast<Model*&>(m_pCachedModel) = nullptr;
+        // force the cached model to be deleted (bypass the const statement)
+        const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset();
     }
 
     // are textures animated?
@@ -827,98 +837,27 @@ Model* MDL::GetModel(std::size_t  fps,
         textureLastTime += elapsedTime;
 
         // certify that the skin index is inside the limits
-        skinIndex = (skinIndex % m_Textures.size());
+        textureIndex = (textureIndex % m_Textures.size());
 
         // do get the next skin?
-        while (textureLastTime >= ((double)m_TextureTimes[skinIndex]))
+        while (textureLastTime >= ((double)m_TextureTimes[textureIndex]))
         {
             // decrease the counted time
-            textureLastTime -= (double)m_TextureTimes[skinIndex];
+            textureLastTime -= (double)m_TextureTimes[textureIndex];
 
             // go to next index
-            skinIndex = ((skinIndex + 1) % m_Textures.size());
+            textureIndex = ((textureIndex + 1) % m_Textures.size());
         }
-    }
-
-    // get the current model mesh for which the index should be updated
-    Mesh* pMesh = GetMesh(modelIndex, meshIndex);
-
-    // found it?
-    if (!pMesh)
-    {
-        // reset all values
-        skinIndex       = 0;
-        modelIndex      = 0;
-        meshIndex       = 0;
-        textureLastTime = 0.0;
-        modelLastTime   = 0.0;
-        meshLastTime    = 0.0;
-
-        return nullptr;
-    }
-
-    // cache the model
-    const_cast<Model*&>(m_pCachedModel) = m_Models[modelIndex];
-
-    if (!m_pCachedModel)
-    {
-        // reset all values
-        skinIndex       = 0;
-        modelIndex      = 0;
-        meshIndex       = 0;
-        textureLastTime = 0.0;
-        modelLastTime   = 0.0;
-        meshLastTime    = 0.0;
-
-        return nullptr;
-    }
-
-    // do animate current model frames? (NOTE the modelIndex value was indirectly validated while GetMesh() was executed)
-    if (m_Models[modelIndex]->m_Mesh.size() > 1 && pMesh->m_Time)
-    {
-        // apply the elapsed time
-        meshLastTime += elapsedTime;
-
-        // certify that the mesh index is inside the limits
-        meshIndex = (meshIndex % m_Models[modelIndex]->m_Mesh.size());
-
-        // do get the next mesh?
-        while (meshLastTime >= pMesh->m_Time)
-        {
-            // decrease the counted time
-            meshLastTime -= pMesh->m_Time;
-
-            // go to next index
-            meshIndex = ((meshIndex + 1) % m_Models[modelIndex]->m_Mesh.size());
-        }
-
-        return nullptr;
-    }
-
-    // is animation index out of bounds?
-    if (animationIndex >= m_Animations.size())
-    {
-        // reset all values
-        skinIndex       = 0;
-        modelIndex      = 0;
-        meshIndex       = 0;
-        textureLastTime = 0.0;
-        modelLastTime   = 0.0;
-        meshLastTime    = 0.0;
-
-        return nullptr;
     }
 
     // no fps?
     if (!fps)
     {
         // reset all values
-        skinIndex       = 0;
+        textureIndex    = 0;
         modelIndex      = 0;
-        meshIndex       = 0;
         textureLastTime = 0.0;
         modelLastTime   = 0.0;
-        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -930,12 +869,10 @@ Model* MDL::GetModel(std::size_t  fps,
     if (!animLength)
     {
         // reset all values
-        skinIndex       = 0;
+        textureIndex    = 0;
         modelIndex      = 0;
-        meshIndex       = 0;
         textureLastTime = 0.0;
         modelLastTime   = 0.0;
-        meshLastTime    = 0.0;
 
         return nullptr;
     }
@@ -959,14 +896,69 @@ Model* MDL::GetModel(std::size_t  fps,
         animIndex = ((animIndex + 1) % animLength);
     }
 
-    modelIndex = m_Animations[animationIndex]->m_Start + animIndex;
+    const std::size_t nextModelIndex = m_Animations[animationIndex]->m_Start + animIndex;
 
-    // unlink the previously linked textures, they are cached internally and should not be deleted with the model
-    for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
-        for (std::size_t j = 0; j < m_pCachedModel->m_Mesh[i]->m_VB.size(); ++j)
-            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = m_Textures[skinIndex];
+    // current and next model mesh count should match, otherwise it's an error
+    if (m_Models[modelIndex]->m_Mesh.size() != m_Models[nextModelIndex]->m_Mesh.size())
+    {
+        // reset all values
+        textureIndex    = 0;
+        modelIndex      = 0;
+        textureLastTime = 0.0;
+        modelLastTime   = 0.0;
 
-    return m_pCachedModel;
+        return nullptr;
+    }
+
+    // force the cached model to be created (bypass the const statement)
+    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+
+    // iterate through model meshes
+    for (std::size_t i = 0; i < m_Models[modelIndex]->m_Mesh.size(); ++i)
+    {
+        // current and next vertex buffer count should match, otherwise it's an error
+        if (m_Models[modelIndex]->m_Mesh[i]->m_VB.size() != m_Models[nextModelIndex]->m_Mesh[i]->m_VB.size())
+        {
+            // reset all values
+            textureIndex    = 0;
+            modelIndex      = 0;
+            textureLastTime = 0.0;
+            modelLastTime   = 0.0;
+
+            return nullptr;
+        }
+
+        // add a new mesh in the cached model
+        m_pCachedModel->m_Mesh.push_back(new Mesh());
+
+        // iterate through vertex buffers
+        for (std::size_t j = 0; j < m_Models[modelIndex]->m_Mesh[i]->m_VB.size(); ++j)
+        {
+            // add a new vertex buffer in the mesh
+            m_pCachedModel->m_Mesh[i]->m_VB.push_back(new VertexBuffer());
+
+            // copy the format, culling and material, and set the texture to render
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Format              = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Format;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Culling             = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Culling;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material            = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Material;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = m_Textures[textureIndex];
+
+            // iterate through vertices
+            for (std::size_t k = 0; k < m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Data.size(); ++k)
+            {
+                // get the current and next vertex data
+                const float curData  = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Data[k];
+                const float nextData = m_Models[nextModelIndex]->m_Mesh[i]->m_VB[j]->m_Data[k];
+
+                // interpolate the data
+                m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Data.push_back(curData + ((nextData - curData) * (float)(modelLastTime / interval)));
+            }
+        }
+    }
+
+    modelIndex = nextModelIndex;
+
+    return m_pCachedModel.get();
 }
 //---------------------------------------------------------------------------
 void MDL::SetVertFormatTemplate(const VertexFormat& vertFormatTemplate)
@@ -1397,29 +1389,6 @@ DWF_Math::Vector3F MDL::UncompressVertex(const IHeader& header, const IVertex& v
         vector[i] = (header.m_Scale[i] * vertex.m_Vertex[i]) + header.m_Translate[i];
 
     return DWF_Math::Vector3F(vector[0], vector[1], vector[2]);
-}
-//---------------------------------------------------------------------------
-Mesh* MDL::GetMesh(std::size_t modelIndex, std::size_t meshIndex) const
-{
-    // is model index valid?
-    if (modelIndex >= m_Models.size())
-        return nullptr;
-
-    // determine how many meshes the model contains
-    if (!m_Models[modelIndex]->m_Mesh.size())
-        // no mesh, nothing to do
-        return nullptr;
-
-    if (m_Models[modelIndex]->m_Mesh.size() == 1)
-        // one mesh, return it
-        return m_Models[modelIndex]->m_Mesh[0];
-
-    // several meshes (i.e. meshes are animated), check if mesh index is out of bounds
-    if (meshIndex >= m_Models[modelIndex]->m_Mesh.size())
-        return nullptr;
-
-    // draw the model mesh
-    return m_Models[modelIndex]->m_Mesh[meshIndex];
 }
 //---------------------------------------------------------------------------
 #ifdef CONVERT_ENDIANNESS
