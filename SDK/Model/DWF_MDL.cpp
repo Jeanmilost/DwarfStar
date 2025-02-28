@@ -840,14 +840,15 @@ Model* MDL::GetModel(std::size_t  fps,
         textureIndex = (textureIndex % m_Textures.size());
 
         // do get the next skin?
-        while (textureLastTime >= ((double)m_TextureTimes[textureIndex]))
-        {
-            // decrease the counted time
-            textureLastTime -= (double)m_TextureTimes[textureIndex];
+        if ((double)m_TextureTimes[textureIndex] > 0.0)
+            while (textureLastTime >= ((double)m_TextureTimes[textureIndex]))
+            {
+                // decrease the counted time
+                textureLastTime -= (double)m_TextureTimes[textureIndex];
 
-            // go to next index
-            textureIndex = ((textureIndex + 1) % m_Textures.size());
-        }
+                // go to next index
+                textureIndex = ((textureIndex + 1) % m_Textures.size());
+            }
     }
 
     // no fps?
@@ -863,19 +864,12 @@ Model* MDL::GetModel(std::size_t  fps,
     }
 
     // calculate the running animation length
-    const std::size_t animLength = m_Animations[animationIndex]->m_End - m_Animations[animationIndex]->m_Start;
+    std::size_t animLength = m_Animations[animationIndex]->m_End - m_Animations[animationIndex]->m_Start;
 
     // is animation empty?
     if (!animLength)
-    {
-        // reset all values
-        textureIndex    = 0;
-        modelIndex      = 0;
-        textureLastTime = 0.0;
-        modelLastTime   = 0.0;
-
-        return nullptr;
-    }
+        // animation length should contain at least 1 frame
+        animLength = 1;
 
     // apply the elapsed time
     modelLastTime += elapsedTime;
