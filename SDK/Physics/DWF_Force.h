@@ -98,7 +98,7 @@ namespace DWF_Physics
 
             /**
             * Calculates the resulting force
-            *@return force
+            *@return resulting force
             */
             virtual DWF_Math::Vector3F Calculate();
 

@@ -109,6 +109,7 @@ class Main
         float                         m_yPos             =  0.5f;
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.025f;
+        float                         m_JumpVelocity     =  0.175f;
         float                         m_Gravity          =  0.05f;
         float                         m_JumpForce        =  0.0f;
         float                         m_WalkOffset       =  0.0f;

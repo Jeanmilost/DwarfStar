@@ -517,10 +517,10 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         return;
 
     // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
-    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
+    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem (L"scene_player_model"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
+    DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
 
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
@@ -535,7 +535,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
             m_JumpForce = 0.6f;
             m_Jumping   = true;
 
-            m_Force.Add(DWF_Math::Vector3F(0.0f, 0.175f, 0.0f));
+            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity, 0.0f));
 
             pSoundItem->GetSound()->Stop();
         }
