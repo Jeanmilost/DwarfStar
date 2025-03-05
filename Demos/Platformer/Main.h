@@ -42,6 +42,9 @@
 #include "DWF_SceneItemModel.h"
 #include "DWF_SceneItemAnimation.h"
 
+// FIXME move in body
+#include "DWF_Force.h"
+
 // libraries
 #include <windows.h>
 
@@ -116,6 +119,9 @@ class Main
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
+
+        // FIXME move in body
+        DWF_Physics::Force m_Force;
 
         /**
         * Called when a texture should be loaded for the character

@@ -525,12 +525,6 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
-    // apply the jump effect
-    m_yPos += m_JumpForce;
-
-    // apply the gravity
-    m_yPos -= m_Gravity;
-
     // get the pressed key, if any, and convert it to the matching player state
     if (!m_Jumping && m_Grounded)
         if (::GetKeyState(VK_SPACE) & 0x8000)
@@ -541,55 +535,64 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
             m_JumpForce = 0.6f;
             m_Jumping   = true;
 
-            pSoundItem->GetSound()->Stop();
-        }
-        else
-        if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
-
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
-
-            m_Walking    =  true;
-            m_WalkOffset = -1.0f;
-        }
-        else
-        if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
-
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
-
-            m_Walking    = true;
-            m_WalkOffset = 1.0f;
-        }
-        else
-        {
-            if (pModelItem->GetSelectedAnim() != 0)
-                pModelItem->SelectAnim(0);
+            m_Force.Add(DWF_Math::Vector3F(0.0f, 0.175f, 0.0f));
 
             pSoundItem->GetSound()->Stop();
-
-            m_Walking = false;
         }
+
+    if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+    {
+        if (pModelItem->GetSelectedAnim() != 2)
+            pModelItem->SelectAnim(2);
+
+        if (!pSoundItem->GetSound()->IsPlaying())
+            pSoundItem->GetSound()->Play();
+
+        m_Walking    =  true;
+        m_WalkOffset = -1.0f;
+
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity));
+    }
+    else
+    if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+    {
+        if (pModelItem->GetSelectedAnim() != 2)
+            pModelItem->SelectAnim(2);
+
+        if (!pSoundItem->GetSound()->IsPlaying())
+            pSoundItem->GetSound()->Play();
+
+        m_Walking    = true;
+        m_WalkOffset = 1.0f;
+
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity));
+    }
+    else
+    {
+        if (pModelItem->GetSelectedAnim() != 0)
+            pModelItem->SelectAnim(0);
+
+        pSoundItem->GetSound()->Stop();
+
+        m_Walking = false;
+    }
+
+    // calculate the resulting force
+    const DWF_Math::Vector3F force = m_Force.Calculate();
+
+    // apply it to the player position
+    m_xPos += force.m_X;
+    m_yPos += force.m_Y;
+    m_zPos += force.m_Z;
 
     // is player walking or was previously walking before jumping?
     if (m_Walking)
-    {
-        // move the player
-        m_zPos -= m_Velocity * m_WalkOffset;
-
         // rotate the player
         if (m_WalkOffset < 0.0f)
             pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
         else
         if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-    }
 
     // is player jumping?
     if (m_Jumping)

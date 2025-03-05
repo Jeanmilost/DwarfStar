@@ -58,6 +58,9 @@
     <Filter Include="Resource Files\Icons">
       <UniqueIdentifier>{6f43bb68-6d15-427b-a19c-640ceba77b68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK\Physics">
+      <UniqueIdentifier>{7e9696b0-b196-4f6a-9c45-c2006c419cdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -240,6 +243,12 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Wavefront.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Scene\DWF_Body.h">
+      <Filter>SDK\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Physics\DWF_Force.h">
+      <Filter>SDK\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Platformer.cpp">
@@ -421,6 +430,12 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_Wavefront.cpp">
       <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Scene\DWF_Body.cpp">
+      <Filter>SDK\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Physics\DWF_Force.cpp">
+      <Filter>SDK\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
