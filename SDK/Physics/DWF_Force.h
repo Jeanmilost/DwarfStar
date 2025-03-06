@@ -39,18 +39,6 @@ namespace DWF_Physics
     class Force
     {
         public:
-            /**
-            * Force value
-            */
-            /*REM
-            struct IValue
-            {
-                DWF_Math::Vector3F m_Direction;      // for input and output, the force direction
-                double             m_Speed    = 0.0; // for input, the speed to apply to the force
-                double             m_Distance = 0.0; // for output, the distance to apply to the position in the calculated direction
-            };
-            */
-
             Force();
             virtual ~Force();
 

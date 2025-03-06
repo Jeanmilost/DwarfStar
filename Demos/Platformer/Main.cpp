@@ -525,8 +525,9 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
-    // get the pressed key, if any, and convert it to the matching player state
+    // player is jumping?
     if (!m_Jumping && m_Grounded)
+        // space bar pressed?
         if (::GetKeyState(VK_SPACE) & 0x8000)
         {
             if (pModelItem->GetSelectedAnim() != 3)
@@ -535,11 +536,13 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
             m_JumpForce = 0.6f;
             m_Jumping   = true;
 
-            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity, 0.0f));
+            // add jump force to scene force
+            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity * (float)elapsedTime, 0.0f));
 
             pSoundItem->GetSound()->Stop();
         }
 
+    // left (or "A") or right (or "D") key pressed?
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
     {
         if (pModelItem->GetSelectedAnim() != 2)
@@ -551,7 +554,8 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         m_Walking    =  true;
         m_WalkOffset = -1.0f;
 
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity));
+        // add left move force to scene force
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity * (float)elapsedTime));
     }
     else
     if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
@@ -565,7 +569,8 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         m_Walking    = true;
         m_WalkOffset = 1.0f;
 
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity));
+        // add right move force to scene force
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity * (float)elapsedTime));
     }
     else
     {
@@ -576,6 +581,10 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 
         m_Walking = false;
     }
+
+    // update gravity and friction depending on time
+    m_Force.SetGravity (0.0025f * (float)elapsedTime);
+    m_Force.SetFriction(0.0003f * (float)elapsedTime);
 
     // calculate the resulting force
     const DWF_Math::Vector3F force = m_Force.Calculate();

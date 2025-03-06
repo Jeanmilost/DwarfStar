@@ -41,9 +41,7 @@
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneItemModel.h"
 #include "DWF_SceneItemAnimation.h"
-
-// FIXME move in body
-#include "DWF_Force.h"
+#include "DWF_Force.h" // FIXME move in body
 
 // libraries
 #include <windows.h>
@@ -108,9 +106,8 @@ class Main
         float                         m_xPos             =  0.5f;
         float                         m_yPos             =  0.5f;
         float                         m_zPos             =  0.0f;
-        float                         m_Velocity         =  0.025f;
-        float                         m_JumpVelocity     =  0.175f;
-        float                         m_Gravity          =  0.05f;
+        float                         m_Velocity         =  0.00125f;
+        float                         m_JumpVelocity     =  0.00875f;
         float                         m_JumpForce        =  0.0f;
         float                         m_WalkOffset       =  0.0f;
         bool                          m_Walking          =  false;
@@ -120,9 +117,7 @@ class Main
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
-
-        // FIXME move in body
-        DWF_Physics::Force m_Force;
+        DWF_Physics::Force            m_Force; // FIXME move in body
 
         /**
         * Called when a texture should be loaded for the character
