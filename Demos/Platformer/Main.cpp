@@ -517,97 +517,100 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         return;
 
     // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
-    DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
+    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem (L"scene_player_model"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
+    DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
 
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
         return;
 
-    // apply the jump effect
-    m_yPos += m_JumpForce;
-
-    // apply the gravity
-    m_yPos -= m_Gravity;
-
-    // get the pressed key, if any, and convert it to the matching player state
-    if (!m_Jumping && m_Grounded)
+    // player is jumping?
+    if (m_Grounded)
+        // space bar pressed?
         if (::GetKeyState(VK_SPACE) & 0x8000)
         {
-            if (pModelItem->GetSelectedAnim() != 3)
-                pModelItem->SelectAnim(3);
+            // add jump force to scene force
+            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity * (float)elapsedTime, 0.0f));
 
-            m_JumpForce = 0.6f;
-            m_Jumping   = true;
-
-            pSoundItem->GetSound()->Stop();
+            m_Jumping = true;
         }
         else
-        if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
+            m_Jumping = false;
 
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
+    // left (or "A") or right (or "D") key pressed?
+    if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+    {
+        m_Walking    =  true;
+        m_WalkOffset = -1.0f;
 
-            m_Walking    =  true;
-            m_WalkOffset = -1.0f;
-        }
-        else
-        if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
-        {
-            if (pModelItem->GetSelectedAnim() != 2)
-                pModelItem->SelectAnim(2);
+        // add left move force to scene force
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity * (float)elapsedTime));
+    }
+    else
+    if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+    {
+        m_Walking    = true;
+        m_WalkOffset = 1.0f;
 
-            if (!pSoundItem->GetSound()->IsPlaying())
-                pSoundItem->GetSound()->Play();
+        // add right move force to scene force
+        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity * (float)elapsedTime));
+    }
+    else
+        m_Walking = false;
 
-            m_Walking    = true;
-            m_WalkOffset = 1.0f;
-        }
-        else
-        {
-            if (pModelItem->GetSelectedAnim() != 0)
-                pModelItem->SelectAnim(0);
+    // apply state machine
+    if (m_Jumping)
+    {
+        if (pModelItem->GetSelectedAnim() != 3)
+            pModelItem->SelectAnim(3);
 
-            pSoundItem->GetSound()->Stop();
+        pSoundItem->GetSound()->Stop();
+    }
+    else
+    if (m_Walking)
+    {
+        if (pModelItem->GetSelectedAnim() != 2)
+            pModelItem->SelectAnim(2);
 
-            m_Walking = false;
-        }
+        if (!pSoundItem->GetSound()->IsPlaying())
+            pSoundItem->GetSound()->Play();
+    }
+    else
+    {
+        if (pModelItem->GetSelectedAnim() != 0)
+            pModelItem->SelectAnim(0);
+
+        pSoundItem->GetSound()->Stop();
+    }
+
+    // update gravity and friction depending on time
+    m_Force.SetGravity (0.0025f * (float)elapsedTime);
+    m_Force.SetFriction(0.0003f * (float)elapsedTime);
+
+    // calculate the resulting force
+    const DWF_Math::Vector3F force = m_Force.Calculate();
+
+    // apply it to the player position
+    m_xPos += force.m_X;
+    m_yPos += force.m_Y;
+    m_zPos += force.m_Z;
 
     // is player walking or was previously walking before jumping?
     if (m_Walking)
-    {
-        // move the player
-        m_zPos -= m_Velocity * m_WalkOffset;
-
         // rotate the player
         if (m_WalkOffset < 0.0f)
             pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
         else
         if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-    }
-
-    // is player jumping?
-    if (m_Jumping)
-    {
-        m_JumpForce -= 0.06f;
-
-        if (m_JumpForce <= 0.0f)
-        {
-            m_JumpForce = 0.0f;
-            m_Jumping   = false;
-        }
-    }
 
     // calculate the next player position (arcball, model and collider)
     pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
     pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
     pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
 
+    // reset the grounded state, in order to test it on the next collision detection
     m_Grounded = false;
 }
 //------------------------------------------------------------------------------
@@ -621,6 +624,7 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    // as in this demo all the objects against which the player may collide are platforms, we can assume that in case of collisions the player is grounded
     m_Grounded = true;
 
     // use the minimum translation vector to correct the cached position

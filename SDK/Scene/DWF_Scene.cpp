@@ -432,11 +432,9 @@ void Scene::Render(double elapsedTime)
     // process the missing frames in case elapsed time is higher than a frame duration
     while (m_Time >= m_FrameDuration)
     {
-        ProcessPhysics(m_Time);
+        ProcessPhysics(m_FrameDuration);
         m_Time -= m_FrameDuration;
     }
-
-    ProcessPhysics(m_Time);
 
     if (m_fOnUpdateScene)
         m_fOnUpdateScene(this, elapsedTime);

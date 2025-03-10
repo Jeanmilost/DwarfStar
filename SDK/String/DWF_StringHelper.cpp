@@ -31,6 +31,7 @@
 // std
 #include <clocale>
 #include <codecvt>
+#include <algorithm>
 
 #if (__cplusplus >= 201703L)
     #ifdef _MSC_VER
@@ -170,7 +171,11 @@ std::wstring Helper::StrToWStr(const std::string& str)
 std::string Helper::WStrToStr(const std::wstring& str)
 {
     std::string result(str.length(), ' ');
-    std::copy(str.begin(), str.end(), result.begin());
+    std::transform(str.begin(), str.end(), result.begin(),
+            [](wchar_t c)
+            {
+                return (char)c;
+            });
     return result;
 }
 //---------------------------------------------------------------------------

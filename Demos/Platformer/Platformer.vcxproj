@@ -72,25 +72,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -212,6 +212,7 @@
     <ClInclude Include="..\..\SDK\Model\DWF_ModelFactory.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Texture.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Wavefront.h" />
+    <ClInclude Include="..\..\SDK\Physics\DWF_Force.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.h" />
@@ -274,6 +275,7 @@
     <ClCompile Include="..\..\SDK\Model\DWF_ModelFactory.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Wavefront.cpp" />
+    <ClCompile Include="..\..\SDK\Physics\DWF_Force.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
