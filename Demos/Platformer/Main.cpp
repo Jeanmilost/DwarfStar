@@ -526,31 +526,21 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         return;
 
     // player is jumping?
-    if (!m_Jumping && m_Grounded)
+    if (m_Grounded)
         // space bar pressed?
         if (::GetKeyState(VK_SPACE) & 0x8000)
         {
-            if (pModelItem->GetSelectedAnim() != 3)
-                pModelItem->SelectAnim(3);
-
-            m_JumpForce = 0.6f;
-            m_Jumping   = true;
-
             // add jump force to scene force
             m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity * (float)elapsedTime, 0.0f));
 
-            pSoundItem->GetSound()->Stop();
+            m_Jumping = true;
         }
+        else
+            m_Jumping = false;
 
     // left (or "A") or right (or "D") key pressed?
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
     {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
-
-        if (!pSoundItem->GetSound()->IsPlaying())
-            pSoundItem->GetSound()->Play();
-
         m_Walking    =  true;
         m_WalkOffset = -1.0f;
 
@@ -560,12 +550,6 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     else
     if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
     {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
-
-        if (!pSoundItem->GetSound()->IsPlaying())
-            pSoundItem->GetSound()->Play();
-
         m_Walking    = true;
         m_WalkOffset = 1.0f;
 
@@ -573,13 +557,31 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity * (float)elapsedTime));
     }
     else
+        m_Walking = false;
+
+    // apply state machine
+    if (m_Jumping)
+    {
+        if (pModelItem->GetSelectedAnim() != 3)
+            pModelItem->SelectAnim(3);
+
+        pSoundItem->GetSound()->Stop();
+    }
+    else
+    if (m_Walking)
+    {
+        if (pModelItem->GetSelectedAnim() != 2)
+            pModelItem->SelectAnim(2);
+
+        if (!pSoundItem->GetSound()->IsPlaying())
+            pSoundItem->GetSound()->Play();
+    }
+    else
     {
         if (pModelItem->GetSelectedAnim() != 0)
             pModelItem->SelectAnim(0);
 
         pSoundItem->GetSound()->Stop();
-
-        m_Walking = false;
     }
 
     // update gravity and friction depending on time
@@ -603,23 +605,12 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
 
-    // is player jumping?
-    if (m_Jumping)
-    {
-        m_JumpForce -= 0.06f;
-
-        if (m_JumpForce <= 0.0f)
-        {
-            m_JumpForce = 0.0f;
-            m_Jumping   = false;
-        }
-    }
-
     // calculate the next player position (arcball, model and collider)
     pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
     pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
     pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
 
+    // reset the grounded state, in order to test it on the next collision detection
     m_Grounded = false;
 }
 //------------------------------------------------------------------------------
@@ -633,6 +624,7 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    // as in this demo all the objects against which the player may collide are platforms, we can assume that in case of collisions the player is grounded
     m_Grounded = true;
 
     // use the minimum translation vector to correct the cached position

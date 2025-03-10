@@ -108,7 +108,6 @@ class Main
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.00125f;
         float                         m_JumpVelocity     =  0.00875f;
-        float                         m_JumpForce        =  0.0f;
         float                         m_WalkOffset       =  0.0f;
         bool                          m_Walking          =  false;
         bool                          m_Jumping          =  false;

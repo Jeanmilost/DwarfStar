@@ -219,7 +219,6 @@
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_Arcball.h" />
-    <ClInclude Include="..\..\SDK\Scene\DWF_Body.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_Camera.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_PointOfView.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_Scene.h" />
@@ -283,7 +282,6 @@
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_Arcball.cpp" />
-    <ClCompile Include="..\..\SDK\Scene\DWF_Body.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_Camera.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_PointOfView.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_Scene.cpp" />

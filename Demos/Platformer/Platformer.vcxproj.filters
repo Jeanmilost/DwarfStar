@@ -243,9 +243,6 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Wavefront.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Scene\DWF_Body.h">
-      <Filter>SDK\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\SDK\Physics\DWF_Force.h">
       <Filter>SDK\Physics</Filter>
     </ClInclude>
@@ -430,9 +427,6 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_Wavefront.cpp">
       <Filter>SDK\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Scene\DWF_Body.cpp">
-      <Filter>SDK\Scene</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Physics\DWF_Force.cpp">
       <Filter>SDK\Physics</Filter>
