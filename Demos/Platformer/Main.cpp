@@ -1035,7 +1035,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // bind the update physicy callback to the scene
+    // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));
 
     // bind the update scene callback to the scene
