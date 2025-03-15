@@ -57,7 +57,7 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
-const char texNormVertShader[] = "#version 120\n"
+const char texNormVertShader[] = "#version 130\n"
                                  "precision mediump float;\n"
                                  "attribute    vec3 aVertices;\n"
                                  "attribute    vec3 aNormal;\n"
@@ -77,7 +77,7 @@ const char texNormVertShader[] = "#version 120\n"
                                  "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
                                  "}";
 //------------------------------------------------------------------------------
-const char texVertShader[] =    "#version 120\n"
+const char texVertShader[] =    "#version 130\n"
                                 "precision mediump float;\n"
                                 "attribute    vec3 aVertices;\n"
                                 "attribute    vec4 aColor;\n"
@@ -94,7 +94,7 @@ const char texVertShader[] =    "#version 120\n"
                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
                                 "}";
 //------------------------------------------------------------------------------
-const char colVertShader[] =    "#version 120\n"
+const char colVertShader[] =    "#version 130\n"
                                 "precision mediump float;\n"
                                 "attribute    vec3 aVertices;\n"
                                 "attribute    vec4 aColor;\n"
@@ -108,7 +108,7 @@ const char colVertShader[] =    "#version 120\n"
                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
                                 "}";
 //------------------------------------------------------------------------------
-const char skyboxVertShader[] = "#version 120\n"
+const char skyboxVertShader[] = "#version 130\n"
                                 "precision mediump float;\n"
                                 "attribute vec3 aVertices;\n"
                                 "uniform   mat4 uProjection;\n"
@@ -120,7 +120,7 @@ const char skyboxVertShader[] = "#version 120\n"
                                 "    gl_Position = uProjection * uView * vec4(aVertices, 1.0);\n"
                                 "}";
 //------------------------------------------------------------------------------
-const char texNormFragShader[] = "#version 120\n"
+const char texNormFragShader[] = "#version 130\n"
                                  "precision mediump float;\n"
                                  "uniform      sampler2D sTexture;\n"
                                  "varying lowp vec3      vNormal;\n"
@@ -131,7 +131,7 @@ const char texNormFragShader[] = "#version 120\n"
                                  "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);\n"
                                  "}";
 //------------------------------------------------------------------------------
-const char texFragShader[] =    "#version 120\n"
+const char texFragShader[] =    "#version 130\n"
                                 "precision mediump float;\n"
                                 "uniform      sampler2D sTexture;\n"
                                 "varying lowp vec4      vColor;\n"
@@ -141,7 +141,7 @@ const char texFragShader[] =    "#version 120\n"
                                 "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);\n"
                                 "}";
 //------------------------------------------------------------------------------
-const char colFragShader[] =    "#version 120\n"
+const char colFragShader[] =    "#version 130\n"
                                 "precision mediump float;\n"
                                 "varying lowp vec4 vColor;\n"
                                 "void main(void)\n"

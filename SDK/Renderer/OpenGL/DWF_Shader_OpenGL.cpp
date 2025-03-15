@@ -29,6 +29,7 @@
 #include "DWF_Shader_OpenGL.h"
 
 // std
+#include <vector>
 #include <fstream>
 #include <sstream>
 
@@ -155,14 +156,19 @@ bool Shader_OpenGL::Link(bool use) const
     {
         // todo -cFeature -oJean: Add log system
         // use below code to debug shader compilation errors
-        /*
+        /**/
         GLint maxLength = 0;
         glGetProgramiv(m_ProgramID, GL_INFO_LOG_LENGTH, &maxLength);
 
         // The maxLength includes the NULL character
         std::vector<GLchar> infoLog(maxLength);
         glGetProgramInfoLog(m_ProgramID, maxLength, &maxLength, &infoLog[0]);
-        */
+
+        std::string error;
+
+        for (std::size_t i = 0; i < infoLog.size(); ++i)
+            error += infoLog[i];
+        /**/
 
         return false;
     }
@@ -237,6 +243,30 @@ GLuint Shader_OpenGL::Compile(const std::string& source, GLenum type) const
     // compile shader
     glShaderSource(shader, 1, &pSource, nullptr);
     glCompileShader(shader);
+
+    GLint shaderStatus;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderStatus);
+
+    if (shaderStatus != GL_TRUE)
+    {
+        // todo -cFeature -oJean: Add log system
+        // use below code to debug shader compilation errors
+        /**/
+        GLint maxLength = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+        // The maxLength includes the NULL character
+        std::vector<GLchar> infoLog(maxLength);
+        glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+
+        std::string error;
+
+        for (std::size_t i = 0; i < infoLog.size(); ++i)
+            error += infoLog[i];
+        /**/
+
+        return 0;
+    }
 
     // failed?
     if (!shader)
