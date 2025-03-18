@@ -72,14 +72,19 @@ Shader_OpenGL::~Shader_OpenGL()
     }
 }
 //---------------------------------------------------------------------------
-void Shader_OpenGL::CreateProgram()
+bool Shader_OpenGL::CreateProgram()
 {
     // create new shader program
     m_ProgramID = glCreateProgram();
 
     // succeeded?
     if (!m_ProgramID)
-        throw new std::exception("Failed to create shader program");
+    {
+        SetLastError("Failed to create shader program");
+        return false;
+    }
+
+    return true;
 }
 //---------------------------------------------------------------------------
 std::uintptr_t Shader_OpenGL::GetProgramID() const
@@ -154,21 +159,22 @@ bool Shader_OpenGL::Link(bool use) const
     // succeeded?
     if (!linked)
     {
-        // todo -cFeature -oJean: Add log system
-        // use below code to debug shader compilation errors
-        /**/
         GLint maxLength = 0;
+
+        // get the string length. NOTE the end NULL character is already included
         glGetProgramiv(m_ProgramID, GL_INFO_LOG_LENGTH, &maxLength);
 
-        // The maxLength includes the NULL character
         std::vector<GLchar> infoLog(maxLength);
+
+        // get the info log
         glGetProgramInfoLog(m_ProgramID, maxLength, &maxLength, &infoLog[0]);
 
         std::string error;
 
         for (std::size_t i = 0; i < infoLog.size(); ++i)
             error += infoLog[i];
-        /**/
+
+        SetLastError(error);
 
         return false;
     }
@@ -249,28 +255,32 @@ GLuint Shader_OpenGL::Compile(const std::string& source, GLenum type) const
 
     if (shaderStatus != GL_TRUE)
     {
-        // todo -cFeature -oJean: Add log system
-        // use below code to debug shader compilation errors
-        /**/
         GLint maxLength = 0;
+
+        // get the string length. NOTE the end NULL character is already included
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-        // The maxLength includes the NULL character
         std::vector<GLchar> infoLog(maxLength);
+
+        // get the info log
         glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
 
         std::string error;
 
         for (std::size_t i = 0; i < infoLog.size(); ++i)
             error += infoLog[i];
-        /**/
+
+        SetLastError(error);
 
         return 0;
     }
 
     // failed?
     if (!shader)
+    {
+        SetLastError("Failed to link shader");
         return 0;
+    }
 
     // return shader index
     return shader;

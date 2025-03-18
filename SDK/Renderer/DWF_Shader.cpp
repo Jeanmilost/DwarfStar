@@ -63,6 +63,16 @@ void Shader::SetAttributeName(IEAttribute  attribute, const std::string& name)
     m_AttributeDictionary[attribute] = name;
 }
 //---------------------------------------------------------------------------
+std::string Shader::GetLastError() const
+{
+    return m_LastError;
+}
+//---------------------------------------------------------------------------
+void Shader::SetLastError(const std::string& error) const
+{
+    const_cast<std::string&>(m_LastError) = error;
+}
+//---------------------------------------------------------------------------
 void Shader::PopulateAttributeDict()
 {
     m_AttributeDictionary[IEAttribute::IE_SA_Vertices]         = "aVertices";

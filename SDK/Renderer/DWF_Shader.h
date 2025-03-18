@@ -86,8 +86,9 @@ namespace DWF_Renderer
 
             /**
             * Creates the program
+            *@return true on success, otherwise false
             */
-            virtual void CreateProgram() = 0;
+            virtual bool CreateProgram() = 0;
 
             /**
             * Gets shader program identifier
@@ -124,10 +125,25 @@ namespace DWF_Renderer
             */
             virtual void Use(bool use) const = 0;
 
+            /**
+            * Gets the last error
+            *@return the last error, empty string if no error
+            */
+            virtual std::string GetLastError() const;
+
+        protected:
+            /**
+            * Sets the last error, overwrites the previous one
+            *@param error - last error to write
+            *@note Ignore the const directive, thus last error can be used even in const functions
+            */
+            void SetLastError(const std::string& error) const;
+
         private:
             typedef std::map<IEAttribute, std::string> IAttributeDictionary;
 
             IAttributeDictionary m_AttributeDictionary;
+            std::string          m_LastError;
 
             /**
             * Populates default attribute dictionary
