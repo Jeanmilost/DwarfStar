@@ -246,6 +246,9 @@
     <ClInclude Include="..\..\SDK\Physics\DWF_Force.h">
       <Filter>SDK\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h">
+      <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Platformer.cpp">
@@ -430,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Physics\DWF_Force.cpp">
       <Filter>SDK\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp">
+      <Filter>SDK\Renderer\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

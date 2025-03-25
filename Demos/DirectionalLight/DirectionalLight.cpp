@@ -58,26 +58,26 @@ const DWF_Math::Vector3F    g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
       bool                  g_Rotate = false;
 //------------------------------------------------------------------------------
 const char dirLightVertShader[] = "precision mediump float;"
-                                  "attribute    vec3 aVertices;"
-                                  "attribute    vec3 aNormal;"
-                                  "attribute    vec4 aColor;"
-                                  "uniform      vec3 aDirLight;"
-                                  "uniform      mat4 uProjection;"
-                                  "uniform      mat4 uView;"
-                                  "uniform      mat4 uModel;"
-                                  "varying lowp vec4 vColor;"
+                                  "attribute    vec3 dwf_aVertices;"
+                                  "attribute    vec3 dwf_aNormal;"
+                                  "attribute    vec4 dwf_aColor;"
+                                  "uniform      vec3 dwf_aDirLight;"
+                                  "uniform      mat4 dwf_uProjection;"
+                                  "uniform      mat4 dwf_uView;"
+                                  "uniform      mat4 dwf_uModel;"
+                                  "varying lowp vec4 dwf_vColor;"
                                   "void main(void)"
                                   "{"
-                                  "    float intensity = dot(aDirLight, aNormal);"
-                                  "    vColor          = aColor * intensity;"
-                                  "    gl_Position     = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                                  "    float intensity = dot(dwf_aDirLight, dwf_aNormal);"
+                                  "    dwf_vColor      = dwf_aColor * intensity;"
+                                  "    gl_Position     = dwf_uProjection * dwf_uView * dwf_uModel * vec4(dwf_aVertices, 1.0);"
                                   "}";
 //------------------------------------------------------------------------------
 const char dirLightFragShader[] = "precision mediump float;"
-                                  "varying lowp vec4 vColor;"
+                                  "varying lowp vec4 dwf_vColor;"
                                   "void main(void)"
                                   "{"
-                                  "    gl_FragColor = vColor;"
+                                  "    gl_FragColor = dwf_vColor;"
                                   "}";
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

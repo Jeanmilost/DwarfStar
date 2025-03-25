@@ -222,6 +222,7 @@
     <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_Arcball.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_Arcball.cpp" />

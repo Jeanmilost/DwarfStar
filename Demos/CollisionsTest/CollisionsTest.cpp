@@ -57,27 +57,27 @@ const DWF_Math::Vector3F    g_DefCapsule2Bottom(  0.0f,   0.0f,    0.0f);
       bool                  g_Rotate = false;
 //------------------------------------------------------------------------------
 const char colTestVertShader[] = "precision mediump float;"
-                                 "attribute    vec3 aVertices;"
-                                 "attribute    vec4 aColor;"
-                                 "uniform      int  uIsColliding;"
-                                 "uniform      mat4 uProjection;"
-                                 "uniform      mat4 uView;"
-                                 "uniform      mat4 uModel;"
-                                 "varying lowp vec4 vColor;"
+                                 "attribute    vec3 dwf_aVertices;"
+                                 "attribute    vec4 dwf_aColor;"
+                                 "uniform      int  dwf_uIsColliding;"
+                                 "uniform      mat4 dwf_uProjection;"
+                                 "uniform      mat4 dwf_uView;"
+                                 "uniform      mat4 dwf_uModel;"
+                                 "varying lowp vec4 dwf_vColor;"
                                  "void main(void)"
                                  "{"
-                                 "    if (uIsColliding == 1)"
-                                 "        vColor = vec4(0.0, 1.0, 0.0, 1.0);"
+                                 "    if (dwf_uIsColliding == 1)"
+                                 "        dwf_vColor = vec4(0.0, 1.0, 0.0, 1.0);"
                                  "    else"
-                                 "        vColor = aColor;"
-                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
+                                 "        dwf_vColor = dwf_aColor;"
+                                 "    gl_Position = dwf_uProjection * dwf_uView * dwf_uModel * vec4(dwf_aVertices, 1.0);"
                                  "}";
 //------------------------------------------------------------------------------
 const char colTestFragShader[] = "precision mediump float;"
-                                 "varying lowp vec4 vColor;"
+                                 "varying lowp vec4 dwf_vColor;"
                                  "void main(void)"
                                  "{"
-                                 "    gl_FragColor = vColor;"
+                                 "    gl_FragColor = dwf_vColor;"
                                  "}";
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -263,7 +263,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     colTestShader.Use(true);
 
     // get the is colliding slot
-    const GLint isColliding = glGetUniformLocation((GLuint)colTestShader.GetProgramID(), "uIsColliding");
+    const GLint isColliding = glGetUniformLocation((GLuint)colTestShader.GetProgramID(), "dwf_uIsColliding");
 
     // found it?
     if (isColliding != -1)

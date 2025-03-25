@@ -92,6 +92,9 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Texture.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h">
+      <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FBXModelTest.cpp">
@@ -153,6 +156,9 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp">
       <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp">
+      <Filter>SDK\Renderer\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
