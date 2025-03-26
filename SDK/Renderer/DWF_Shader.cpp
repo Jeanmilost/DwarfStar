@@ -63,17 +63,27 @@ void Shader::SetAttributeName(IEAttribute  attribute, const std::string& name)
     m_AttributeDictionary[attribute] = name;
 }
 //---------------------------------------------------------------------------
+std::string Shader::GetLastError() const
+{
+    return m_LastError;
+}
+//---------------------------------------------------------------------------
+void Shader::SetLastError(const std::string& error) const
+{
+    const_cast<std::string&>(m_LastError) = error;
+}
+//---------------------------------------------------------------------------
 void Shader::PopulateAttributeDict()
 {
-    m_AttributeDictionary[IEAttribute::IE_SA_Vertices]         = "aVertices";
-    m_AttributeDictionary[IEAttribute::IE_SA_Normal]           = "aNormal";
-    m_AttributeDictionary[IEAttribute::IE_SA_Texture]          = "aTexCoord";
-    m_AttributeDictionary[IEAttribute::IE_SA_Color]            = "aColor";
-    m_AttributeDictionary[IEAttribute::IE_SA_DirLight]         = "aDirLight";
-    m_AttributeDictionary[IEAttribute::IE_SA_ProjectionMatrix] = "uProjection";
-    m_AttributeDictionary[IEAttribute::IE_SA_ViewMatrix]       = "uView";
-    m_AttributeDictionary[IEAttribute::IE_SA_ModelMatrix]      = "uModel";
-    m_AttributeDictionary[IEAttribute::IE_SA_TextureSampler]   = "sTexture";
-    m_AttributeDictionary[IEAttribute::IE_SA_CubemapSampler]   = "sCubemap";
+    m_AttributeDictionary[IEAttribute::IE_SA_Vertices]         = "dwf_aVertices";
+    m_AttributeDictionary[IEAttribute::IE_SA_Normal]           = "dwf_aNormal";
+    m_AttributeDictionary[IEAttribute::IE_SA_Texture]          = "dwf_aTexCoord";
+    m_AttributeDictionary[IEAttribute::IE_SA_Color]            = "dwf_aColor";
+    m_AttributeDictionary[IEAttribute::IE_SA_DirLight]         = "dwf_aDirLight";
+    m_AttributeDictionary[IEAttribute::IE_SA_ProjectionMatrix] = "dwf_uProjection";
+    m_AttributeDictionary[IEAttribute::IE_SA_ViewMatrix]       = "dwf_uView";
+    m_AttributeDictionary[IEAttribute::IE_SA_ModelMatrix]      = "dwf_uModel";
+    m_AttributeDictionary[IEAttribute::IE_SA_TextureSampler]   = "dwf_sTexture";
+    m_AttributeDictionary[IEAttribute::IE_SA_CubemapSampler]   = "dwf_sCubemap";
 }
 //---------------------------------------------------------------------------

@@ -60,8 +60,9 @@ namespace DWF_Renderer
 
             /**
             * Creates the program
+            *@return true on success, otherwise false
             */
-            virtual void CreateProgram();
+            virtual bool CreateProgram();
 
             /**
             * Gets shader program identifier

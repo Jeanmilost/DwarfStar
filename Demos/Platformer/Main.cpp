@@ -43,6 +43,7 @@
 #include "DWF_SceneTimer.h"
 #include "DWF_Sound_OpenAL.h"
 #include "DWF_Sound_MiniAudio.h"
+#include "DWF_Shader_Collection_OpenGL.h"
 #include "DWF_Logger.h"
 
 // libraries
@@ -56,107 +57,6 @@
 // resources
 #include "Resource.h"
 
-//------------------------------------------------------------------------------
-const char texNormVertShader[] = "#version 120\n"
-                                 "precision mediump float;\n"
-                                 "attribute    vec3 aVertices;\n"
-                                 "attribute    vec3 aNormal;\n"
-                                 "attribute    vec4 aColor;\n"
-                                 "attribute    vec2 aTexCoord;\n"
-                                 "uniform      mat4 uProjection;\n"
-                                 "uniform      mat4 uView;\n"
-                                 "uniform      mat4 uModel;\n"
-                                 "varying lowp vec3 vNormal;\n"
-                                 "varying lowp vec4 vColor;\n"
-                                 "varying      vec2 vTexCoord;\n"
-                                 "void main(void)\n"
-                                 "{\n"
-                                 "    vNormal     = aNormal;\n"
-                                 "    vColor      = aColor;\n"
-                                 "    vTexCoord   = aTexCoord;\n"
-                                 "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
-                                 "}";
-//------------------------------------------------------------------------------
-const char texVertShader[] =    "#version 120\n"
-                                "precision mediump float;\n"
-                                "attribute    vec3 aVertices;\n"
-                                "attribute    vec4 aColor;\n"
-                                "attribute    vec2 aTexCoord;\n"
-                                "uniform      mat4 uProjection;\n"
-                                "uniform      mat4 uView;\n"
-                                "uniform      mat4 uModel;\n"
-                                "varying lowp vec4 vColor;\n"
-                                "varying      vec2 vTexCoord;\n"
-                                "void main(void)\n"
-                                "{\n"
-                                "    vColor      = aColor;\n"
-                                "    vTexCoord   = aTexCoord;\n"
-                                "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
-                                "}";
-//------------------------------------------------------------------------------
-const char colVertShader[] =    "#version 120\n"
-                                "precision mediump float;\n"
-                                "attribute    vec3 aVertices;\n"
-                                "attribute    vec4 aColor;\n"
-                                "uniform      mat4 uProjection;\n"
-                                "uniform      mat4 uView;\n"
-                                "uniform      mat4 uModel;\n"
-                                "varying lowp vec4 vColor;\n"
-                                "void main(void)\n"
-                                "{\n"
-                                "    vColor      = aColor;\n"
-                                "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);\n"
-                                "}";
-//------------------------------------------------------------------------------
-const char skyboxVertShader[] = "#version 120\n"
-                                "precision mediump float;\n"
-                                "attribute vec3 aVertices;\n"
-                                "uniform   mat4 uProjection;\n"
-                                "uniform   mat4 uView;\n"
-                                "varying   vec3 vTexCoord;\n"
-                                "void main()\n"
-                                "{\n"
-                                "    vTexCoord   = aVertices;\n"
-                                "    gl_Position = uProjection * uView * vec4(aVertices, 1.0);\n"
-                                "}";
-//------------------------------------------------------------------------------
-const char texNormFragShader[] = "#version 120\n"
-                                 "precision mediump float;\n"
-                                 "uniform      sampler2D sTexture;\n"
-                                 "varying lowp vec3      vNormal;\n"
-                                 "varying lowp vec4      vColor;\n"
-                                 "varying      vec2      vTexCoord;\n"
-                                 "void main(void)\n"
-                                 "{\n"
-                                 "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);\n"
-                                 "}";
-//------------------------------------------------------------------------------
-const char texFragShader[] =    "#version 120\n"
-                                "precision mediump float;\n"
-                                "uniform      sampler2D sTexture;\n"
-                                "varying lowp vec4      vColor;\n"
-                                "varying      vec2      vTexCoord;\n"
-                                "void main(void)\n"
-                                "{\n"
-                                "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);\n"
-                                "}";
-//------------------------------------------------------------------------------
-const char colFragShader[] =    "#version 120\n"
-                                "precision mediump float;\n"
-                                "varying lowp vec4 vColor;\n"
-                                "void main(void)\n"
-                                "{\n"
-                                "    gl_FragColor = vColor;\n"
-                                "}";
-//------------------------------------------------------------------------------
-const char skyboxFragShader[] = "#version 330\n"
-                                "precision mediump float;\n"
-                                "uniform samplerCube sCubemap;\n"
-                                "varying vec3        vTexCoord;\n"
-                                "void main()\n"
-                                "{\n"
-                                "    gl_FragColor = texture(sCubemap, vTexCoord);\n"
-                                "}";
 //------------------------------------------------------------------------------
 // Global functions
 //------------------------------------------------------------------------------
@@ -301,29 +201,37 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     // load texture and normal shader
     DWF_Renderer::Shader_OpenGL texNormShader;
     texNormShader.CreateProgram();
-    texNormShader.Attach(texNormVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texNormShader.Attach(texNormFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     texNormShader.Link(true);
 
     // load texture shader
     DWF_Renderer::Shader_OpenGL texShader;
     texShader.CreateProgram();
-    texShader.Attach(texVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texShader.Attach(texFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     texShader.Link(true);
 
     // load color shader
     DWF_Renderer::Shader_OpenGL colShader;
     colShader.CreateProgram();
-    colShader.Attach(colVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    colShader.Attach(colFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     colShader.Link(true);
 
     // load skybox shader
     DWF_Renderer::Shader_OpenGL skyboxShader;
     skyboxShader.CreateProgram();
-    skyboxShader.Attach(skyboxVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    skyboxShader.Attach(skyboxFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     skyboxShader.Link(true);
 
     DWF_Math::Matrix4x4F projMatrix;

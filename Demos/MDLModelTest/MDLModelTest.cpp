@@ -33,6 +33,7 @@
 #include "DWF_Texture_OpenGL.h"
 #include "DWF_Shader_OpenGL.h"
 #include "DWF_Renderer_OpenGL.h"
+#include "DWF_Shader_Collection_OpenGL.h"
 
 // openGL
 #define GLEW_STATIC
@@ -50,54 +51,6 @@
 bool g_ShowSkeleton = false;
 bool g_PauseAnim    = false;
 bool g_Rotate       = true;
-//------------------------------------------------------------------------------
-const char vertexShader[] = "precision mediump float;"
-                            "attribute    vec3 aVertices;"
-                            "attribute    vec4 aColor;"
-                            "attribute    vec2 aTexCoord;"
-                            "uniform      mat4 uProjection;"
-                            "uniform      mat4 uView;"
-                            "uniform      mat4 uModel;"
-                            "varying lowp vec4 vColor;"
-                            "varying      vec2 vTexCoord;"
-                            "void main(void)"
-                            "{"
-                            "    vColor      = aColor;"
-                            "    vTexCoord   = aTexCoord;"
-                            "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
-                            "}";
-//------------------------------------------------------------------------------
-const char lineVertShader[] = "precision mediump float;"
-                              "attribute    vec3 aVertices;"
-                              "attribute    vec4 aColor;"
-                              "uniform      mat4 uProjection;"
-                              "uniform      mat4 uView;"
-                              "uniform      mat4 uModel;"
-                              "varying lowp vec4 vColor;"
-                              "void main(void)"
-                              "{"
-                              "    vColor      = aColor;"
-                              "    gl_Position = uProjection * uView * uModel * vec4(aVertices, 1.0);"
-                              "}";
-//------------------------------------------------------------------------------
-const char fragmentShader[] = "precision mediump float;"
-                              "uniform      sampler2D sTexture;"
-                              "varying lowp vec4      vColor;"
-                              "varying      vec2      vTexCoord;"
-                              "void main(void)"
-                              "{"
-                              "    gl_FragColor = vColor * texture2D(sTexture, vTexCoord);"
-                              ""
-                              "    if (gl_FragColor.a < 0.5)"
-                              "        discard;"
-                              "}";
-//------------------------------------------------------------------------------
-const char lineFragShader[] = "precision mediump float;"
-                              "varying lowp vec4 vColor;"
-                              "void main(void)"
-                              "{"
-                              "    gl_FragColor = vColor;"
-                              "}";
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -277,14 +230,18 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
     DWF_Renderer::Shader_OpenGL shader;
     shader.CreateProgram();
-    shader.Attach(vertexShader,   DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    shader.Attach(fragmentShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    shader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    shader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     shader.Link(true);
 
     DWF_Renderer::Shader_OpenGL lineShader;
     lineShader.CreateProgram();
-    lineShader.Attach(lineVertShader, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    lineShader.Attach(lineFragShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    lineShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Line),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    lineShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Line),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     lineShader.Link(true);
 
     DWF_Model::MDL mdl;

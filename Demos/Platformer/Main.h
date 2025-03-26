@@ -41,7 +41,7 @@
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneItemModel.h"
 #include "DWF_SceneItemAnimation.h"
-#include "DWF_Force.h" // FIXME move in body
+#include "DWF_Force.h"
 
 // libraries
 #include <windows.h>
