@@ -86,6 +86,12 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                     break;
 
+                case '3':
+                    if (Main::GetInstance())
+                        Main::GetInstance()->ChangeCameraType();
+
+                    break;
+
                 case VK_ESCAPE:
                     ::PostQuitMessage(0);
                     break;
@@ -447,7 +453,8 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
             m_Jumping = false;
 
     // left (or "A") or right (or "D") key pressed?
-    if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_DOWN : VK_LEFT) & 0x8000) ||
+        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 83 : 65) & 0x8000))
     {
         m_Walking    =  true;
         m_WalkOffset = -1.0f;
@@ -456,7 +463,8 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity * (float)elapsedTime));
     }
     else
-    if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_UP : VK_RIGHT) & 0x8000) ||
+        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 87 : 68) & 0x8000))
     {
         m_Walking    = true;
         m_WalkOffset = 1.0f;
@@ -513,10 +521,46 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         if (m_WalkOffset > 0.0f)
             pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
 
+    switch (m_CameraType)
+    {
+        case IECameraType::IE_CT_Static:
+            // set the x position
+            m_xPos = 0.5f;
+
+            // set the camera rotation
+            pArcballItem->SetY((float)(M_PI / 2.0));
+            break;
+
+        case IECameraType::IE_CT_Rotate:
+            // set the x position
+            m_xPos = 0.5f;
+
+            // apply a rotation on the camera
+            pArcballItem->SetY(((float)M_PI / 2.0f) - (((m_zPos + 4.0f) / 100.0f) * (float)M_PI * 2.0f) / 1.0f);
+            break;
+
+        case IECameraType::IE_CT_Follow:
+            // set the x position
+            m_xPos = -0.25f;
+
+            // place the camera below the player
+            pArcballItem->SetY((float)M_PI);
+            break;
+    }
+
     // calculate the next player position (arcball, model and collider)
     pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
     pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
     pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
+
+    // player is falling too low?
+    if (m_yPos < -3.0f)
+    {
+        // reset the pos to start
+        m_xPos = 0.5f;
+        m_yPos = 0.5f;
+        m_zPos = 0.0f;
+    }
 
     // reset the grounded state, in order to test it on the next collision detection
     m_Grounded = false;

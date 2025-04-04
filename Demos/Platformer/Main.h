@@ -87,6 +87,11 @@ class Main
         virtual inline void SetShowColliders(bool value);
 
         /**
+        * Changes the camera type
+        */
+        virtual inline void ChangeCameraType();
+
+        /**
         * Runs the form
         *@param hInstance - app instance
         *@param nCmdShow - flags specifying how the application should be displayed when opened
@@ -94,6 +99,16 @@ class Main
         virtual int Run(HINSTANCE hInstance, int nCmdShow);
 
     private:
+        /**
+        * Camera types
+        */
+        enum class IECameraType
+        {
+            IE_CT_Static,
+            IE_CT_Rotate,
+            IE_CT_Follow
+        };
+
         typedef std::map<std::string, DWF_Model::Texture*> Textures;
         typedef std::vector<std::string>                   IFilenames;
 
@@ -102,6 +117,8 @@ class Main
         DWF_Scene::Scene              m_Scene;
         DWF_Renderer::Renderer_OpenGL m_Renderer;
         Textures                      m_TextureItems;
+        DWF_Physics::Force            m_Force;
+        IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
         GLuint                        m_SkyboxTexId      = -1;
         float                         m_xPos             =  0.5f;
         float                         m_yPos             =  0.5f;
@@ -116,7 +133,6 @@ class Main
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
-        DWF_Physics::Force            m_Force; // FIXME move in body
 
         /**
         * Called when a texture should be loaded for the character
@@ -225,5 +241,23 @@ inline bool Main::GetShowColliders()
 inline void Main::SetShowColliders(bool value)
 {
     m_ShowColliders = value;
+}
+//---------------------------------------------------------------------------
+inline void Main::ChangeCameraType()
+{
+    switch (m_CameraType)
+    {
+        case IECameraType::IE_CT_Static:
+            m_CameraType = IECameraType::IE_CT_Follow;
+            break;
+
+        case IECameraType::IE_CT_Rotate:
+            m_CameraType = IECameraType::IE_CT_Static;
+            break;
+
+        case IECameraType::IE_CT_Follow:
+            m_CameraType = IECameraType::IE_CT_Rotate;
+            break;
+    }
 }
 //---------------------------------------------------------------------------
