@@ -1,3 +1,6 @@
 [submodule "Third-party/iqm"]
 	path = Third-party/iqm
 	url = https://github.com/lsalzman/iqm.git
+[submodule "Third-party/quake-hexen2-mdl-export-import"]
+	path = Third-party/quake-hexen2-mdl-export-import
+	url = https://github.com/victorfeitosa/quake-hexen2-mdl-export-import.git
