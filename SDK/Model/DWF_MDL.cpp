@@ -935,7 +935,7 @@ Model* MDL::GetModel(std::size_t  fps,
             m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Format              = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Format;
             m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Culling             = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Culling;
             m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material            = m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Material;
-            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = m_Textures[textureIndex];
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = textureIndex >= m_Textures.size() ? nullptr : m_Textures[textureIndex];
 
             // iterate through vertices
             for (std::size_t k = 0; k < m_Models[modelIndex]->m_Mesh[i]->m_VB[j]->m_Data.size(); ++k)
