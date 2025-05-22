@@ -40,6 +40,7 @@
 #include "DWF_Vector3.h"
 #include "DWF_Quaternion.h"
 #include "DWF_Matrix4x4.h"
+#include "DWF_ModelFormat.h"
 #include "DWF_Model.h"
 
 namespace DWF_Model
@@ -48,7 +49,7 @@ namespace DWF_Model
     * FilmBox (.fbx) model loader
     *@author Jean-Milost Reymond
     */
-    class FBX
+    class FBX : public ModelFormat
     {
         public:
             /**

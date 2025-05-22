@@ -676,7 +676,8 @@ MDL::IAnimation::~IAnimation()
 //---------------------------------------------------------------------------
 // MDL
 //---------------------------------------------------------------------------
-MDL::MDL()
+MDL::MDL() :
+    ModelFormat(IEFormat::IE_F_MDL)
 {
     // configure the default vertex format
     m_VertFormatTemplate.m_Format = (VertexFormat::IEFormat)((unsigned)VertexFormat::IEFormat::IE_VF_Colors |

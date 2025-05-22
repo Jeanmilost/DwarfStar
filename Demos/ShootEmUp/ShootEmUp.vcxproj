@@ -216,6 +216,7 @@
     <ClInclude Include="..\..\SDK\Model\DWF_MDL.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Model.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_ModelFactory.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_ModelFormat.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Texture.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Wavefront.h" />
     <ClInclude Include="..\..\SDK\Physics\DWF_Force.h" />
@@ -282,6 +283,7 @@
     <ClCompile Include="..\..\SDK\Model\DWF_MDL.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_ModelFactory.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_ModelFormat.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Wavefront.cpp" />
     <ClCompile Include="..\..\SDK\Physics\DWF_Force.cpp" />

@@ -35,6 +35,7 @@
 #include "DWF_Vector2.h"
 #include "DWF_Vector3.h"
 #include "DWF_Matrix4x4.h"
+#include "DWF_ModelFormat.h"
 #include "DWF_Model.h"
 
 #define CONVERT_ENDIANNESS
@@ -45,7 +46,7 @@ namespace DWF_Model
     * Quake I model (.mdl)
     *@author Jean-Milost Reymond
     */
-    class MDL
+    class MDL : public ModelFormat
     {
         public:
             /**

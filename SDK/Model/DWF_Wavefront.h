@@ -34,6 +34,7 @@
 #include "DWF_Vector2.h"
 #include "DWF_Vector3.h"
 #include "DWF_Matrix4x4.h"
+#include "DWF_ModelFormat.h"
 #include "DWF_Model.h"
 
 namespace DWF_Model
@@ -42,7 +43,7 @@ namespace DWF_Model
     * Wavefront (.obj) model
     *@author Jean-Milost Reymond
     */
-    class Wavefront
+    class Wavefront : public ModelFormat
     {
         public:
             /**

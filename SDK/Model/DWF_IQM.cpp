@@ -631,6 +631,7 @@ IQM::IVertex::~IVertex()
 // IQM
 //---------------------------------------------------------------------------
 IQM::IQM(bool meshOnly, bool poseOnly) :
+    ModelFormat(IEFormat::IE_F_IQM),
     m_MeshOnly(meshOnly),
     m_PoseOnly(poseOnly)
 {

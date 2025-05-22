@@ -193,6 +193,7 @@
     <ClInclude Include="..\..\SDK\Model\DWF_IQM.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Model.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_ModelFormat.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Texture.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="..\..\SDK\Model\DWF_IQM.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_ModelFormat.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Texture.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />

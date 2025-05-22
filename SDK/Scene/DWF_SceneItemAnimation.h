@@ -32,6 +32,7 @@
 
 // classes
 #include "DWF_SceneItemModelBase.h"
+#include "DWF_ModelFormat.h"
 #include "DWF_IQM.h"
 #include "DWF_Shader.h"
 
@@ -51,15 +52,15 @@ namespace DWF_Scene
             */
             struct IAnimDesc
             {
-                DWF_Model::IQM* m_pModel         = nullptr;
-                std::size_t     m_AnimSetIndex   = 0;
-                std::size_t     m_FrameIndex     = 0;
-                std::size_t     m_FrameStart     = 0;
-                std::size_t     m_FrameCount     = 0;
-                double          m_FrameTimeStamp = 0.0;
-                double          m_FrameAnimTime  = 0.0;
-                double          m_FrameDuration  = 0.0;
-                bool            m_Loop           = false;
+                DWF_Model::ModelFormat* m_pModelFormat   = nullptr;
+                std::size_t             m_AnimSetIndex   = 0;
+                std::size_t             m_FrameIndex     = 0;
+                std::size_t             m_FrameStart     = 0;
+                std::size_t             m_FrameCount     = 0;
+                double                  m_FrameTimeStamp = 0.0;
+                double                  m_FrameAnimTime  = 0.0;
+                double                  m_FrameDuration  = 0.0;
+                bool                    m_Loop           = false;
 
                 IAnimDesc();
                 virtual ~IAnimDesc();
@@ -89,10 +90,10 @@ namespace DWF_Scene
 
             /**
             * Sets the animation model to use
-            *@param pModel - the animation model which contains the animations to play
+            *@param pModelFormat - the animation model which contains the animations to play
             *@note The model will be deleted internally, don't delete it from outside
             */
-            virtual inline void SetModel(DWF_Model::IQM* pModel);
+            virtual inline void SetModel(DWF_Model::ModelFormat* pModelFormat);
 
             /**
             * Gets if the skeleton should be drawn
@@ -122,24 +123,24 @@ namespace DWF_Scene
 
             /**
             * Adds an animation to the item
-            *@param pModel - model containing the animation to add
+            *@param pModelFormat - animated model containing the animation to add
             *@param animSetIndex - animation set index to use in the model
             *@param frameCount - frame count the animation contains
             *@param frameDuration - frame duration in milliseconds
             *@param loop - if true, the animation will loop
             *@note The animation will be deleted internally, don't delete it from outside
             */
-            virtual void AddAnim(DWF_Model::IQM* pModel,
-                                 std::size_t     animSetIndex,
-                                 std::size_t     frameCount,
-                                 double          frameDuration,
-                                 bool            loop);
+            virtual void AddAnim(DWF_Model::ModelFormat* pModelFormat,
+                                 std::size_t             animSetIndex,
+                                 std::size_t             frameCount,
+                                 double                  frameDuration,
+                                 bool                    loop);
 
             /**
             * Deletes an animation from the item
-            *@param pAnim - animation to delete
+            *@param pModelFormat - animated model to delete
             */
-            virtual void DeleteAnim(DWF_Model::IQM* pAnim);
+            virtual void DeleteAnim(DWF_Model::ModelFormat* pModelFormat);
 
             /**
             * Deletes an animation from the item at index
@@ -221,34 +222,34 @@ namespace DWF_Scene
         private:
             typedef std::vector<IAnimDesc*> IAnimations;
 
-            IAnimations           m_Animations;
-            DWF_Model::IQM*       m_pModel        = nullptr;
-            DWF_Renderer::Shader* m_pShader       = nullptr;
-            std::size_t           m_Index         = 0;
-            bool                  m_ShaderIsLocal = false;
-            bool                  m_DrawSkeleton  = false;
-            ITfOnFrame            m_fOnFrame      = nullptr;
-            ITfOnEndReached       m_fOnEndReached = nullptr;
+            IAnimations             m_Animations;
+            DWF_Model::ModelFormat* m_pModelFormat  = nullptr;
+            DWF_Renderer::Shader*   m_pShader       = nullptr;
+            std::size_t             m_Index         = 0;
+            bool                    m_ShaderIsLocal = false;
+            bool                    m_DrawSkeleton  = false;
+            ITfOnFrame              m_fOnFrame      = nullptr;
+            ITfOnEndReached         m_fOnEndReached = nullptr;
 
             /**
-            * Draws an IQM model
-            *@param pIqmModel - IQM model to draw
+            * Draws a model
+            *@param pModelFormat - model to draw
             *@param animSetIndex - animation set index
             *@param frameIndex - animation frame index
             *@param frameCount - animation frame count
             *@param pShader - shader to use to draw the model
             *@param pRenderer - renderer to use to draw the model
             */
-            void DrawIQM(const DWF_Model::IQM*         pIqmModel,
-                               std::size_t             animSetIndex,
-                               std::size_t             frameIndex,
-                               std::size_t             frameCount,
-                         const DWF_Renderer::Shader*   pShader,
-                         const DWF_Renderer::Renderer* pRenderer) const;
+            void DrawModel(const DWF_Model::ModelFormat* pModelFormat,
+                                 std::size_t             animSetIndex,
+                                 std::size_t             frameIndex,
+                                 std::size_t             frameCount,
+                           const DWF_Renderer::Shader*   pShader,
+                           const DWF_Renderer::Renderer* pRenderer) const;
 
             /**
-            * Draws an IQM model bone
-            *@param pIqmModel - IQM model for which the bone should be drawn
+            * Draws a model bone
+            *@param pModelFormat - model format for which the bone should be drawn
             *@param pBone - bone to draw
             *@param animSetIndex - animation set index
             *@param frameIndex - animation frame index
@@ -256,7 +257,7 @@ namespace DWF_Scene
             *@param pShader - shader to use to draw the bone
             *@param pRenderer - renderer to use to draw the bone
             */
-            void DrawBone(const DWF_Model::IQM*          pIqmModel,
+            void DrawBone(const DWF_Model::ModelFormat*  pModelFormat,
                           const DWF_Model::Model*        pModel,
                           const DWF_Model::Model::IBone* pBone,
                                 std::size_t              animSetIndex,
@@ -269,9 +270,9 @@ namespace DWF_Scene
     //---------------------------------------------------------------------------
     // SceneItem_Animation
     //---------------------------------------------------------------------------
-    inline void SceneItem_Animation::SetModel(DWF_Model::IQM* pModel)
+    inline void SceneItem_Animation::SetModel(DWF_Model::ModelFormat* pModelFormat)
     {
-        m_pModel = pModel;
+        m_pModelFormat = pModelFormat;
     }
     //---------------------------------------------------------------------------
     inline bool SceneItem_Animation::DoDrawSkeleton() const

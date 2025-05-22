@@ -155,7 +155,8 @@ bool Wavefront::IMaterial::Read(DWF_Buffer::Buffer& buffer)
 //---------------------------------------------------------------------------
 // Wavefront
 //---------------------------------------------------------------------------
-Wavefront::Wavefront()
+Wavefront::Wavefront() :
+    ModelFormat(IEFormat::IE_F_Wavefront)
 {
     // configure the default vertex format
     m_VertFormatTemplate.m_Format = (VertexFormat::IEFormat)((unsigned)VertexFormat::IEFormat::IE_VF_Colors |
