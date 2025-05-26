@@ -304,12 +304,12 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
             // do show or hide the colliders?
             if (m_ShowColliders != m_OldShowColliders)
             {
-                /*REM
-                DWF_Scene::SceneItem_Model* pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_player_collider"));
+                DWF_Scene::SceneItem_Model* pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_spaceship_collider"));
 
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
 
+                /*REM
                 pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider"));
 
                 if (pModelCollider)
@@ -374,10 +374,61 @@ void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_S
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
-    /*REM
     if (!pScene)
         return;
 
+    // get the objects of interest from scene
+    DWF_Scene::SceneItem_StaticAsset* pModelItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(pScene->SearchItem(L"scene_spaceship"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_spaceship_collider"));
+
+    const float spaceshipSpeed = 0.25f;
+
+    if (::GetKeyState(VK_SPACE) & 0x8000)
+    {
+    }
+
+    if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+    {
+        m_xPos -= spaceshipSpeed;
+
+        if (m_xPos <= -19.0f)
+            m_xPos = -19.0f;
+    }
+    else
+    if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+    {
+        m_xPos += spaceshipSpeed;
+
+        if (m_xPos >= 19.0f)
+            m_xPos = 19.0f;
+    }
+
+    if ((::GetKeyState(VK_UP) & 0x8000) || (::GetKeyState(87) & 0x8000))
+    {
+        m_yPos += spaceshipSpeed;
+
+        if (m_yPos >= 15.0f)
+            m_yPos = 15.0f;
+
+        pModelItem->SetPitch(0.0f);
+    }
+    else
+        if ((::GetKeyState(VK_DOWN) & 0x8000) || (::GetKeyState(83) & 0x8000))
+        {
+            m_yPos -= spaceshipSpeed;
+
+            if (m_yPos <= -15.0f)
+                m_yPos = -15.0f;
+
+            pModelItem->SetPitch(0.0f);
+        }
+        else
+            pModelItem->SetPitch((float)(-M_PI / 2.0));
+
+    pModelItem->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
+    pModelCollider->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos + 0.2f, -40.0f));
+
+    /*REM
     // get the objects of interest from scene
     DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
     DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem (L"scene_player_model"));
@@ -708,15 +759,15 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_blue.mdl");
 
     // create the player spaceship scene model item
-    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_player_spaceshift");
+    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_spaceship");
     pStaticModel->SetStatic(false);
     pStaticModel->SetModel(pMdl);
     pStaticModel->SetShader(&texShader);
-    pStaticModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -40.0f));
-    pStaticModel->SetRoll(0.0f);
-    pStaticModel->SetPitch(0.0f);
-    pStaticModel->SetYaw(0.0f);
-    pStaticModel->SetScale(DWF_Math::Vector3F(5.0f, 5.0f, 5.0f));
+    pStaticModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
+    pStaticModel->SetRoll(-0.25f);
+    pStaticModel->SetPitch((float)(-M_PI / 2.0));// FIXME rotate this
+    pStaticModel->SetYaw((float)(-M_PI / 2.0));
+    pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
 
     // set the model to the scene
     m_Scene.Add(pStaticModel.get(), false);
@@ -746,17 +797,14 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pAnim.get(), false);
     pAnim.release();
+    */
 
     DWF_Model::VertexFormat  vf;
     DWF_Model::VertexCulling vc;
     DWF_Model::Material      mat;
 
-    // set vertex format for textured models
-    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
-    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
-                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
-
     // set vertex format for colored models
+    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
     vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
 
     // create material
@@ -765,32 +813,36 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_R = 0.0f;
     mat.m_Color.m_A = 1.0f;
 
-    // create the player capsule
-    std::unique_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
+    // create the spaceship box model
+    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(4.0f, 1.0f, 2.0f, false, vf, vc, mat));
 
     // create the capsule model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
-    pModel->SetStatic(false);
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider");
+    pModel->SetStatic(true);
     pModel->SetVisible(false);
-    pModel->SetModel(pPlayerCapsule.get());
+    pModel->SetModel(pBox.get());
     pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
-    pModel->SetRoll(0.0f);
+    pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos + 0.2f, -40.0f));
+    pModel->SetRoll(0.0f); // FIXME rotate this
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pPlayerCapsule.release();
+    pBox.release();
 
-    // create the player collider
-    std::unique_ptr<DWF_Collider::Capsule_Collider> pPlayerCollider = std::make_unique<DWF_Collider::Capsule_Collider>();
-    pPlayerCollider->SetCapsule(0.17f, 0.85f, 0.0f, true);
-    pModel->AddCollider(pPlayerCollider.get());
-    pPlayerCollider.release();
+    // create the spaceship box collider
+    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(0.0f, 0.2f, -40.0f),
+                                                         DWF_Math::Matrix4x4F::Identity(),
+                                                         DWF_Math::Vector3F(-2.0f, -0.5f, -2.0f),
+                                                         DWF_Math::Vector3F( 2.0f,  0.5f,  2.0f));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
 
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
+    /*REM
     // load first platform
     std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
@@ -954,10 +1006,12 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+    */
 
     // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));
 
+    /*REM
     // bind the update scene callback to the scene
     m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
 

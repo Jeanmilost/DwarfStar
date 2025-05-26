@@ -122,8 +122,10 @@ class Main
         DWF_Physics::Force            m_Force;
         IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
         GLuint                        m_SkyboxTexId      = -1;
-        float                         m_xPos             =  0.5f;
-        float                         m_yPos             =  0.5f;
+        */
+        float                         m_xPos             =  0.0f;
+        float                         m_yPos             =  0.0f;
+        /*REM
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.00125f;
         float                         m_JumpVelocity     =  0.00875f;
