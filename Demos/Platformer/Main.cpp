@@ -286,7 +286,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
             // do show or hide the skeleton?
             if (m_ShowSkeleton != m_OldShowSkeleton)
             {
-                DWF_Scene::SceneItem_Animation* pModelItem = static_cast<DWF_Scene::SceneItem_Animation*>(m_Scene.SearchItem(L"scene_player_model"));
+                DWF_Scene::SceneItem_AnimAsset* pModelItem = static_cast<DWF_Scene::SceneItem_AnimAsset*>(m_Scene.SearchItem(L"scene_player_model"));
 
                 if (pModelItem)
                     pModelItem->SetDrawSkeleton(m_ShowSkeleton);
@@ -419,10 +419,10 @@ bool Main::OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& 
     return true;
 }
 //---------------------------------------------------------------------------
-void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
+void Main::OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
 {}
 //---------------------------------------------------------------------------
-void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
+void Main::OnEndReached(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
 {}
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
@@ -432,7 +432,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 
     // get the objects of interest from scene
     DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem (L"scene_player_model"));
+    DWF_Scene::SceneItem_AnimAsset*   pModelItem     = static_cast<DWF_Scene::SceneItem_AnimAsset*>  (pScene->SearchItem (L"scene_player_model"));
     DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
     DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
 
@@ -594,7 +594,7 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
         return;
 
     // get the player model from the scene
-    DWF_Scene::SceneItem_Animation* pPlayer = static_cast<DWF_Scene::SceneItem_Animation*>(pScene->SearchItem(L"scene_player_model"));
+    DWF_Scene::SceneItem_AnimAsset* pPlayer = static_cast<DWF_Scene::SceneItem_AnimAsset*>(pScene->SearchItem(L"scene_player_model"));
 
     if (!pPlayer)
         return;
@@ -750,13 +750,13 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pPOV.get());
     pPOV.release();
 
-    // load idle IQM
-    std::unique_ptr<DWF_Model::IQM> pIqm = std::make_unique<DWF_Model::IQM>();
+    // load player IQM model
+    std::shared_ptr<DWF_Model::IQM> pIqm = std::make_shared<DWF_Model::IQM>();
     pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadCharTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqm->Open("..\\..\\Resources\\Model\\Platformer\\Player\\player.iqm");
 
     // create the background model item
-    std::unique_ptr<DWF_Scene::SceneItem_Animation> pAnim = std::make_unique<DWF_Scene::SceneItem_Animation>(L"scene_player_model");
+    std::unique_ptr<DWF_Scene::SceneItem_AnimAsset> pAnim = std::make_unique<DWF_Scene::SceneItem_AnimAsset>(L"scene_player_model");
     pAnim->SetStatic(true);
     pAnim->SetShader(&texShader);
     pAnim->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
@@ -764,8 +764,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pAnim->SetPitch(0.0f);
     pAnim->SetYaw(0.0f);
     pAnim->SetScale(DWF_Math::Vector3F(0.05f, 0.05f, 0.05f));
-    pAnim->SetModel(pIqm.get());
-    pIqm.release();
+    pAnim->SetModel(pIqm);
     pAnim->AddAnim((std::size_t)0, 0,   60, 0.025, true);  // idle
     pAnim->AddAnim((std::size_t)0, 60,  70, 0.025, false); // idle jump
     pAnim->AddAnim((std::size_t)0, 130, 19, 0.025, true);  // run
@@ -824,28 +823,26 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel.release();
 
     // load first platform
-    std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
+    std::shared_ptr<DWF_Model::Wavefront> pPlatform = std::make_shared<DWF_Model::Wavefront>();
     pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
     pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
-    // take the ownership of the generated platform model, and release the Wavefront object
-    std::unique_ptr<DWF_Model::Model> pPlatformModel(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
+    // create the first platform model item
+    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_player_collider");
+    pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform");
+    pStaticModel->SetStatic(true);
+    pStaticModel->SetModel(pPlatform);
+    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
+    pStaticModel->SetRoll(0.0f);
+    pStaticModel->SetPitch(0.0f);
+    pStaticModel->SetYaw(0.0f);
+    pStaticModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
 
     // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
+    m_Scene.Add(pStaticModel.get(), false);
+    pStaticModel.release();
 
     // set material
     mat.m_Color.m_B = 0.0f;
@@ -882,30 +879,20 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // todo -cFeature -oJean: allow assets to be copied and thus reused
-    // load second platform
-    pPlatform = std::make_unique<DWF_Model::Wavefront>();
-    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
-
-    // take the ownership of the generated platform model, and release the Wavefront object
-    pPlatformModel.reset(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_2");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.0f, 2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
+    // create the second platform model item
+    pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform_2");
+    pStaticModel->SetStatic(true);
+    pStaticModel->SetModel(pPlatform);
+    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, 0.0f, 2.0f));
+    pStaticModel->SetRoll(0.0f);
+    pStaticModel->SetPitch(0.0f);
+    pStaticModel->SetYaw(0.0f);
+    pStaticModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
 
     // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
+    m_Scene.Add(pStaticModel.get(), false);
+    pStaticModel.release();
 
     // create the matching collision box model
     pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
@@ -935,29 +922,20 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-    // load third platform
-    pPlatform = std::make_unique<DWF_Model::Wavefront>();
-    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
-
-    // take the ownership of the generated platform model, and release the Wavefront object
-    pPlatformModel.reset(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_3");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
+    // create the third platform model item
+    pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform_3");
+    pStaticModel->SetStatic(true);
+    pStaticModel->SetModel(pPlatform);
+    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
+    pStaticModel->SetRoll(0.0f);
+    pStaticModel->SetPitch(0.0f);
+    pStaticModel->SetYaw(0.0f);
+    pStaticModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
 
     // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
+    m_Scene.Add(pStaticModel.get(), false);
+    pStaticModel.release();
 
     // create the matching collision box model
     pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));

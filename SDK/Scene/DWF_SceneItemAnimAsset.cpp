@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_SceneItemAnimation ----------------------------------------------*
+ * ==> DWF_SceneItemAnimAsset ----------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing an animation                         *
+ * Description : Scene item containing an animated asset                    *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -26,36 +26,33 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneItemAnimation.h"
+#include "DWF_SceneItemAnimAsset.h"
 
 // classes
 #include "DWF_SceneTimer.h"
+#include "DWF_FBX.h"
+#include "DWF_IQM.h"
+#include "DWF_MDL.h"
 
 using namespace DWF_Scene;
 
 //---------------------------------------------------------------------------
-// SceneItem_Animation::IAnimDesc
+// SceneItem_AnimAsset::IAnimDesc
 //---------------------------------------------------------------------------
-SceneItem_Animation::IAnimDesc::IAnimDesc()
+SceneItem_AnimAsset::IAnimDesc::IAnimDesc()
 {}
 //---------------------------------------------------------------------------
-SceneItem_Animation::IAnimDesc::~IAnimDesc()
-{
-    if (m_pModelFormat)
-        delete m_pModelFormat;
-}
+SceneItem_AnimAsset::IAnimDesc::~IAnimDesc()
+{}
 //---------------------------------------------------------------------------
-// SceneItem_Animation
+// SceneItem_AnimAsset
 //---------------------------------------------------------------------------
-SceneItem_Animation::SceneItem_Animation(const std::wstring& name) :
+SceneItem_AnimAsset::SceneItem_AnimAsset(const std::wstring& name) :
     SceneItem_ModelBase(name)
 {}
 //---------------------------------------------------------------------------
-SceneItem_Animation::~SceneItem_Animation()
+SceneItem_AnimAsset::~SceneItem_AnimAsset()
 {
-    if (m_pModelFormat)
-        delete m_pModelFormat;
-
     if (m_ShaderIsLocal && m_pShader)
         delete m_pShader;
 
@@ -64,7 +61,7 @@ SceneItem_Animation::~SceneItem_Animation()
         delete m_Animations[i];
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::AddAnim(std::size_t animSetIndex,
+void SceneItem_AnimAsset::AddAnim(std::size_t animSetIndex,
                                   std::size_t frameStart,
                                   std::size_t frameCount,
                                   double      frameDuration,
@@ -83,15 +80,15 @@ void SceneItem_Animation::AddAnim(std::size_t animSetIndex,
     pAnimDesc.release();
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::AddAnim(DWF_Model::ModelFormat* pModelFormat,
-                                  std::size_t             animSetIndex,
-                                  std::size_t             frameCount,
-                                  double                  frameDuration,
-                                  bool                    loop)
+void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat,
+                                        std::size_t                                  animSetIndex,
+                                        std::size_t                                  frameCount,
+                                        double                                       frameDuration,
+                                        bool                                         loop)
 {
     // create new animation description
     std::unique_ptr<IAnimDesc> pAnimDesc = std::make_unique<IAnimDesc>();
-    pAnimDesc->m_pModelFormat            = pModelFormat;
+    pAnimDesc->m_ModelFormat             = modelFormat;
     pAnimDesc->m_AnimSetIndex            = animSetIndex;
     pAnimDesc->m_FrameCount              = frameCount;
     pAnimDesc->m_FrameDuration           = frameDuration;
@@ -99,7 +96,7 @@ void SceneItem_Animation::AddAnim(DWF_Model::ModelFormat* pModelFormat,
 
     // search if animation already exists, in order to not add it twice
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
-        if (m_Animations[i]->m_pModelFormat == pModelFormat)
+        if (m_Animations[i]->m_ModelFormat == modelFormat)
             return;
 
     // add animation to item
@@ -107,19 +104,19 @@ void SceneItem_Animation::AddAnim(DWF_Model::ModelFormat* pModelFormat,
     pAnimDesc.release();
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::DeleteAnim(DWF_Model::ModelFormat* pModelFormat)
+void SceneItem_AnimAsset::DeleteAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat)
 {
     // iterate through animations and find animation to delete
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
         // found animation to delete?
-        if (m_Animations[i]->m_pModelFormat == pModelFormat)
+        if (m_Animations[i]->m_ModelFormat == modelFormat)
         {
             DeleteAnimAt(i);
             return;
         }
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::DeleteAnimAt(std::size_t index)
+void SceneItem_AnimAsset::DeleteAnimAt(std::size_t index)
 {
     // is animation out of bounds?
     if (index >= m_Animations.size())
@@ -130,7 +127,7 @@ void SceneItem_Animation::DeleteAnimAt(std::size_t index)
     m_Animations.erase(m_Animations.begin() + index);
 }
 //---------------------------------------------------------------------------
-SceneItem_Animation::IAnimDesc* SceneItem_Animation::GetAnim(std::size_t index) const
+SceneItem_AnimAsset::IAnimDesc* SceneItem_AnimAsset::GetAnim(std::size_t index) const
 {
     // is index out of bounds?
     if (index >= m_Animations.size())
@@ -140,17 +137,17 @@ SceneItem_Animation::IAnimDesc* SceneItem_Animation::GetAnim(std::size_t index) 
     return m_Animations[index];
 }
 //---------------------------------------------------------------------------
-std::size_t SceneItem_Animation::GetAnimCount() const
+std::size_t SceneItem_AnimAsset::GetAnimCount() const
 {
     return m_Animations.size();
 }
 //---------------------------------------------------------------------------
-std::size_t SceneItem_Animation::GetSelectedAnim() const
+std::size_t SceneItem_AnimAsset::GetSelectedAnim() const
 {
     return m_Index;
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::SelectAnim(std::size_t index)
+void SceneItem_AnimAsset::SelectAnim(std::size_t index)
 {
     // is index out of bounds?
     if (index >= m_Animations.size())
@@ -162,7 +159,7 @@ void SceneItem_Animation::SelectAnim(std::size_t index)
     ResetAnim(m_Index);
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::SelectAnimSet(std::size_t index, std::size_t animSetIndex)
+void SceneItem_AnimAsset::SelectAnimSet(std::size_t index, std::size_t animSetIndex)
 {
     // is index out of bounds?
     if (index >= m_Animations.size())
@@ -174,14 +171,14 @@ void SceneItem_Animation::SelectAnimSet(std::size_t index, std::size_t animSetIn
     ResetAnim(index);
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::ResetAnim(std::size_t index)
+void SceneItem_AnimAsset::ResetAnim(std::size_t index)
 {
     // is index out of bounds?
     if (index >= m_Animations.size())
         return;
 
     // restart the timer associated with the model
-    DWF_Scene::Timer::GetInstance()->StartTimerForItem(m_Animations[index]->m_pModelFormat ? m_Animations[index]->m_pModelFormat : m_pModelFormat);
+    DWF_Scene::Timer::GetInstance()->StartTimerForItem(m_Animations[index]->m_ModelFormat ? m_Animations[index]->m_ModelFormat.get() : m_ModelFormat.get());
 
     // reset the frame count
     m_Animations[index]->m_FrameIndex     = 0;
@@ -189,7 +186,7 @@ void SceneItem_Animation::ResetAnim(std::size_t index)
     m_Animations[index]->m_FrameAnimTime  = 0.0;
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
+void SceneItem_AnimAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
                                  const DWF_Renderer::Renderer* pRenderer) const
 {
     // not visible? skip it
@@ -211,7 +208,7 @@ void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     // connect the view matrix to the shader
     pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
 
-    DWF_Model::ModelFormat* pModelFormat = m_Animations[m_Index]->m_pModelFormat ? m_Animations[m_Index]->m_pModelFormat : m_pModelFormat;
+    DWF_Model::AnimModelFormat* pModelFormat = m_Animations[m_Index]->m_ModelFormat ? m_Animations[m_Index]->m_ModelFormat.get() : m_ModelFormat.get();
 
     // get elapsed time
     const double timeStamp                   = DWF_Scene::Timer::GetInstance()->GetElapsedTimeForItem(pModelFormat);
@@ -235,6 +232,7 @@ void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
               m_Animations[m_Index]->m_AnimSetIndex,
               m_Animations[m_Index]->m_FrameStart + m_Animations[m_Index]->m_FrameIndex,
               m_Animations[m_Index]->m_FrameCount,
+              elapsedTime,
               m_pShader,
               pRenderer);
 
@@ -254,22 +252,23 @@ void SceneItem_Animation::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
         m_fOnFrame(this, m_Animations[m_Index]);
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::Set_OnFrame(ITfOnFrame fHandler)
+void SceneItem_AnimAsset::Set_OnFrame(ITfOnFrame fHandler)
 {
     m_fOnFrame = fHandler;
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::Set_OnEndReached(ITfOnEndReached fHandler)
+void SceneItem_AnimAsset::Set_OnEndReached(ITfOnEndReached fHandler)
 {
     m_fOnEndReached = fHandler;
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
-                                          std::size_t             animSetIndex,
-                                          std::size_t             frameIndex,
-                                          std::size_t             frameCount,
-                                    const DWF_Renderer::Shader*   pShader,
-                                    const DWF_Renderer::Renderer* pRenderer) const
+void SceneItem_AnimAsset::DrawModel(const DWF_Model::AnimModelFormat* pModelFormat,
+                                          std::size_t                 animSetIndex,
+                                          std::size_t                 frameIndex,
+                                          std::size_t                 frameCount,
+                                          double                      elapsedTime,
+                                    const DWF_Renderer::Shader*       pShader,
+                                    const DWF_Renderer::Renderer*     pRenderer) const
 {
     if (!pModelFormat)
         return;
@@ -280,18 +279,8 @@ void SceneItem_Animation::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
     if (!pRenderer)
         return;
 
-    DWF_Model::Model* pModel;
-
     // get the model
-    switch (pModelFormat->GetFormat())
-    {
-        case DWF_Model::ModelFormat::IEFormat::IE_F_IQM:
-            pModel = static_cast<const DWF_Model::IQM*>(pModelFormat)->GetModel((int)animSetIndex, (int)frameCount, (int)frameIndex);
-            break;
-
-        default:
-            return;
-    }
+    const DWF_Model::Model* pModel = pModelFormat->GetModel((int)animSetIndex, (int)frameCount, (int)frameIndex);
 
     // no model to draw?
     if (!pModel)
@@ -305,18 +294,19 @@ void SceneItem_Animation::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
         pRenderer->Draw(*pModel->m_Mesh[i], GetMatrix(), pShader, false);
 
     // draw the skeleton
-    if (m_DrawSkeleton)
-        DrawBone(pModelFormat, pModel, pModel->m_pSkeleton, animSetIndex, frameIndex, frameCount, pShader, pRenderer);
+    if (m_DrawSkeleton && pModelFormat->GetFormat() != DWF_Model::ModelFormat::IEFormat::IE_F_MDL)
+        DrawBone(pModelFormat, pModel, pModel->m_pSkeleton, animSetIndex, frameIndex, frameCount, elapsedTime, pShader, pRenderer);
 }
 //---------------------------------------------------------------------------
-void SceneItem_Animation::DrawBone(const DWF_Model::ModelFormat*  pModelFormat,
-                                   const DWF_Model::Model*        pModel,
-                                   const DWF_Model::Model::IBone* pBone,
-                                         std::size_t              animSetIndex,
-                                         std::size_t              frameIndex,
-                                         std::size_t              frameCount,
-                                   const DWF_Renderer::Shader*    pShader,
-                                   const DWF_Renderer::Renderer*  pRenderer) const
+void SceneItem_AnimAsset::DrawBone(const DWF_Model::AnimModelFormat* pModelFormat,
+                                   const DWF_Model::Model*           pModel,
+                                   const DWF_Model::Model::IBone*    pBone,
+                                         std::size_t                 animSetIndex,
+                                         std::size_t                 frameIndex,
+                                         std::size_t                 frameCount,
+                                         double                      elapsedTime,
+                                   const DWF_Renderer::Shader*       pShader,
+                                   const DWF_Renderer::Renderer*     pRenderer) const
 {
     if (!pModelFormat)
         return;
@@ -347,6 +337,14 @@ void SceneItem_Animation::DrawBone(const DWF_Model::ModelFormat*  pModelFormat,
         if (pModel->m_AnimationSet.size())
             switch (pModelFormat->GetFormat())
             {
+                case DWF_Model::ModelFormat::IEFormat::IE_F_FBX:
+                    static_cast<const DWF_Model::FBX*>(pModelFormat)->GetBoneAnimMatrix(pBone,
+                                                                                        pModel->m_AnimationSet[animSetIndex],
+                                                                                        elapsedTime,
+                                                                                        DWF_Math::Matrix4x4F::Identity(),
+                                                                                        topMatrix);
+                    break;
+
                 case DWF_Model::ModelFormat::IEFormat::IE_F_IQM:
                     static_cast<const DWF_Model::IQM*>(pModelFormat)->GetBoneAnimMatrix(pBone,
                                                                                         pModel->m_AnimationSet[animSetIndex],
@@ -368,6 +366,14 @@ void SceneItem_Animation::DrawBone(const DWF_Model::ModelFormat*  pModelFormat,
         if (pModel->m_AnimationSet.size())
             switch (pModelFormat->GetFormat())
             {
+                case DWF_Model::ModelFormat::IEFormat::IE_F_FBX:
+                    static_cast<const DWF_Model::FBX*>(pModelFormat)->GetBoneAnimMatrix(pChild,
+                                                                                        pModel->m_AnimationSet[animSetIndex],
+                                                                                        elapsedTime,
+                                                                                        DWF_Math::Matrix4x4F::Identity(),
+                                                                                        bottomMatrix);
+                    break;
+
                 case DWF_Model::ModelFormat::IEFormat::IE_F_IQM:
                     static_cast<const DWF_Model::IQM*>(pModelFormat)->GetBoneAnimMatrix(pChild,
                                                                                         pModel->m_AnimationSet[animSetIndex],
@@ -395,7 +401,7 @@ void SceneItem_Animation::DrawBone(const DWF_Model::ModelFormat*  pModelFormat,
         pRenderer->EnableDepthTest(true);
 
         // draw recursively the children bones
-        DrawBone(pModelFormat, pModel, pChild, animSetIndex, frameIndex, frameCount, pShader, pRenderer);
+        DrawBone(pModelFormat, pModel, pChild, animSetIndex, frameIndex, frameCount, elapsedTime, pShader, pRenderer);
     }
 }
 //---------------------------------------------------------------------------

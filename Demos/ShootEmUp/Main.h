@@ -40,7 +40,7 @@
 #include "DWF_Scene.h"
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneItemModel.h"
-#include "DWF_SceneItemAnimation.h"
+#include "DWF_SceneItemStaticAsset.h"
 //REM #include "DWF_Force.h"
 #include "DWF_MDL.h"
 
@@ -137,8 +137,6 @@ class Main
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
 
-        std::unique_ptr<DWF_Model::MDL> m_pMdl;
-
         /**
         * Called when a texture should be created for a .mdl model file
         *@param pPixelBuffer - pixel buffer containing the texture
@@ -151,14 +149,14 @@ class Main
         *@param pAnim - the animation for which the frame is calculated
         *@param pAnimDesc - animation description
         */
-        void OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
+        //REM void OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
 
         /**
         * Called when an animation end is reached
         *@param pAnim - the animation for which the end was reached
         *@param pAnimDesc - animation description
         */
-        void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
+        //REM void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
 
         /**
         * Called when a scene physics should be updated

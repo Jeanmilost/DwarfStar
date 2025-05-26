@@ -362,11 +362,15 @@ DWF_Model::Texture* Main::OnCreateTexture(const DWF_Buffer::PixelBuffer* pPixelB
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
+/*REM
 void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
 {}
+*/
 //---------------------------------------------------------------------------
+/*REM
 void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
 {}
+*/
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
@@ -699,30 +703,24 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pPOV.release();
 
     // load player spaceship
-    m_pMdl.reset(new DWF_Model::MDL());
-    m_pMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
-    m_pMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_blue.mdl");
-
-    std::size_t texIndex    = 0;
-    std::size_t mdlIndex    = 0;
-    double      texLastTime = 0.0;
-    double      mdlLastTime = 0.0;
-
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_spaceshift");
+    std::shared_ptr<DWF_Model::MDL> pMdl = std::make_shared<DWF_Model::MDL>();
+    pMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
+    pMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_blue.mdl");
 
     // create the player spaceship scene model item
-    pModel->SetStatic(false);
-    pModel->SetModel(m_pMdl->GetModel(1, 0, texIndex, mdlIndex, texLastTime, mdlLastTime, 0.0));
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -40.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(5.0f, 5.0f, 5.0f));
+    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_player_spaceshift");
+    pStaticModel->SetStatic(false);
+    pStaticModel->SetModel(pMdl);
+    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -40.0f));
+    pStaticModel->SetRoll(0.0f);
+    pStaticModel->SetPitch(0.0f);
+    pStaticModel->SetYaw(0.0f);
+    pStaticModel->SetScale(DWF_Math::Vector3F(5.0f, 5.0f, 5.0f));
 
     // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
+    m_Scene.Add(pStaticModel.get(), false);
+    pStaticModel.release();
 
     /*REM
     // create the background model item

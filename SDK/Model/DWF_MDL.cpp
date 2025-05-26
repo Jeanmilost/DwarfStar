@@ -677,7 +677,7 @@ MDL::IAnimation::~IAnimation()
 // MDL
 //---------------------------------------------------------------------------
 MDL::MDL() :
-    ModelFormat(IEFormat::IE_F_MDL)
+    AnimModelFormat(IEFormat::IE_F_MDL)
 {
     // configure the default vertex format
     m_VertFormatTemplate.m_Format = (VertexFormat::IEFormat)((unsigned)VertexFormat::IEFormat::IE_VF_Colors |
@@ -809,6 +809,16 @@ bool MDL::Open(DWF_Buffer::Buffer& buffer)
 
     // read the buffer content
     return Read(buffer);
+}
+//---------------------------------------------------------------------------
+Model* MDL::GetModel() const
+{
+    // no model?
+    if (!m_Models.size())
+        return nullptr;
+
+    // just return the first available model
+    return m_Models[0];
 }
 //---------------------------------------------------------------------------
 Model* MDL::GetModel(std::size_t  fps,
@@ -954,6 +964,14 @@ Model* MDL::GetModel(std::size_t  fps,
     modelIndex = nextModelIndex;
 
     return m_pCachedModel.get();
+}
+//---------------------------------------------------------------------------
+Model* MDL::GetModel(int animSetIndex, int frameCount, int frameIndex) const
+{
+    if (frameIndex >= m_Models.size())
+        return nullptr;
+
+    return m_Models[frameIndex];
 }
 //---------------------------------------------------------------------------
 void MDL::SetVertFormatTemplate(const VertexFormat& vertFormatTemplate)

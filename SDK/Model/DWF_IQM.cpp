@@ -631,7 +631,7 @@ IQM::IVertex::~IVertex()
 // IQM
 //---------------------------------------------------------------------------
 IQM::IQM(bool meshOnly, bool poseOnly) :
-    ModelFormat(IEFormat::IE_F_IQM),
+    AnimModelFormat(IEFormat::IE_F_IQM),
     m_MeshOnly(meshOnly),
     m_PoseOnly(poseOnly)
 {
@@ -721,6 +721,16 @@ bool IQM::Open(DWF_Buffer::Buffer& buffer)
 
     // read the buffer content
     return Read(buffer);
+}
+//---------------------------------------------------------------------------
+Model* IQM::GetModel() const
+{
+    // no model?
+    if (!m_pModel)
+        return nullptr;
+
+    // just return the first available model
+    return m_pModel;
 }
 //---------------------------------------------------------------------------
 Model* IQM::GetModel(int animSetIndex, int frameCount, int frameIndex) const

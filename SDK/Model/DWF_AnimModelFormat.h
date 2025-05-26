@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_ModelFormat -----------------------------------------------------*
+ * ==> DWF_AnimModelFormat -------------------------------------------------*
  ****************************************************************************
- * Description: Basic model format (e.g. Inter-Quake Model, Quake Model,    *
- *              Wavefront, ...)                                             *
+ * Description: Basic animated model format (e.g. Inter-Quake Model,        *
+ *              Quake Model, ...)                                           *
  * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -27,17 +27,37 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
+#pragma once
+
+// classes
+#include "DWF_Model.h"
 #include "DWF_ModelFormat.h"
 
-using namespace DWF_Model;
+namespace DWF_Model
+{
+    /**
+    * Animated model format. It's a base for file formats e.g. Inter-Quake Model, Quake Model, ...
+    *@author Jean-Milost Reymond
+    */
+    class AnimModelFormat : public ModelFormat
+    {
+        public:
+            /**
+            * Constructor
+            *@param format - model format
+            */
+            AnimModelFormat(IEFormat format);
 
-//---------------------------------------------------------------------------
-// ModelFormat
-//---------------------------------------------------------------------------
-ModelFormat::ModelFormat(IEFormat format) :
-    m_Format(format)
-{}
-//---------------------------------------------------------------------------
-ModelFormat::~ModelFormat()
-{}
-//---------------------------------------------------------------------------
+            virtual ~AnimModelFormat();
+
+            /**
+            * Gets the model
+            *@param animSetIndex - animation set index
+            *@param frameCount - frame count
+            *@param frameInex - frame index
+            *@return a ready-to-draw copy of the model, nullptr on error
+            *@note The model will be deleted internally, do not delete it from outside
+            */
+            virtual Model* GetModel(int animSetIndex, int frameCount, int frameIndex) const = 0;
+    };
+}

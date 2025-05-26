@@ -29,8 +29,9 @@
 
 #pragma once
 
- // classes
+// classes
 #include "DWF_Buffer.h"
+#include "DWF_Model.h"
 
 namespace DWF_Model
 {
@@ -89,8 +90,16 @@ namespace DWF_Model
             virtual bool Open(DWF_Buffer::Buffer& buffer) = 0;
 
             /**
-            * Gets format
-            *@return format
+            * Gets the model
+            *@return the model, nullptr if no model or on error
+            *@note For animated model format, the returned model will always be either the default frame or the first frame of the first
+            *      animation set, depending on the model format
+            */
+            virtual Model* GetModel() const = 0;
+
+            /**
+            * Gets model format (e.g. Quake model (.mdl), Inter-Quake model (.iqm), Wavefront model (.obj), ...)
+            *@return model format
             */
             virtual inline IEFormat GetFormat() const;
 

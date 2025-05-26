@@ -222,9 +222,6 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItem.h">
       <Filter>SDK\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemAnimation.h">
-      <Filter>SDK\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemModel.h">
       <Filter>SDK\Scene</Filter>
     </ClInclude>
@@ -248,6 +245,15 @@
     </ClInclude>
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h">
       <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Model\DWF_ModelFormat.h">
+      <Filter>SDK\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Model\DWF_AnimModelFormat.h">
+      <Filter>SDK\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.h">
+      <Filter>SDK\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -404,9 +410,6 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItem.cpp">
       <Filter>SDK\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemAnimation.cpp">
-      <Filter>SDK\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemModel.cpp">
       <Filter>SDK\Scene</Filter>
     </ClCompile>
@@ -430,6 +433,15 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp">
       <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Model\DWF_ModelFormat.cpp">
+      <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Model\DWF_AnimModelFormat.cpp">
+      <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.cpp">
+      <Filter>SDK\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

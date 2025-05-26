@@ -40,7 +40,7 @@
 #include "DWF_Vector3.h"
 #include "DWF_Quaternion.h"
 #include "DWF_Matrix4x4.h"
-#include "DWF_ModelFormat.h"
+#include "DWF_AnimModelFormat.h"
 #include "DWF_Model.h"
 
 namespace DWF_Model
@@ -49,7 +49,7 @@ namespace DWF_Model
     * FilmBox (.fbx) model loader
     *@author Jean-Milost Reymond
     */
-    class FBX : public ModelFormat
+    class FBX : public AnimModelFormat
     {
         public:
             /**
@@ -818,13 +818,29 @@ namespace DWF_Model
             virtual bool Read(const std::string& data);
 
             /**
-            * Gets a ready-to-draw copy of the model
+            * Gets the default model
+            *@return the model, nullptr if no model or on error
+            */
+            virtual Model* GetModel() const;
+
+            /**
+            * Gets the model
             *@param animSetIndex - animation set index
             *@param elapsedTime - elapsed time in milliseconds
             *@return a ready-to-draw copy of the model, nullptr on error
             *@note The model will be deleted internally, do not delete it from outside
             */
             virtual Model* GetModel(std::int32_t animSetIndex, double elapsedTime) const;
+
+            /**
+            * Gets the model
+            *@param animSetIndex - animation set index
+            *@param frameCount - frame count
+            *@param frameInex - frame index
+            *@return a ready-to-draw copy of the model, nullptr on error
+            *@note The model will be deleted internally, do not delete it from outside
+            */
+            virtual Model* GetModel(int animSetIndex, int frameCount, int frameIndex) const;
 
             /**
             * Gets the bone animation matrix

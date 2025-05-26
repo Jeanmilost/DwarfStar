@@ -35,7 +35,7 @@
 #include "DWF_Vector3.h"
 #include "DWF_Quaternion.h"
 #include "DWF_Matrix4x4.h"
-#include "DWF_ModelFormat.h"
+#include "DWF_AnimModelFormat.h"
 #include "DWF_Model.h"
 
 #define CONVERT_ENDIANNESS
@@ -46,7 +46,7 @@ namespace DWF_Model
     * Inter-Quake Model (.iqm) model
     *@author Jean-Milost Reymond
     */
-    class IQM : public ModelFormat
+    class IQM : public AnimModelFormat
     {
         public:
             /**
@@ -84,6 +84,12 @@ namespace DWF_Model
             *@note the buffer should be positioned to the data start
             */
             virtual bool Open(DWF_Buffer::Buffer& buffer);
+
+            /**
+            * Gets the default model
+            *@return the model, nullptr if no model or on error
+            */
+            virtual Model* GetModel() const;
 
             /**
             * Gets the model

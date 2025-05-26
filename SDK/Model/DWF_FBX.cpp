@@ -1161,7 +1161,7 @@ bool FBX::IMeshTemplate::IsValid() const
 // FBX
 //---------------------------------------------------------------------------
 FBX::FBX() :
-    ModelFormat(IEFormat::IE_F_FBX)
+    AnimModelFormat(IEFormat::IE_F_FBX)
 {}
 //---------------------------------------------------------------------------
 FBX::~FBX()
@@ -1414,6 +1414,16 @@ bool FBX::Read(const std::string& data)
     return PerformLinks() && BuildModel();
 }
 //---------------------------------------------------------------------------
+Model* FBX::GetModel() const
+{
+    // no model?
+    if (!m_pModel)
+        return nullptr;
+
+    // just return the first available model
+    return m_pModel;
+}
+//---------------------------------------------------------------------------
 Model* FBX::GetModel(std::int32_t animSetIndex, double elapsedTime) const
 {
     // no model?
@@ -1492,6 +1502,113 @@ Model* FBX::GetModel(std::int32_t animSetIndex, double elapsedTime) const
                         m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences[k]->m_VertexIndex.size();
 
                 // iterate through weights influences vertex indice
+                for (std::size_t l = 0; l < vertexIndexCount; ++l)
+                {
+                    // get the next vertex to which the next skin weight should be applied
+                    const std::size_t iX = m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences[k]->m_VertexIndex[l];
+                    const std::size_t iY = m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences[k]->m_VertexIndex[l] + 1;
+                    const std::size_t iZ = m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences[k]->m_VertexIndex[l] + 2;
+
+                    DWF_Math::Vector3F inputVertex;
+
+                    // get input vertex
+                    inputVertex.m_X = (*m_VBCache[i])[iX];
+                    inputVertex.m_Y = (*m_VBCache[i])[iY];
+                    inputVertex.m_Z = (*m_VBCache[i])[iZ];
+
+                    // apply bone transformation to vertex
+                    const DWF_Math::Vector3F outputVertex = finalMatrix.Transform(inputVertex);
+
+                    // apply the skin weights and calculate the final output vertex
+                    pMesh->m_VB[0]->m_Data[iX] += (outputVertex.m_X * (float)m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_Weights[k]);
+                    pMesh->m_VB[0]->m_Data[iY] += (outputVertex.m_Y * (float)m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_Weights[k]);
+                    pMesh->m_VB[0]->m_Data[iZ] += (outputVertex.m_Z * (float)m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_Weights[k]);
+                }
+            }
+        }
+    }
+
+    return m_pModel;
+}
+//---------------------------------------------------------------------------
+Model* FBX::GetModel(int animSetIndex, int frameCount, int frameIndex) const
+{
+    // no model?
+    if (!m_pModel)
+        return nullptr;
+
+    // if mesh has no skeleton, or if only the pose is required, perform a simple draw
+    if (!m_pModel->m_pSkeleton || m_pModel->m_PoseOnly)
+        return m_pModel;
+
+    // clear the animation matrix cache
+    const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict).clear();
+
+    const std::size_t meshCount = m_pModel->m_Mesh.size();
+
+    // iterate through model meshes
+    for (std::size_t i = 0; i < meshCount; ++i)
+    {
+        // get model mesh
+        Mesh* pMesh = m_pModel->m_Mesh[i];
+
+        // found it?
+        if (!pMesh)
+            continue;
+
+        // normally each mesh should contain only one vertex buffer
+        if (pMesh->m_VB.size() != 1)
+            // unsupported if not (because cannot know which texture should be binded. If a such model
+            // exists, a custom version of this function should also be written for it)
+            continue;
+
+        // malformed deformers?
+        if (meshCount != m_pModel->m_Deformers.size())
+            return nullptr;
+
+        const std::size_t weightCount = m_pModel->m_Deformers[i]->m_SkinWeights.size();
+
+        // mesh contains skin weights?
+        if (!weightCount)
+            return nullptr;
+
+        // clear the previous vertex buffer vertices in order to rebuild them
+        for (std::size_t j = 0; j < pMesh->m_VB[0]->m_Data.size(); j += pMesh->m_VB[0]->m_Format.m_Stride)
+        {
+            pMesh->m_VB[0]->m_Data[j]     = 0.0f;
+            pMesh->m_VB[0]->m_Data[j + 1] = 0.0f;
+            pMesh->m_VB[0]->m_Data[j + 2] = 0.0f;
+        }
+
+        // iterate through mesh skin weights
+        for (std::size_t j = 0; j < weightCount; ++j)
+        {
+            DWF_Math::Matrix4x4F boneMatrix;
+
+            // get the bone matrix
+            if (m_pModel->m_PoseOnly)
+                m_pModel->GetBoneMatrix(m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_pBone, DWF_Math::Matrix4x4F::Identity(), boneMatrix);
+            else
+                GetBoneAnimMatrix(m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_pBone,
+                                  m_pModel->m_AnimationSet[animSetIndex],
+                                  frameIndex,
+                                  DWF_Math::Matrix4x4F::Identity(),
+                                  boneMatrix);
+
+            // get the final matrix after bones transform
+            const DWF_Math::Matrix4x4F finalMatrix = m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_Matrix.Multiply(boneMatrix);
+
+            // get the weight influence count
+            const std::size_t weightInfluenceCount = m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences.size();
+
+            // apply the bone and its skin weights to each vertices
+            for (std::size_t k = 0; k < weightInfluenceCount; ++k)
+            {
+                // get the vertex index count
+                const std::size_t vertexIndexCount =
+                        m_pModel->m_Deformers[i]->m_SkinWeights[j]->m_WeightInfluences[k]->m_VertexIndex.size();
+
+                // iterate through weights influences vertex indices
                 for (std::size_t l = 0; l < vertexIndexCount; ++l)
                 {
                     // get the next vertex to which the next skin weight should be applied

@@ -209,6 +209,7 @@
     <ClInclude Include="..\..\SDK\Math\DWF_Quaternion.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector2.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_AnimModelFormat.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_FBX.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_IQM.h" />
@@ -232,10 +233,11 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_Scene.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneAudioItem.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItem.h" />
-    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemAnimation.h" />
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemModel.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemModelBase.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemPOV.h" />
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneTimer.h" />
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
     <ClInclude Include="Main.h" />
@@ -276,6 +278,7 @@
     <ClCompile Include="..\..\SDK\Math\DWF_Quaternion.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector2.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_AnimModelFormat.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_FBX.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_IQM.cpp" />
@@ -299,10 +302,11 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_Scene.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneAudioItem.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItem.cpp" />
-    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemAnimation.cpp" />
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemModel.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemModelBase.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemPOV.cpp" />
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneTimer.cpp" />
     <ClCompile Include="..\..\SDK\String\DWF_StringHelper.cpp" />
     <ClCompile Include="Main.cpp" />

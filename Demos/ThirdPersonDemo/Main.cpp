@@ -270,7 +270,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
             // do show or hide the skeleton?
             if (m_ShowSkeleton != m_OldShowSkeleton)
             {
-                DWF_Scene::SceneItem_Animation* pModelItem = static_cast<DWF_Scene::SceneItem_Animation*>(m_Scene.SearchItem(L"scene_player_model"));
+                DWF_Scene::SceneItem_AnimAsset* pModelItem = static_cast<DWF_Scene::SceneItem_AnimAsset*>(m_Scene.SearchItem(L"scene_player_model"));
 
                 if (pModelItem)
                     pModelItem->SetDrawSkeleton(m_ShowSkeleton);
@@ -340,7 +340,7 @@ DWF_Model::Texture* Main::OnLoadTexture(const std::string& textureName, bool is3
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
-void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
+void Main::OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
 {
     if (!m_Jumping)
         return;
@@ -351,7 +351,7 @@ void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene:
     m_yPos = std::sinf((pAnimDesc->m_FrameIndex * (float)M_PI) / 23.0f) * 0.5f;
 }
 //---------------------------------------------------------------------------
-void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
+void Main::OnEndReached(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
 {
     m_Jumping = false;
     m_yPos    = 0.0f;
@@ -360,7 +360,7 @@ void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_S
         return;
 
     // gain write access to animation item
-    DWF_Scene::SceneItem_Animation* pAnimItem = const_cast<DWF_Scene::SceneItem_Animation*>(pAnim);
+    DWF_Scene::SceneItem_AnimAsset* pAnimItem = const_cast<DWF_Scene::SceneItem_AnimAsset*>(pAnim);
 
     // reset the jump animation
     pAnimItem->ResetAnim(2);
@@ -373,7 +373,7 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
 
     // get the objects of interest from scene
     DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem(L"scene_player_model"));
+    DWF_Scene::SceneItem_AnimAsset*   pModelItem     = static_cast<DWF_Scene::SceneItem_AnimAsset*>  (pScene->SearchItem(L"scene_player_model"));
     DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_player_collider"));
     DWF_Scene::SceneAudioItem*        pSoundItem     = pScene->SearchAudio(L"sound_footsteps");
 
@@ -602,22 +602,22 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     pPOV.release();
 
     // load idle IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmIdle = std::make_unique<DWF_Model::IQM>();
+    std::shared_ptr<DWF_Model::IQM> pIqmIdle = std::make_shared<DWF_Model::IQM>();
     pIqmIdle->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmIdle->Open("..\\..\\Resources\\Model\\Deborah\\Idle\\Deborah_Idle.iqm");
 
     // load walking IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmWalk = std::make_unique<DWF_Model::IQM>();
+    std::shared_ptr<DWF_Model::IQM> pIqmWalk = std::make_shared<DWF_Model::IQM>();
     pIqmWalk->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmWalk->Open("..\\..\\Resources\\Model\\Deborah\\Walk\\Deborah_Walk.iqm");
 
     // load jumping IQM
-    std::unique_ptr<DWF_Model::IQM> pIqmJump = std::make_unique<DWF_Model::IQM>();
+    std::shared_ptr<DWF_Model::IQM> pIqmJump = std::make_shared<DWF_Model::IQM>();
     pIqmJump->Set_OnLoadTexture(std::bind(&Main::OnLoadTexture, this, std::placeholders::_1, std::placeholders::_2));
     pIqmJump->Open("..\\..\\Resources\\Model\\Deborah\\Jump\\Deborah_Jump.iqm");
 
     // create the background model item
-    std::unique_ptr<DWF_Scene::SceneItem_Animation> pAnim = std::make_unique<DWF_Scene::SceneItem_Animation>(L"scene_player_model");
+    std::unique_ptr<DWF_Scene::SceneItem_AnimAsset> pAnim = std::make_unique<DWF_Scene::SceneItem_AnimAsset>(L"scene_player_model");
     pAnim->SetStatic(true);
     pAnim->SetShader(&texShader);
     pAnim->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -2.0f));
@@ -625,12 +625,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     pAnim->SetPitch(0.0f);
     pAnim->SetYaw(0.0f);
     pAnim->SetScale(DWF_Math::Vector3F(0.005f, 0.005f, 0.005f));
-    pAnim->AddAnim(pIqmIdle.get(), 0, 180, 0.025, true);
-    pIqmIdle.release();
-    pAnim->AddAnim(pIqmWalk.get(), 0, 30, 0.025, true);
-    pIqmWalk.release();
-    pAnim->AddAnim(pIqmJump.get(), 0, 24, 0.025, false);
-    pIqmJump.release();
+    pAnim->AddAnim(pIqmIdle, 0, 180, 0.025, true);
+    pAnim->AddAnim(pIqmWalk, 0, 30, 0.025, true);
+    pAnim->AddAnim(pIqmJump, 0, 24, 0.025, false);
     pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
     pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
 

@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_ModelFormat -----------------------------------------------------*
+ * ==> DWF_AnimModelFormat -------------------------------------------------*
  ****************************************************************************
- * Description: Basic model format (e.g. Inter-Quake Model, Quake Model,    *
- *              Wavefront, ...)                                             *
+ * Description: Basic animated model format (e.g. Inter-Quake Model,        *
+ *              Quake Model, ...)                                           *
  * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -27,17 +27,17 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_ModelFormat.h"
+#include "DWF_AnimModelFormat.h"
 
 using namespace DWF_Model;
 
 //---------------------------------------------------------------------------
-// ModelFormat
+// AnimModelFormat
 //---------------------------------------------------------------------------
-ModelFormat::ModelFormat(IEFormat format) :
-    m_Format(format)
+AnimModelFormat::AnimModelFormat(IEFormat format) :
+    ModelFormat(format)
 {}
 //---------------------------------------------------------------------------
-ModelFormat::~ModelFormat()
+AnimModelFormat::~AnimModelFormat()
 {}
 //---------------------------------------------------------------------------

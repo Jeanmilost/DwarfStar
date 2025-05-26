@@ -35,7 +35,7 @@
 #include "DWF_Vector2.h"
 #include "DWF_Vector3.h"
 #include "DWF_Matrix4x4.h"
-#include "DWF_ModelFormat.h"
+#include "DWF_AnimModelFormat.h"
 #include "DWF_Model.h"
 
 #define CONVERT_ENDIANNESS
@@ -46,7 +46,7 @@ namespace DWF_Model
     * Quake I model (.mdl)
     *@author Jean-Milost Reymond
     */
-    class MDL : public ModelFormat
+    class MDL : public AnimModelFormat
     {
         public:
             /**
@@ -87,6 +87,12 @@ namespace DWF_Model
             virtual bool Open(DWF_Buffer::Buffer& buffer);
 
             /**
+            * Gets the model matching the first animation set frame
+            *@return the model, nullptr if no model or on error
+            */
+            virtual Model* GetModel() const;
+
+            /**
             * Gets the model
             *@param fps - frame per seconds
             *@param animationIndex - animation index
@@ -105,6 +111,16 @@ namespace DWF_Model
                                     double&      textureLastTime,
                                     double&      modelLastTime,
                                     double       elapsedTime) const;
+
+            /**
+            * Gets the model
+            *@param animSetIndex - animation set index
+            *@param frameCount - frame count
+            *@param frameInex - frame index
+            *@return a ready-to-draw copy of the model, nullptr on error
+            *@note The model will be deleted internally, do not delete it from outside
+            */
+            virtual Model* GetModel(int animSetIndex, int frameCount, int frameIndex) const;
 
             /**
             * Changes the vertex format template

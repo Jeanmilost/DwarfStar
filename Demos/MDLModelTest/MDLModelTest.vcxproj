@@ -189,6 +189,7 @@
     <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Quaternion.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
+    <ClInclude Include="..\..\SDK\Model\DWF_AnimModelFormat.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_MDL.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Material.h" />
@@ -213,6 +214,7 @@
     <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Quaternion.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
+    <ClCompile Include="..\..\SDK\Model\DWF_AnimModelFormat.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_MDL.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Material.cpp" />

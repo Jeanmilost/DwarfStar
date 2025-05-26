@@ -98,6 +98,9 @@
     <ClInclude Include="..\..\SDK\Model\DWF_ModelFormat.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Model\DWF_AnimModelFormat.h">
+      <Filter>SDK\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MDLModelTest.cpp">
@@ -164,6 +167,9 @@
       <Filter>SDK\Renderer\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_ModelFormat.cpp">
+      <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Model\DWF_AnimModelFormat.cpp">
       <Filter>SDK\Model</Filter>
     </ClCompile>
   </ItemGroup>
