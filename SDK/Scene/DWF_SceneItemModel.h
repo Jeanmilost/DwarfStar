@@ -64,7 +64,7 @@ namespace DWF_Scene
             *@param pModel - the model to set
             *@note Don't delete the model from outside, it will be deleted internally
             */
-            virtual inline void SetModel(DWF_Model::Model* pModel);
+            virtual inline void SetModel(const std::shared_ptr<DWF_Model::Model>& pModel);
 
             /**
             * Gets the shader to use to render the model
@@ -88,7 +88,7 @@ namespace DWF_Scene
                                 const DWF_Renderer::Renderer* pRenderer) const;
 
         private:
-            std::unique_ptr<DWF_Model::Model> m_pModel;
+            std::shared_ptr<DWF_Model::Model> m_pModel;
             DWF_Renderer::Shader*             m_pShader       = nullptr;
             bool                              m_ShaderIsLocal = false;
     };
@@ -101,9 +101,9 @@ namespace DWF_Scene
         return m_pModel.get();
     }
     //---------------------------------------------------------------------------
-    inline void SceneItem_Model::SetModel(DWF_Model::Model* pModel)
+    inline void SceneItem_Model::SetModel(const std::shared_ptr<DWF_Model::Model>& pModel)
     {
-        m_pModel.reset(pModel);
+        m_pModel = pModel;
     }
     //---------------------------------------------------------------------------
     inline DWF_Renderer::Shader* SceneItem_Model::GetShader() const

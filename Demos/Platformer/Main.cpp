@@ -797,20 +797,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the player capsule
-    std::unique_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
 
     // create the capsule model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
     pModel->SetStatic(false);
     pModel->SetVisible(false);
-    pModel->SetModel(pPlayerCapsule.get());
+    pModel->SetModel(pPlayerCapsule);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pPlayerCapsule.release();
 
     // create the player collider
     std::unique_ptr<DWF_Collider::Capsule_Collider> pPlayerCollider = std::make_unique<DWF_Collider::Capsule_Collider>();
@@ -851,20 +850,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the matching collision box model
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
 
     // create the box model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider");
     pModel->SetStatic(true);
     pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
+    pModel->SetModel(pBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // box collider
     std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
@@ -894,21 +892,17 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pStaticModel.get(), false);
     pStaticModel.release();
 
-    // create the matching collision box model
-    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
-
     // create the box model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_2");
     pModel->SetStatic(true);
     pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
+    pModel->SetModel(pBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25, 0.0f, 2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // box collider
     pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),
@@ -937,21 +931,17 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pStaticModel.get(), false);
     pStaticModel.release();
 
-    // create the matching collision box model
-    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
-
     // create the box model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_3");
     pModel->SetStatic(true);
     pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
+    pModel->SetModel(pBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // box collider
     pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),

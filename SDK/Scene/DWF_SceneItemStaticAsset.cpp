@@ -68,7 +68,7 @@ void SceneItem_StaticAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     // connect the view matrix to the shader
     pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
 
-    DWF_Model::ModelFormat* pModelFormat = m_ModelFormat.get();
+    DWF_Model::ModelFormat* pModelFormat = m_pModelFormat.get();
 
     // draw the model
     DrawModel(pModelFormat, m_pShader, pRenderer);

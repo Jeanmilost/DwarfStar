@@ -653,20 +653,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the background surface
-    std::unique_ptr<DWF_Model::Model> pBackground(DWF_Model::Factory::GetSurface(20.0f, 20.0f, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pBackground(DWF_Model::Factory::GetSurface(20.0f, 20.0f, vf, vc, mat));
     pBackground->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTexture("background.tga", false);
 
     // create the background model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_bg");
     pModel->SetStatic(true);
-    pModel->SetModel(pBackground.get());
+    pModel->SetModel(pBackground);
     pModel->SetShader(&texShader);
     pModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -2.0f));
     pModel->SetRoll((float)M_PI / 2.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBackground.release();
 
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
@@ -682,20 +681,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the player capsule
-    std::unique_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
 
     // create the capsule model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
     pModel->SetStatic(false);
     pModel->SetVisible(false);
-    pModel->SetModel(pPlayerCapsule.get());
+    pModel->SetModel(pPlayerCapsule);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.0f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pPlayerCapsule.release();
 
     // create the player collider
     std::unique_ptr<DWF_Collider::Capsule_Collider> pPlayerCollider = std::make_unique<DWF_Collider::Capsule_Collider>();
@@ -714,19 +712,18 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the capsule
-    std::unique_ptr<DWF_Model::Model> pCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pCapsule(DWF_Model::Factory::GetCapsule(0.85f, 0.17f, 16.0f, vf, vc, mat));
 
     // create the capsule model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_capsule");
     pModel->SetStatic(true);
-    pModel->SetModel(pCapsule.get());
+    pModel->SetModel(pCapsule);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.0f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pCapsule.release();
 
     // capsule collider
     std::unique_ptr<DWF_Collider::Capsule_Collider> pCapsCol =
@@ -753,19 +750,18 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the box
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(0.8f, 3.4f, 2.6f, false, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(0.8f, 3.4f, 2.6f, false, vf, vc, mat));
 
     // create the box model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_box");
     pModel->SetStatic(true);
-    pModel->SetModel(pBox.get());
+    pModel->SetModel(pBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(-5.0f, 0.0f, 3.5f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch((float)M_PI * 0.25);
     pModel->SetYaw((float)M_PI * 0.15);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // box collider
     std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
@@ -787,19 +783,18 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the sphere
-    std::unique_ptr<DWF_Model::Model> pSphere(DWF_Model::Factory::GetSphere(1.2f, 20, 20, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pSphere(DWF_Model::Factory::GetSphere(1.2f, 20, 20, vf, vc, mat));
 
     // create the sphere model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_sphere");
     pModel->SetStatic(true);
-    pModel->SetModel(pSphere.get());
+    pModel->SetModel(pSphere);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(-5.0f, 0.2f, -3.5f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pSphere.release();
 
     // sphere collider
     std::unique_ptr<DWF_Collider::Sphere_Collider> pSphCol =
@@ -820,19 +815,18 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the cylinder
-    std::unique_ptr<DWF_Model::Model> pCylinder(DWF_Model::Factory::GetCylinder(2.1f, 2.1f, 1.5f, 20, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pCylinder(DWF_Model::Factory::GetCylinder(2.1f, 2.1f, 1.5f, 20, vf, vc, mat));
 
     // create the cylinder model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_cylinder");
     pModel->SetStatic(true);
-    pModel->SetModel(pCylinder.get());
+    pModel->SetModel(pCylinder);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(5.0f, 0.2f, 4.1f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pCylinder.release();
 
     // cylinder collider
     std::unique_ptr<DWF_Collider::Cylinder_Collider> pCylCol =

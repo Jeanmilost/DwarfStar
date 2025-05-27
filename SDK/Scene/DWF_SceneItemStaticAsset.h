@@ -56,10 +56,10 @@ namespace DWF_Scene
 
             /**
             * Sets the animation model to use
-            *@param modelFormat - the animation model which contains the animations to play
+            *@param pModelFormat - the animation model which contains the animations to play
             *@note The model will be deleted internally, don't delete it from outside
             */
-            virtual inline void SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& modelFormat);
+            virtual inline void SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat);
 
             /**
             * Gets the shader to use to render the model
@@ -83,7 +83,7 @@ namespace DWF_Scene
                                 const DWF_Renderer::Renderer* pRenderer) const;
 
         private:
-            std::shared_ptr<DWF_Model::ModelFormat> m_ModelFormat;
+            std::shared_ptr<DWF_Model::ModelFormat> m_pModelFormat;
             DWF_Renderer::Shader*                   m_pShader       = nullptr;
             bool                                    m_ShaderIsLocal = false;
 
@@ -101,9 +101,9 @@ namespace DWF_Scene
     //---------------------------------------------------------------------------
     // SceneItem_StaticAsset
     //---------------------------------------------------------------------------
-    inline void SceneItem_StaticAsset::SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& modelFormat)
+    inline void SceneItem_StaticAsset::SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat)
     {
-        m_ModelFormat = modelFormat;
+        m_pModelFormat = pModelFormat;
     }
     //---------------------------------------------------------------------------
     inline DWF_Renderer::Shader* SceneItem_StaticAsset::GetShader() const

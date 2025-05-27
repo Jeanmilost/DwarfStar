@@ -309,7 +309,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
 
-                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_spaceship_collider_2"));
+                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_enemy_collider_0"));
 
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
@@ -563,6 +563,57 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
 }
 */
 //------------------------------------------------------------------------------
+void Main::AddEnemy(std::size_t                        index,
+                    float                              x,
+                    float                              y,
+              const std::shared_ptr<DWF_Model::MDL>&   pMdl,
+              const std::shared_ptr<DWF_Model::Model>& pCollider,
+                    DWF_Renderer::Shader_OpenGL&       texShader,
+                    DWF_Renderer::Shader_OpenGL&       colShader)
+{
+    // create the player spaceship scene model item
+    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
+            std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_" + std::to_wstring(index));
+    pStaticModel->SetStatic(true);
+    pStaticModel->SetModel(pMdl);
+    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
+    pStaticModel->SetRoll(-0.25f);
+    pStaticModel->SetPitch((float)M_PI + m_Angle);
+    pStaticModel->SetYaw((float)(M_PI / 2.0));
+    pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
+
+    // set the model to the scene
+    m_Scene.Add(pStaticModel.get(), false);
+    pStaticModel.release();
+
+    // create the capsule model item
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel =
+            std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_enemy_collider_" + std::to_wstring(index));
+    pModel->SetStatic(false);
+    pModel->SetVisible(false);
+    pModel->SetModel(pCollider);
+    pModel->SetShader(&colShader);
+    pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
+    pModel->SetRoll(m_Angle);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // create the spaceship box collider
+    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
+                                                         DWF_Math::Matrix4x4F::Identity(),
+                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
+                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+}
+//------------------------------------------------------------------------------
 bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
                      DWF_Renderer::Shader_OpenGL& texShader,
                      DWF_Renderer::Shader_OpenGL& colShader,
@@ -612,14 +663,14 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pPOV.release();
 
     // load player spaceship
-    std::shared_ptr<DWF_Model::MDL> pMdl = std::make_shared<DWF_Model::MDL>();
-    pMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
-    pMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_blue.mdl");
+    std::shared_ptr<DWF_Model::MDL> pPlayerMdl = std::make_shared<DWF_Model::MDL>();
+    pPlayerMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
+    pPlayerMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_blue.mdl");
 
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_spaceship");
     pStaticModel->SetStatic(true);
-    pStaticModel->SetModel(pMdl);
+    pStaticModel->SetModel(pPlayerMdl);
     pStaticModel->SetShader(&texShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
     pStaticModel->SetRoll(-0.25f);
@@ -630,32 +681,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pStaticModel.get(), false);
     pStaticModel.release();
-
-    /*REM
-    // create the background model item
-    std::unique_ptr<DWF_Scene::SceneItem_Animation> pAnim = std::make_unique<DWF_Scene::SceneItem_Animation>(L"scene_player_model");
-    pAnim->SetStatic(true);
-    pAnim->SetShader(&texShader);
-    pAnim->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
-    pAnim->SetRoll(-(float)M_PI / 2.0f);
-    pAnim->SetPitch(0.0f);
-    pAnim->SetYaw(0.0f);
-    pAnim->SetScale(DWF_Math::Vector3F(0.05f, 0.05f, 0.05f));
-    pAnim->SetModel(pIqm.get());
-    pIqm.release();
-    pAnim->AddAnim((std::size_t)0, 0,   60, 0.025, true);  // idle
-    pAnim->AddAnim((std::size_t)0, 60,  70, 0.025, false); // idle jump
-    pAnim->AddAnim((std::size_t)0, 130, 19, 0.025, true);  // run
-    pAnim->AddAnim((std::size_t)0, 149, 26, 0.025, false); // run jump
-    pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
-    pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
-
-    pAnim->SelectAnim(0);
-
-    // set the model to the scene
-    m_Scene.Add(pAnim.get(), false);
-    pAnim.release();
-    */
 
     DWF_Model::VertexFormat  vf;
     DWF_Model::VertexCulling vc;
@@ -672,20 +697,19 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the spaceship box model
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pSpaceshipBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
     // create the capsule model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider");
     pModel->SetStatic(false);
     pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
+    pModel->SetModel(pSpaceshipBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // create the spaceship box collider
     std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
@@ -708,24 +732,42 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
 
 
+
+
+
+
+    // load enemy spaceship
+    std::shared_ptr<DWF_Model::MDL> pEnemyMdl = std::make_shared<DWF_Model::MDL>();
+    pEnemyMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
+    pEnemyMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_red.mdl");
+
     mat.m_Color.m_B = 0.0f;
     mat.m_Color.m_R = 1.0f;
 
     // create the spaceship box model
-    pBox.reset(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pEnemyBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
+    for (std::size_t i = 0; i < 5; ++i)
+        AddEnemy(i, 10.0f, -14.0f + (i * 4), pEnemyMdl, pEnemyBox, texShader, colShader);
+
+
+
+
+
+
+
+    /*REM
     // create the capsule model item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider_2");
     pModel->SetStatic(false);
-    pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
+    pModel->SetVisible(true);
+    pModel->SetModel(pEnemyBox);
     pModel->SetShader(&colShader);
     pModel->SetPos(DWF_Math::Vector3F(10.0f, 5.0f, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
 
     // create the spaceship box collider
     pBoxCol =
@@ -739,6 +781,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+    */
 
     /*REM
     // load first platform

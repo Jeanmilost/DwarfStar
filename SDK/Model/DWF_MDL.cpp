@@ -817,8 +817,38 @@ Model* MDL::GetModel() const
     if (!m_Models.size())
         return nullptr;
 
-    // just return the first available model
-    return m_Models[0];
+    // previous cached model?
+    if (m_pCachedModel)
+        return m_pCachedModel.get();
+
+    // force the cached model to be created (bypass the const statement)
+    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+
+    // iterate through model meshes (just take care of the first available model)
+    for (std::size_t i = 0; i < m_Models[0]->m_Mesh.size(); ++i)
+    {
+        // add a new mesh in the cached model
+        m_pCachedModel->m_Mesh.push_back(new Mesh());
+
+        // iterate through vertex buffers
+        for (std::size_t j = 0; j < m_Models[0]->m_Mesh[i]->m_VB.size(); ++j)
+        {
+            // add a new vertex buffer in the mesh
+            m_pCachedModel->m_Mesh[i]->m_VB.push_back(new VertexBuffer());
+
+            // copy the format, culling and material, and set the texture to render
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Format              = m_Models[0]->m_Mesh[i]->m_VB[j]->m_Format;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Culling             = m_Models[0]->m_Mesh[i]->m_VB[j]->m_Culling;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material            = m_Models[0]->m_Mesh[i]->m_VB[j]->m_Material;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = m_Textures.size() ? m_Textures[0] : nullptr;
+
+            // iterate through vertices and copy them
+            for (std::size_t k = 0; k < m_Models[0]->m_Mesh[i]->m_VB[j]->m_Data.size(); ++k)
+                m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Data.push_back(m_Models[0]->m_Mesh[i]->m_VB[j]->m_Data[k]);
+        }
+    }
+
+    return m_pCachedModel.get();
 }
 //---------------------------------------------------------------------------
 Model* MDL::GetModel(std::size_t  fps,
@@ -830,7 +860,7 @@ Model* MDL::GetModel(std::size_t  fps,
                      double       elapsedTime) const
 {
     // previous cached model?
-    if (m_pCachedModel.get())
+    if (m_pCachedModel)
     {
         // remove the references to textures, otherwise they will be wrongly deleted with the cached model
         for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
@@ -971,7 +1001,46 @@ Model* MDL::GetModel(int animSetIndex, int frameCount, int frameIndex) const
     if (frameIndex >= m_Models.size())
         return nullptr;
 
-    return m_Models[frameIndex];
+    // previous cached model?
+    if (m_pCachedModel)
+    {
+        // remove the references to textures, otherwise they will be wrongly deleted with the cached model
+        for (std::size_t i = 0; i < m_pCachedModel->m_Mesh.size(); ++i)
+            for (std::size_t j = 0; j < m_pCachedModel->m_Mesh[i]->m_VB.size(); ++j)
+                m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
+
+        // force the cached model to be deleted (bypass the const statement)
+        const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset();
+    }
+
+    // force the cached model to be created (bypass the const statement)
+    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+
+    // iterate through model meshes (just take care of the first available model)
+    for (std::size_t i = 0; i < m_Models[frameIndex]->m_Mesh.size(); ++i)
+    {
+        // add a new mesh in the cached model
+        m_pCachedModel->m_Mesh.push_back(new Mesh());
+
+        // iterate through vertex buffers
+        for (std::size_t j = 0; j < m_Models[frameIndex]->m_Mesh[i]->m_VB.size(); ++j)
+        {
+            // add a new vertex buffer in the mesh
+            m_pCachedModel->m_Mesh[i]->m_VB.push_back(new VertexBuffer());
+
+            // copy the format, culling and material, and set the texture to render
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Format              = m_Models[frameIndex]->m_Mesh[i]->m_VB[j]->m_Format;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Culling             = m_Models[frameIndex]->m_Mesh[i]->m_VB[j]->m_Culling;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material            = m_Models[frameIndex]->m_Mesh[i]->m_VB[j]->m_Material;
+            m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = m_Textures.size() ? m_Textures[0] : nullptr;
+
+            // iterate through vertices and copy them
+            for (std::size_t k = 0; k < m_Models[frameIndex]->m_Mesh[i]->m_VB[j]->m_Data.size(); ++k)
+                m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Data.push_back(m_Models[frameIndex]->m_Mesh[i]->m_VB[j]->m_Data[k]);
+        }
+    }
+
+    return m_pCachedModel.get();
 }
 //---------------------------------------------------------------------------
 void MDL::SetVertFormatTemplate(const VertexFormat& vertFormatTemplate)

@@ -80,7 +80,7 @@ void SceneItem_AnimAsset::AddAnim(std::size_t animSetIndex,
     pAnimDesc.release();
 }
 //---------------------------------------------------------------------------
-void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat,
+void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat,
                                         std::size_t                                  animSetIndex,
                                         std::size_t                                  frameCount,
                                         double                                       frameDuration,
@@ -88,7 +88,7 @@ void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelForm
 {
     // create new animation description
     std::unique_ptr<IAnimDesc> pAnimDesc = std::make_unique<IAnimDesc>();
-    pAnimDesc->m_ModelFormat             = modelFormat;
+    pAnimDesc->m_pModelFormat            = pModelFormat;
     pAnimDesc->m_AnimSetIndex            = animSetIndex;
     pAnimDesc->m_FrameCount              = frameCount;
     pAnimDesc->m_FrameDuration           = frameDuration;
@@ -96,7 +96,7 @@ void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelForm
 
     // search if animation already exists, in order to not add it twice
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
-        if (m_Animations[i]->m_ModelFormat == modelFormat)
+        if (m_Animations[i]->m_pModelFormat == pModelFormat)
             return;
 
     // add animation to item
@@ -104,12 +104,12 @@ void SceneItem_AnimAsset::AddAnim(const std::shared_ptr<DWF_Model::AnimModelForm
     pAnimDesc.release();
 }
 //---------------------------------------------------------------------------
-void SceneItem_AnimAsset::DeleteAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat)
+void SceneItem_AnimAsset::DeleteAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat)
 {
     // iterate through animations and find animation to delete
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
         // found animation to delete?
-        if (m_Animations[i]->m_ModelFormat == modelFormat)
+        if (m_Animations[i]->m_pModelFormat == pModelFormat)
         {
             DeleteAnimAt(i);
             return;
@@ -178,7 +178,8 @@ void SceneItem_AnimAsset::ResetAnim(std::size_t index)
         return;
 
     // restart the timer associated with the model
-    DWF_Scene::Timer::GetInstance()->StartTimerForItem(m_Animations[index]->m_ModelFormat ? m_Animations[index]->m_ModelFormat.get() : m_ModelFormat.get());
+    DWF_Scene::Timer::GetInstance()->StartTimerForItem
+            (m_Animations[index]->m_pModelFormat ? m_Animations[index]->m_pModelFormat.get() : m_pModelFormat.get());
 
     // reset the frame count
     m_Animations[index]->m_FrameIndex     = 0;
@@ -208,7 +209,8 @@ void SceneItem_AnimAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     // connect the view matrix to the shader
     pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
 
-    DWF_Model::AnimModelFormat* pModelFormat = m_Animations[m_Index]->m_ModelFormat ? m_Animations[m_Index]->m_ModelFormat.get() : m_ModelFormat.get();
+    DWF_Model::AnimModelFormat* pModelFormat =
+            m_Animations[m_Index]->m_pModelFormat ? m_Animations[m_Index]->m_pModelFormat.get() : m_pModelFormat.get();
 
     // get elapsed time
     const double timeStamp                   = DWF_Scene::Timer::GetInstance()->GetElapsedTimeForItem(pModelFormat);

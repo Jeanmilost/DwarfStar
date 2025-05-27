@@ -51,7 +51,7 @@ namespace DWF_Scene
             */
             struct IAnimDesc
             {
-                std::shared_ptr<DWF_Model::AnimModelFormat> m_ModelFormat;
+                std::shared_ptr<DWF_Model::AnimModelFormat> m_pModelFormat;
                 std::size_t                                 m_AnimSetIndex   = 0;
                 std::size_t                                 m_FrameIndex     = 0;
                 std::size_t                                 m_FrameStart     = 0;
@@ -89,10 +89,10 @@ namespace DWF_Scene
 
             /**
             * Sets the animation model to use
-            *@param modelFormat - the animation model which contains the animations to play
+            *@param pModelFormat - the animation model which contains the animations to play
             *@note The model will be deleted internally, don't delete it from outside
             */
-            virtual inline void SetModel(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat);
+            virtual inline void SetModel(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat);
 
             /**
             * Gets if the skeleton should be drawn
@@ -122,14 +122,14 @@ namespace DWF_Scene
 
             /**
             * Adds an animation to the item
-            *@param modelFormat - animated model containing the animation to add
+            *@param pModelFormat - animated model containing the animation to add
             *@param animSetIndex - animation set index to use in the model
             *@param frameCount - frame count the animation contains
             *@param frameDuration - frame duration in milliseconds
             *@param loop - if true, the animation will loop
             *@note The animation will be deleted internally, don't delete it from outside
             */
-            virtual void AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat,
+            virtual void AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat,
                                        std::size_t                                  animSetIndex,
                                        std::size_t                                  frameCount,
                                        double                                       frameDuration,
@@ -137,9 +137,9 @@ namespace DWF_Scene
 
             /**
             * Deletes an animation from the item
-            *@param modelFormat - animated model to delete
+            *@param pModelFormat - animated model to delete
             */
-            virtual void DeleteAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat);
+            virtual void DeleteAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat);
 
             /**
             * Deletes an animation from the item at index
@@ -222,7 +222,7 @@ namespace DWF_Scene
             typedef std::vector<IAnimDesc*> IAnimations;
 
             IAnimations                                 m_Animations;
-            std::shared_ptr<DWF_Model::AnimModelFormat> m_ModelFormat;
+            std::shared_ptr<DWF_Model::AnimModelFormat> m_pModelFormat;
             DWF_Renderer::Shader*                       m_pShader       = nullptr;
             std::size_t                                 m_Index         = 0;
             bool                                        m_ShaderIsLocal = false;
@@ -259,7 +259,7 @@ namespace DWF_Scene
             *@param pShader - shader to use to draw the bone
             *@param pRenderer - renderer to use to draw the bone
             */
-            void DrawBone(const DWF_Model::AnimModelFormat* modelFormat,
+            void DrawBone(const DWF_Model::AnimModelFormat* pModelFormat,
                           const DWF_Model::Model*           pModel,
                           const DWF_Model::Model::IBone*    pBone,
                                 std::size_t                 animSetIndex,
@@ -273,9 +273,9 @@ namespace DWF_Scene
     //---------------------------------------------------------------------------
     // SceneItem_AnimAsset
     //---------------------------------------------------------------------------
-    inline void SceneItem_AnimAsset::SetModel(const std::shared_ptr<DWF_Model::AnimModelFormat>& modelFormat)
+    inline void SceneItem_AnimAsset::SetModel(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat)
     {
-        m_ModelFormat = modelFormat;
+        m_pModelFormat = pModelFormat;
     }
     //---------------------------------------------------------------------------
     inline bool SceneItem_AnimAsset::DoDrawSkeleton() const

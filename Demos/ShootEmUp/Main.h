@@ -197,6 +197,14 @@ class Main
         */
         //REM GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
 
+        void AddEnemy(std::size_t                        index,
+                      float                              x,
+                      float                              y,
+                const std::shared_ptr<DWF_Model::MDL>&   pMdl,
+                const std::shared_ptr<DWF_Model::Model>& pCollider,
+                      DWF_Renderer::Shader_OpenGL&       texShader,
+                      DWF_Renderer::Shader_OpenGL&       colShader);
+
         /**
         * Loads the scene
         *@param texNormShader - texture and normal shader
