@@ -309,6 +309,11 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
 
+                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_spaceship_collider_2"));
+
+                if (pModelCollider)
+                    pModelCollider->SetVisible(m_ShowColliders);
+
                 /*REM
                 pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider"));
 
@@ -381,189 +386,42 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     DWF_Scene::SceneItem_StaticAsset* pModelItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(pScene->SearchItem(L"scene_spaceship"));
     DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_spaceship_collider"));
 
-    const float spaceshipSpeed = 0.25f;
+    const float spaceshipSpeed         = 0.25f;
+    const float spaceshipRotationSpeed = 0.05f;
 
+    // fire
     if (::GetKeyState(VK_SPACE) & 0x8000)
-    {
-    }
+    {}
 
+    // move the spaceship left or right
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
-    {
-        m_xPos -= spaceshipSpeed;
-
-        if (m_xPos <= -19.0f)
-            m_xPos = -19.0f;
-    }
+        m_xPos = std::max(m_xPos - spaceshipSpeed, -19.0f);
     else
     if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
-    {
-        m_xPos += spaceshipSpeed;
+        m_xPos = std::min(m_xPos + spaceshipSpeed, 19.0f);
 
-        if (m_xPos >= 19.0f)
-            m_xPos = 19.0f;
-    }
-
+    // move the spaceship top or bottom, and rotate it
     if ((::GetKeyState(VK_UP) & 0x8000) || (::GetKeyState(87) & 0x8000))
     {
-        m_yPos += spaceshipSpeed;
-
-        if (m_yPos >= 15.0f)
-            m_yPos = 15.0f;
-
-        pModelItem->SetPitch(0.0f);
+        m_yPos  = std::min(m_yPos  + spaceshipSpeed,         15.0f);
+        m_Angle = std::min(m_Angle + spaceshipRotationSpeed, 0.0f);
     }
     else
-        if ((::GetKeyState(VK_DOWN) & 0x8000) || (::GetKeyState(83) & 0x8000))
-        {
-            m_yPos -= spaceshipSpeed;
+    if ((::GetKeyState(VK_DOWN) & 0x8000) || (::GetKeyState(83) & 0x8000))
+    {
+        m_yPos  = std::max(m_yPos  - spaceshipSpeed,        -15.0f);
+        m_Angle = std::min(m_Angle + spaceshipRotationSpeed, 0.0f);
+    }
+    else
+        m_Angle = std::max(m_Angle - spaceshipRotationSpeed, (float)(-M_PI / 2.0));
 
-            if (m_yPos <= -15.0f)
-                m_yPos = -15.0f;
-
-            pModelItem->SetPitch(0.0f);
-        }
-        else
-            pModelItem->SetPitch((float)(-M_PI / 2.0));
-
+    // move the spaceship
     pModelItem->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
-    pModelCollider->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos + 0.2f, -40.0f));
+    pModelCollider->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos, -40.0f));
 
-    /*REM
-    // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
-    DWF_Scene::SceneItem_Animation*   pModelItem     = static_cast<DWF_Scene::SceneItem_Animation*>  (pScene->SearchItem (L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
-    DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
-
-    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
-        return;
-
-    // player is jumping?
-    if (m_Grounded)
-        // space bar pressed?
-        if (::GetKeyState(VK_SPACE) & 0x8000)
-        {
-            // add jump force to scene force
-            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity * (float)elapsedTime, 0.0f));
-
-            m_Jumping = true;
-        }
-        else
-            m_Jumping = false;
-
-    // left (or "A") or right (or "D") key pressed?
-    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_DOWN : VK_LEFT) & 0x8000) ||
-        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 83 : 65) & 0x8000))
-    {
-        m_Walking    =  true;
-        m_WalkOffset = -1.0f;
-
-        // add left move force to scene force
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity * (float)elapsedTime));
-    }
-    else
-    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_UP : VK_RIGHT) & 0x8000) ||
-        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 87 : 68) & 0x8000))
-    {
-        m_Walking    = true;
-        m_WalkOffset = 1.0f;
-
-        // add right move force to scene force
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity * (float)elapsedTime));
-    }
-    else
-        m_Walking = false;
-
-    // apply state machine
-    if (m_Jumping)
-    {
-        if (pModelItem->GetSelectedAnim() != 3)
-            pModelItem->SelectAnim(3);
-
-        pSoundItem->GetSound()->Stop();
-    }
-    else
-    if (m_Walking)
-    {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
-
-        if (!pSoundItem->GetSound()->IsPlaying())
-            pSoundItem->GetSound()->Play();
-    }
-    else
-    {
-        if (pModelItem->GetSelectedAnim() != 0)
-            pModelItem->SelectAnim(0);
-
-        pSoundItem->GetSound()->Stop();
-    }
-
-    // update gravity and friction depending on time
-    m_Force.SetGravity (0.0025f * (float)elapsedTime);
-    m_Force.SetFriction(0.0003f * (float)elapsedTime);
-
-    // calculate the resulting force
-    const DWF_Math::Vector3F force = m_Force.Calculate();
-
-    // apply it to the player position
-    m_xPos += force.m_X;
-    m_yPos += force.m_Y;
-    m_zPos += force.m_Z;
-
-    // is player walking or was previously walking before jumping?
-    if (m_Walking)
-        // rotate the player
-        if (m_WalkOffset < 0.0f)
-            pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-        else
-        if (m_WalkOffset > 0.0f)
-            pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-
-    switch (m_CameraType)
-    {
-        case IECameraType::IE_CT_Static:
-            // set the x position
-            m_xPos = 0.5f;
-
-            // set the camera rotation
-            pArcballItem->SetY((float)(M_PI / 2.0));
-            break;
-
-        case IECameraType::IE_CT_Rotate:
-            // set the x position
-            m_xPos = 0.5f;
-
-            // apply a rotation on the camera
-            pArcballItem->SetY(((float)M_PI / 2.0f) - (((m_zPos + 4.0f) / 100.0f) * (float)M_PI * 2.0f) / 1.0f);
-            break;
-
-        case IECameraType::IE_CT_Follow:
-            // set the x position
-            m_xPos = -0.25f;
-
-            // place the camera below the player
-            pArcballItem->SetY((float)M_PI);
-            break;
-    }
-
-    // calculate the next player position (arcball, model and collider)
-    pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-
-    // player is falling too low?
-    if (m_yPos < -3.0f)
-    {
-        // reset the pos to start
-        m_xPos = 0.5f;
-        m_yPos = 0.5f;
-        m_zPos = 0.0f;
-    }
-
-    // reset the grounded state, in order to test it on the next collision detection
-    m_Grounded = false;
-    */
+    // rotate the spaceship
+    pModelItem->SetPitch(m_Angle);
+    pModelCollider->SetRoll(m_Angle);
 }
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
@@ -760,12 +618,12 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_spaceship");
-    pStaticModel->SetStatic(false);
+    pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pMdl);
     pStaticModel->SetShader(&texShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
     pStaticModel->SetRoll(-0.25f);
-    pStaticModel->SetPitch((float)(-M_PI / 2.0));// FIXME rotate this
+    pStaticModel->SetPitch(m_Angle);
     pStaticModel->SetYaw((float)(-M_PI / 2.0));
     pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
 
@@ -814,16 +672,16 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     mat.m_Color.m_A = 1.0f;
 
     // create the spaceship box model
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(4.0f, 1.0f, 2.0f, false, vf, vc, mat));
+    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
     // create the capsule model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider");
-    pModel->SetStatic(true);
+    pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pBox.get());
     pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos + 0.2f, -40.0f));
-    pModel->SetRoll(0.0f); // FIXME rotate this
+    pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos, -40.0f));
+    pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
     pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
@@ -831,10 +689,50 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     // create the spaceship box collider
     std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(0.0f, 0.2f, -40.0f),
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
                                                          DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-2.0f, -0.5f, -2.0f),
-                                                         DWF_Math::Vector3F( 2.0f,  0.5f,  2.0f));
+                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
+                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
+
+
+
+
+
+
+
+
+
+    mat.m_Color.m_B = 0.0f;
+    mat.m_Color.m_R = 1.0f;
+
+    // create the spaceship box model
+    pBox.reset(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
+
+    // create the capsule model item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider_2");
+    pModel->SetStatic(false);
+    pModel->SetVisible(false);
+    pModel->SetModel(pBox.get());
+    pModel->SetShader(&colShader);
+    pModel->SetPos(DWF_Math::Vector3F(10.0f, 5.0f, -40.0f));
+    pModel->SetRoll(m_Angle);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+    pBox.release();
+
+    // create the spaceship box collider
+    pBoxCol =
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
+                                                         DWF_Math::Matrix4x4F::Identity(),
+                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
+                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
     pModel->AddCollider(pBoxCol.get());
     pBoxCol.release();
 
@@ -1014,6 +912,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     /*REM
     // bind the update scene callback to the scene
     m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
+    */
 
     // bind the collision notification callback to the scene
     m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,
@@ -1025,6 +924,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
                                       std::placeholders::_5,
                                       std::placeholders::_6));
 
+    /*REM
     // load footsteps sound
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
     pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps_run_grass.wav");

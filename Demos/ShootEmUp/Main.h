@@ -125,6 +125,7 @@ class Main
         */
         float                         m_xPos             =  0.0f;
         float                         m_yPos             =  0.0f;
+        float                         m_Angle            =  (float)(-M_PI / 2.0);
         /*REM
         float                         m_zPos             =  0.0f;
         float                         m_Velocity         =  0.00125f;
