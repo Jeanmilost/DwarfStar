@@ -322,22 +322,22 @@ namespace DWF_Scene
             typedef std::map<std::wstring, SceneItem*>      IItemDictionary;
             typedef std::map<std::wstring, SceneAudioItem*> IAudioDictionary;
 
-            DWF_Renderer::Renderer* m_pRenderer        = nullptr;
-            DWF_Model::Model*       m_pSkybox          = nullptr;
-            DWF_Renderer::Shader*   m_pSkyboxShader    = nullptr;
-            IGroups                 m_Groups;
-            SceneAudioItems         m_AudioItems;
-            IItemDictionary         m_ItemCache;
-            IAudioDictionary        m_AudioCache;
-            DWF_Model::ColorF       m_Color;
-            double                  m_FPS              = 60.0;
-            double                  m_FrameDuration    = 0.0;
-            double                  m_Time             = 0.0;
-            ITfOnBeginScene         m_fOnBeginScene    = nullptr;
-            ITfOnEndScene           m_fOnEndScene      = nullptr;
-            ITfOnUpdatePhysics      m_fOnUpdatePhysics = nullptr;
-            ITfOnUpdateScene        m_fOnUpdateScene   = nullptr;
-            ITfOnCollision          m_fOnCollision     = nullptr;
+            DWF_Renderer::Renderer*  m_pRenderer        = nullptr;
+            DWF_Model::Model*        m_pSkybox          = nullptr;
+            DWF_Renderer::Shader*    m_pSkyboxShader    = nullptr;
+            IGroups                  m_Groups;
+            SceneAudioItems          m_AudioItems;
+            mutable IItemDictionary  m_ItemCache;
+            mutable IAudioDictionary m_AudioCache;
+            DWF_Model::ColorF        m_Color;
+            double                   m_FPS              = 60.0;
+            double                   m_FrameDuration    = 0.0;
+            double                   m_Time             = 0.0;
+            ITfOnBeginScene          m_fOnBeginScene    = nullptr;
+            ITfOnEndScene            m_fOnEndScene      = nullptr;
+            ITfOnUpdatePhysics       m_fOnUpdatePhysics = nullptr;
+            ITfOnUpdateScene         m_fOnUpdateScene   = nullptr;
+            ITfOnCollision           m_fOnCollision     = nullptr;
 
             /**
             * Get the group from the groups

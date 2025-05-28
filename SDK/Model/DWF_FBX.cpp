@@ -111,7 +111,7 @@ std::int32_t FBX::IFBXData::GetInt() const
             return 0;
 
         // mark the value as a counter
-        const_cast<bool&>(m_IsCounter) = true;
+        m_IsCounter = true;
     }
 
     // convert raw data to integer
@@ -278,7 +278,7 @@ std::string FBX::IFBXProperty::GetPropName() const
             return "";
 
         // force the const constraint just this time to cache the property name
-        const_cast<std::string&>(m_PropName) = GetValue(0)->GetRaw();
+        m_PropName = GetValue(0)->GetRaw();
     }
 
     return m_PropName;
@@ -318,8 +318,8 @@ bool FBX::IFBXBoolProperty::Get() const
         return m_Value;
 
     // convert raw data to boolean and cache it
-    const_cast<bool&>(m_Value)  = GetValue(4)->GetBool();
-    const_cast<bool&>(m_Cached) = true;
+    m_Value  = GetValue(4)->GetBool();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -344,8 +344,8 @@ std::int32_t FBX::IFBXIntProperty::Get() const
         return m_Value;
 
     // cache value
-    const_cast<std::int32_t&>(m_Value)  = GetValue(4)->GetInt();
-    const_cast<bool&>        (m_Cached) = true;
+    m_Value  = GetValue(4)->GetInt();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -370,8 +370,8 @@ double FBX::IFBXDoubleProperty::Get() const
         return m_Value;
 
     // cache value
-    const_cast<double&>(m_Value)  = GetValue(4)->GetDouble();
-    const_cast<bool&>  (m_Cached) = true;
+    m_Value  = GetValue(4)->GetDouble();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -396,8 +396,8 @@ std::int64_t FBX::IFBXLongLongProperty::Get() const
         return m_Value;
 
     // cache value
-    const_cast<std::int64_t&>(m_Value)  = GetValue(4)->GetLongLong();
-    const_cast<bool&>        (m_Cached) = true;
+    m_Value  = GetValue(4)->GetLongLong();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -422,8 +422,8 @@ std::string FBX::IFBXStringProperty::Get() const
         return m_Value;
 
     // convert raw data to string and cache it
-    const_cast<std::string&>(m_Value)  = GetValue(4)->GetRaw();
-    const_cast<bool&>       (m_Cached) = true;
+    m_Value  = GetValue(4)->GetRaw();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -473,10 +473,9 @@ void FBX::IFBXNumberProperty::GetValues() const
 
     // read and cache values
     for (std::size_t i = 4; i < count; ++i)
-        const_cast<std::vector<double>&>(m_Values).push_back
-                (GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetDouble());
+        m_Values.push_back(GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetDouble());
 
-    const_cast<bool&>(m_Cached) = true;
+    m_Cached = true;
 }
 //---------------------------------------------------------------------------
 // FBX::IFBXColorProperty
@@ -504,13 +503,13 @@ ColorF FBX::IFBXColorProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<ColorF&>(m_Value).m_R = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<ColorF&>(m_Value).m_G = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<ColorF&>(m_Value).m_B = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_R = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_G = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_B = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<ColorF&>(m_Value).m_A = 1.0f;
-    const_cast<bool&>  (m_Cached)    = true;
+    m_Value.m_A = 1.0f;
+    m_Cached    = true;
 
     return m_Value;
 }
@@ -540,13 +539,13 @@ ColorF FBX::IFBXColorRGBProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<ColorF&>(m_Value).m_R = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<ColorF&>(m_Value).m_G = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<ColorF&>(m_Value).m_B = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_R = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_G = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_B = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<ColorF&>(m_Value).m_A = 1.0f;
-    const_cast<bool&>  (m_Cached)    = true;
+    m_Value.m_A = 1.0f;
+    m_Cached    = true;
 
     return m_Value;
 }
@@ -576,12 +575,12 @@ DWF_Math::Vector3F FBX::IFBXVectorProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<DWF_Math::Vector3F&>(m_Value).m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<DWF_Math::Vector3F&>(m_Value).m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<DWF_Math::Vector3F&>(m_Value).m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<bool&>(m_Cached) = true;
+    m_Cached = true;
 
     return m_Value;
 }
@@ -611,12 +610,12 @@ DWF_Math::Vector3F FBX::IFBXVector3DProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<DWF_Math::Vector3F&>(m_Value).m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<DWF_Math::Vector3F&>(m_Value).m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<DWF_Math::Vector3F&>(m_Value).m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<bool&>(m_Cached) = true;
+    m_Cached = true;
 
     return m_Value;
 }
@@ -656,8 +655,8 @@ std::time_t FBX::IFBXTimeProperty::Get() const
     if (sstr.rdstate() == std::ios_base::eofbit)
     {
         // cache value
-        const_cast<std::time_t&>(m_Value)  = value;
-        const_cast<bool&>       (m_Cached) = true;
+        m_Value  = value;
+        m_Cached = true;
 
         return m_Value;
     }
@@ -685,8 +684,8 @@ std::string FBX::IFBXDateTimeProperty::Get() const
         return m_Value;
 
     // convert raw data to string and cache it
-    const_cast<std::string&>(m_Value)  = GetValue(4)->GetRaw();
-    const_cast<bool&>       (m_Cached) = true;
+    m_Value  = GetValue(4)->GetRaw();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -711,8 +710,8 @@ std::int32_t FBX::IFBXEnumProperty::Get() const
         return m_Value;
 
     // cache value
-    const_cast<std::int32_t&>(m_Value)  = GetValue(4)->GetInt();
-    const_cast<bool&>        (m_Cached) = true;
+    m_Value  = GetValue(4)->GetInt();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -742,12 +741,12 @@ DWF_Math::Vector3F FBX::IFBXLclTranslationProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<DWF_Math::Vector3F&>(m_Value).m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<DWF_Math::Vector3F&>(m_Value).m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<DWF_Math::Vector3F&>(m_Value).m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<bool&>(m_Cached) = true;
+    m_Cached = true;
 
     return m_Value;
 }
@@ -798,8 +797,8 @@ DWF_Math::QuaternionF FBX::IFBXLclRotationProperty::Get() const
     qz.FromAxis(-z * degToRad, DWF_Math::Vector3F(0.0f, 0.0f, 1.0f));
 
     // build the final rotation matrix and cache it
-    const_cast<DWF_Math::QuaternionF&>(m_Value)  = qx.Multiply(qy).Multiply(qz).Normalize();
-    const_cast<bool&>                 (m_Cached) = true;
+    m_Value  = qx.Multiply(qy).Multiply(qz).Normalize();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -829,12 +828,12 @@ DWF_Math::Vector3F FBX::IFBXLclScalingProperty::Get() const
     for (std::size_t i = 4; i < count; ++i)
         switch (i)
         {
-            case 4: const_cast<DWF_Math::Vector3F&>(m_Value).m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 5: const_cast<DWF_Math::Vector3F&>(m_Value).m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
-            case 6: const_cast<DWF_Math::Vector3F&>(m_Value).m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 4: m_Value.m_X = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 5: m_Value.m_Y = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
+            case 6: m_Value.m_Z = GetValue(i)->m_Type == IEDataType::IE_DT_Int ? (float)GetValue(i)->GetInt() : GetValue(i)->GetFloat(); continue;
         }
 
-    const_cast<bool&>(m_Cached) = true;
+    m_Cached = true;
 
     return m_Value;
 }
@@ -859,8 +858,8 @@ bool FBX::IFBXVisibilityProperty::Get() const
         return m_Value;
 
     // convert raw data to boolean and cache it
-    const_cast<bool&>(m_Value)  = GetValue(4)->GetBool();
-    const_cast<bool&>(m_Cached) = true;
+    m_Value  = GetValue(4)->GetBool();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -892,8 +891,8 @@ bool FBX::IFBXVisibilityInheritanceProperty::Get() const
         return false;
 
     // convert raw data to boolean and cache it
-    const_cast<bool&>(m_Value)  = IFBXHelper::StrToBool(str);
-    const_cast<bool&>(m_Cached) = true;
+    m_Value  = IFBXHelper::StrToBool(str);
+    m_Cached = true;
 
     return m_Value;
 }
@@ -918,8 +917,8 @@ std::string FBX::IFBXCompoundProperty::Get() const
         return m_Value;
 
     // convert raw data to boolean and cache it
-    const_cast<std::string&>(m_Value)  = GetValue(4)->GetRaw();
-    const_cast<bool&>       (m_Cached) = true;
+    m_Value  = GetValue(4)->GetRaw();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -944,8 +943,8 @@ std::string FBX::IFBXObjectProperty::Get() const
         return m_Value;
 
     // convert raw data to boolean and cache it
-    const_cast<std::string&>(m_Value)  = GetValue(4)->GetRaw();
-    const_cast<bool&>       (m_Cached) = true;
+    m_Value  = GetValue(4)->GetRaw();
+    m_Cached = true;
 
     return m_Value;
 }
@@ -1435,7 +1434,7 @@ Model* FBX::GetModel(std::int32_t animSetIndex, double elapsedTime) const
         return m_pModel;
 
     // clear the animation matrix cache
-    const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict).clear();
+    m_AnimBoneCacheDict.clear();
 
     const std::size_t meshCount = m_pModel->m_Mesh.size();
 
@@ -1542,7 +1541,7 @@ Model* FBX::GetModel(int animSetIndex, int frameCount, int frameIndex) const
         return m_pModel;
 
     // clear the animation matrix cache
-    const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict).clear();
+    m_AnimBoneCacheDict.clear();
 
     const std::size_t meshCount = m_pModel->m_Mesh.size();
 
@@ -1665,7 +1664,7 @@ void FBX::GetBoneAnimMatrix(const Model::IBone*         pBone,
             animMatrix = pBone->m_Matrix;
 
             // cache the matrix
-            const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict)[pBone] = animMatrix;
+            m_AnimBoneCacheDict[pBone] = animMatrix;
         }
 
         // stack the previously calculated matrix with the current bone one
@@ -3610,7 +3609,7 @@ bool FBX::GetAnimationMatrix(const Model::IAnimationSet* pAnimSet,
         matrix = rotateMatrix.Multiply(translateMatrix).Multiply(scaleMatrix);
 
         // cache the matrix
-        const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict)[pBone] = matrix;
+        m_AnimBoneCacheDict[pBone] = matrix;
 
         return true;
     }

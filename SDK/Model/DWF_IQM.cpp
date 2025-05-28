@@ -744,7 +744,7 @@ Model* IQM::GetModel(int animSetIndex, int frameCount, int frameIndex) const
         return m_pModel;
 
     // clear the animation matrix cache
-    const_cast<IAnimBoneCacheDict&>(m_AnimBoneCacheDict).clear();
+    m_AnimBoneCacheDict.clear();
 
     const std::size_t meshCount = m_pModel->m_Mesh.size();
 

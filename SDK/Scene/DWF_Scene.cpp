@@ -377,7 +377,7 @@ SceneItem* Scene::SearchItem(const std::wstring& name) const
             if (m_Groups[i]->m_Items[j]->GetName() == name)
             {
                 // cache the item
-                const_cast<IItemDictionary&>(m_ItemCache)[name] = m_Groups[i]->m_Items[j];
+                m_ItemCache[name] = m_Groups[i]->m_Items[j];
 
                 return m_Groups[i]->m_Items[j];
             }
@@ -400,7 +400,7 @@ SceneAudioItem* Scene::SearchAudio(const std::wstring& name) const
         if (m_AudioItems[i]->GetName() == name)
         {
             // cache the item
-            const_cast<IAudioDictionary&>(m_AudioCache)[name] = m_AudioItems[i];
+            m_AudioCache[name] = m_AudioItems[i];
 
             return m_AudioItems[i];
         }

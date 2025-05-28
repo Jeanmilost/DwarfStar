@@ -551,7 +551,7 @@ namespace DWF_Model
             VertexFormat                      m_VertFormatTemplate;
             VertexCulling                     m_VertCullingTemplate;
             Material                          m_MaterialTemplate;
-            IAnimBoneCacheDict                m_AnimBoneCacheDict;
+            mutable IAnimBoneCacheDict        m_AnimBoneCacheDict;
             IVBCache                          m_VBCache;
             bool                              m_MeshOnly          = false;
             bool                              m_PoseOnly          = false;

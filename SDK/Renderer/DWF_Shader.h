@@ -143,7 +143,7 @@ namespace DWF_Renderer
             typedef std::map<IEAttribute, std::string> IAttributeDictionary;
 
             IAttributeDictionary m_AttributeDictionary;
-            std::string          m_LastError;
+            mutable std::string  m_LastError;
 
             /**
             * Populates default attribute dictionary

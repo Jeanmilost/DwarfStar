@@ -78,7 +78,7 @@ namespace DWF_Model
                 const std::string* m_pData     = nullptr;
                 std::size_t        m_Start     = 0;
                 std::size_t        m_End       = 0;
-                bool               m_IsCounter = false;
+                mutable bool       m_IsCounter = false;
 
                 /**
                 * Constructor
@@ -270,11 +270,11 @@ namespace DWF_Model
                     virtual IEPropType GetType() const;
 
                 protected:
-                    bool m_Cached = false;
+                    mutable bool m_Cached = false;
 
                 private:
-                    std::string m_PropName;
-                    IEPropType  m_PropType = IEPropType::IE_PT_Unknown;
+                    mutable std::string m_PropName;
+                    IEPropType          m_PropType = IEPropType::IE_PT_Unknown;
             };
 
             /**
@@ -308,7 +308,7 @@ namespace DWF_Model
                     virtual bool Get() const;
 
                 private:
-                    bool m_Value = false;
+                    mutable bool m_Value = false;
             };
 
             /**
@@ -327,7 +327,7 @@ namespace DWF_Model
                     virtual std::int32_t Get() const;
 
                 private:
-                    std::int32_t m_Value = 0;
+                    mutable std::int32_t m_Value = 0;
             };
 
             /**
@@ -346,7 +346,7 @@ namespace DWF_Model
                     virtual double Get() const;
 
                 private:
-                    double m_Value = 0.0;
+                    mutable double m_Value = 0.0;
             };
 
             /**
@@ -365,7 +365,7 @@ namespace DWF_Model
                     virtual std::int64_t Get() const;
 
                 private:
-                    std::int64_t m_Value = 0L;
+                    mutable std::int64_t m_Value = 0L;
             };
 
             /**
@@ -384,7 +384,7 @@ namespace DWF_Model
                     virtual std::string Get() const;
 
                 private:
-                    std::string m_Value;
+                    mutable std::string m_Value;
             };
 
             /**
@@ -410,7 +410,7 @@ namespace DWF_Model
                     virtual std::size_t GetCount() const;
 
                 private:
-                    std::vector<double> m_Values;
+                    mutable std::vector<double> m_Values;
 
                     /**
                     * Gets and caches all the values
@@ -434,7 +434,7 @@ namespace DWF_Model
                     virtual ColorF Get() const;
 
                 private:
-                    ColorF m_Value;
+                    mutable ColorF m_Value;
             };
 
             /**
@@ -453,7 +453,7 @@ namespace DWF_Model
                     virtual ColorF Get() const;
 
                 private:
-                    ColorF m_Value;
+                    mutable ColorF m_Value;
             };
 
             /**
@@ -472,7 +472,7 @@ namespace DWF_Model
                     virtual DWF_Math::Vector3F Get() const;
 
                 private:
-                    DWF_Math::Vector3F m_Value;
+                    mutable DWF_Math::Vector3F m_Value;
             };
 
             /**
@@ -491,7 +491,7 @@ namespace DWF_Model
                     virtual DWF_Math::Vector3F Get() const;
 
                 private:
-                    DWF_Math::Vector3F m_Value;
+                    mutable DWF_Math::Vector3F m_Value;
             };
 
             /**
@@ -510,7 +510,7 @@ namespace DWF_Model
                     virtual std::time_t Get() const;
 
                 private:
-                    std::time_t m_Value = 0;
+                    mutable std::time_t m_Value = 0;
             };
 
             /**
@@ -529,7 +529,7 @@ namespace DWF_Model
                     virtual std::string Get() const;
 
                 private:
-                    std::string m_Value;
+                    mutable std::string m_Value;
             };
 
             /**
@@ -548,7 +548,7 @@ namespace DWF_Model
                     virtual std::int32_t Get() const;
 
                 private:
-                    std::int32_t m_Value = 0;
+                    mutable std::int32_t m_Value = 0;
             };
 
             /**
@@ -567,7 +567,7 @@ namespace DWF_Model
                     virtual DWF_Math::Vector3F Get() const;
 
                 private:
-                    DWF_Math::Vector3F m_Value;
+                    mutable DWF_Math::Vector3F m_Value;
             };
 
             /**
@@ -586,7 +586,7 @@ namespace DWF_Model
                     virtual DWF_Math::QuaternionF Get() const;
 
                 private:
-                    DWF_Math::QuaternionF m_Value;
+                    mutable DWF_Math::QuaternionF m_Value;
             };
 
             /**
@@ -605,7 +605,7 @@ namespace DWF_Model
                     virtual DWF_Math::Vector3F Get() const;
 
                 private:
-                    DWF_Math::Vector3F m_Value = DWF_Math::Vector3F(1.0f, 1.0f, 1.0f);
+                    mutable DWF_Math::Vector3F m_Value = DWF_Math::Vector3F(1.0f, 1.0f, 1.0f);
             };
 
             /**
@@ -624,7 +624,7 @@ namespace DWF_Model
                     virtual bool Get() const;
 
                 private:
-                    bool m_Value = false;
+                    mutable bool m_Value = false;
             };
 
             /**
@@ -643,7 +643,7 @@ namespace DWF_Model
                     virtual bool Get() const;
 
                 private:
-                    bool m_Value = false;
+                    mutable bool m_Value = false;
             };
 
             /**
@@ -662,7 +662,7 @@ namespace DWF_Model
                     virtual std::string Get() const;
 
                 private:
-                    std::string m_Value;
+                    mutable std::string m_Value;
             };
 
             /**
@@ -681,7 +681,7 @@ namespace DWF_Model
                     virtual std::string Get() const;
 
                 private:
-                    std::string m_Value;
+                    mutable std::string m_Value;
             };
 
             /**
@@ -719,8 +719,8 @@ namespace DWF_Model
                     const std::vector<T>* GetPtr() const;
 
                 private:
-                    std::vector<T> m_Values;
-                    std::size_t    m_Capacity = 0;
+                    mutable std::vector<T> m_Values;
+                    std::size_t            m_Capacity = 0;
 
                     /**
                     * Gets and caches all the values
@@ -1023,7 +1023,7 @@ namespace DWF_Model
             IUsedProps                        m_UsedProps;
             IItemDictionary                   m_ItemDict;
             IBoneDictionary                   m_BoneDict;
-            IAnimBoneCacheDict                m_AnimBoneCacheDict;
+            mutable IAnimBoneCacheDict        m_AnimBoneCacheDict;
             IVBCache                          m_VBCache;
             Model*                            m_pModel            = nullptr;
             std::string                       m_Data;
@@ -1279,14 +1279,14 @@ namespace DWF_Model
 
         // reserve memory for numbers
         if (m_Capacity)
-            const_cast<std::vector<T>&>(m_Values).reserve(m_Capacity);
+            m_Values.reserve(m_Capacity);
 
         // get the numbers
         for (std::size_t i = 0; i < count; ++i)
-            const_cast<std::vector<T>&>(m_Values).push_back(GetValue(i)->GetT<T>());
+            m_Values.push_back(GetValue(i)->GetT<T>());
 
         // notify that values were cached
-        const_cast<bool&>(m_Cached) = true;
+        m_Cached = true;
     }
     //---------------------------------------------------------------------------
 }

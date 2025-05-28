@@ -127,13 +127,13 @@ namespace DWF_Scene
             virtual inline DWF_Math::Matrix4x4F GetMatrix() const;
 
         private:
-            DWF_Math::Matrix4x4F m_Matrix       = DWF_Math::Matrix4x4F::Identity();
-            DWF_Math::Vector3F   m_Pos;
-            DWF_Math::Vector3F   m_Scale        = DWF_Math::Vector3F(1.0f, 1.0f, 1.0f);
-            float                m_Roll         = 0.0f;
-            float                m_Pitch        = 0.0f;
-            float                m_Yaw          = 0.0f;
-            bool                 m_MatrixCached = false;
+            mutable DWF_Math::Matrix4x4F m_Matrix       = DWF_Math::Matrix4x4F::Identity();
+            DWF_Math::Vector3F           m_Pos;
+            DWF_Math::Vector3F           m_Scale        = DWF_Math::Vector3F(1.0f, 1.0f, 1.0f);
+            float                        m_Roll         = 0.0f;
+            float                        m_Pitch        = 0.0f;
+            float                        m_Yaw          = 0.0f;
+            mutable bool                 m_MatrixCached = false;
 
             /**
             * Builds a transformation matrix
@@ -223,8 +223,8 @@ namespace DWF_Scene
         // cached matrix changed?
         if (!m_MatrixCached)
         {
-            const_cast<DWF_Math::Matrix4x4F&>(m_Matrix)       = BuildMatrix(m_Pos, m_Roll, m_Pitch, m_Yaw, m_Scale);
-            const_cast<bool&>                (m_MatrixCached) = true;
+            m_Matrix       = BuildMatrix(m_Pos, m_Roll, m_Pitch, m_Yaw, m_Scale);
+            m_MatrixCached = true;
         }
 
         return m_Matrix;

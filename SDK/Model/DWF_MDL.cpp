@@ -822,7 +822,7 @@ Model* MDL::GetModel() const
         return m_pCachedModel.get();
 
     // force the cached model to be created (bypass the const statement)
-    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+    m_pCachedModel.reset(new Model());
 
     // iterate through model meshes (just take care of the first available model)
     for (std::size_t i = 0; i < m_Models[0]->m_Mesh.size(); ++i)
@@ -868,7 +868,7 @@ Model* MDL::GetModel(std::size_t  fps,
                 m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
 
         // force the cached model to be deleted (bypass the const statement)
-        const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset();
+        m_pCachedModel.reset();
     }
 
     // are textures animated?
@@ -946,7 +946,7 @@ Model* MDL::GetModel(std::size_t  fps,
     }
 
     // force the cached model to be created (bypass the const statement)
-    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+    m_pCachedModel.reset(new Model());
 
     // iterate through model meshes
     for (std::size_t i = 0; i < m_Models[modelIndex]->m_Mesh.size(); ++i)
@@ -1010,11 +1010,11 @@ Model* MDL::GetModel(int animSetIndex, int frameCount, int frameIndex) const
                 m_pCachedModel->m_Mesh[i]->m_VB[j]->m_Material.m_pTexture = nullptr;
 
         // force the cached model to be deleted (bypass the const statement)
-        const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset();
+        m_pCachedModel.reset();
     }
 
     // force the cached model to be created (bypass the const statement)
-    const_cast<std::unique_ptr<Model>&>(m_pCachedModel).reset(new Model());
+    m_pCachedModel.reset(new Model());
 
     // iterate through model meshes (just take care of the first available model)
     for (std::size_t i = 0; i < m_Models[frameIndex]->m_Mesh.size(); ++i)

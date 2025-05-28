@@ -70,7 +70,7 @@ std::string Shader::GetLastError() const
 //---------------------------------------------------------------------------
 void Shader::SetLastError(const std::string& error) const
 {
-    const_cast<std::string&>(m_LastError) = error;
+    m_LastError = error;
 }
 //---------------------------------------------------------------------------
 void Shader::PopulateAttributeDict()

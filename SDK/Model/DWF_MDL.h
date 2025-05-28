@@ -347,7 +347,7 @@ namespace DWF_Model
             typedef std::vector<IAnimation*> IAnimations;
 
             std::vector<Model*>               m_Models;
-            std::unique_ptr<Model>            m_pCachedModel;
+            mutable std::unique_ptr<Model>    m_pCachedModel;
             std::vector<DWF_Model::Texture*>  m_Textures;
             std::vector<double>               m_TextureTimes;
             std::vector<std::string>          m_TextureNames;

@@ -190,8 +190,8 @@ namespace DWF_Scene
         private:
             std::unique_ptr<PointOfView> m_pPOV;
             IEType                       m_Type         = IEType::IE_T_None;
-            DWF_Math::Matrix4x4F         m_Matrix;
-            bool                         m_MatrixCached = false;
+            mutable DWF_Math::Matrix4x4F m_Matrix;
+            mutable bool                 m_MatrixCached = false;
     };
 
     //---------------------------------------------------------------------------
@@ -409,8 +409,8 @@ namespace DWF_Scene
         // cached matrix changed?
         if (!m_MatrixCached)
         {
-            const_cast<DWF_Math::Matrix4x4F&>(m_Matrix)       = m_pPOV->ToMatrix();
-            const_cast<bool&>                (m_MatrixCached) = true;
+            m_Matrix       = m_pPOV->ToMatrix();
+            m_MatrixCached = true;
         }
 
         return m_Matrix;
