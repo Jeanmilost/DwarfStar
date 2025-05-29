@@ -179,7 +179,47 @@ void Scene::Add(SceneItem_ModelBase* pItem, bool transparent)
         // create it
         std::unique_ptr<IGroup> pNewGroup = std::make_unique<IGroup>();
         m_Groups.push_back(pNewGroup.get());
-        pNewGroup->m_Type = IEGroupType::IE_GT_Model;
+        pNewGroup->m_Type = transparent ? IEGroupType::IE_GT_Transparent : IEGroupType::IE_GT_Model;
+        pGroup            = pNewGroup.release();
+    }
+
+    AddItem(pGroup, pItem);
+}
+//---------------------------------------------------------------------------
+void Scene::Add(SceneItem_Particles* pItem, bool transparent)
+{
+    if (!pItem)
+        return;
+
+    IGroup* pGroup = nullptr;
+
+    // iterate through groups and search for scene items in which the item should be added
+    for (std::size_t i = 0; i < m_Groups.size(); ++i)
+        // transparent model?
+        if (transparent)
+        {
+            // found the transparent models group?
+            if (m_Groups[i]->m_Type == IEGroupType::IE_GT_TransparentParticles)
+            {
+                pGroup = m_Groups[i];
+                break;
+            }
+        }
+        else
+        // found the models group?
+        if (m_Groups[i]->m_Type == IEGroupType::IE_GT_Particles)
+        {
+            pGroup = m_Groups[i];
+            break;
+        }
+
+    // group still not created?
+    if (!pGroup)
+    {
+        // create it
+        std::unique_ptr<IGroup> pNewGroup = std::make_unique<IGroup>();
+        m_Groups.push_back(pNewGroup.get());
+        pNewGroup->m_Type = transparent ? IEGroupType::IE_GT_TransparentParticles : IEGroupType::IE_GT_Particles;
         pGroup            = pNewGroup.release();
     }
 
@@ -463,8 +503,10 @@ void Scene::Render(double elapsedTime)
         return;
     }
 
-    IGroup* pModels            = GetGroup(IEGroupType::IE_GT_Model);
-    IGroup* pTransparentModels = GetGroup(IEGroupType::IE_GT_Transparent);
+    IGroup* pModels               = GetGroup(IEGroupType::IE_GT_Model);
+    IGroup* pParticles            = GetGroup(IEGroupType::IE_GT_Particles);
+    IGroup* pTransparentModels    = GetGroup(IEGroupType::IE_GT_Transparent);
+    IGroup* pTransparentParticles = GetGroup(IEGroupType::IE_GT_TransparentParticles);
 
     // iterate through point of views
     for (std::size_t i = 0; i < pPOVs->m_Items.size(); ++i)
@@ -484,10 +526,30 @@ void Scene::Render(double elapsedTime)
             for (std::size_t j = 0; j < pModels->m_Items.size(); ++j)
                 pModels->m_Items[j]->Render(viewMatrix, m_pRenderer);
 
+        // iterate through particles to render, and render each of them
+        if (pParticles)
+            for (std::size_t j = 0; j < pParticles->m_Items.size(); ++j)
+            {
+                // first animate them
+                static_cast<SceneItem_Particles*>(pParticles->m_Items[j])->Animate(elapsedTime);
+
+                pParticles->m_Items[j]->Render(viewMatrix, m_pRenderer);
+            }
+
         // iterate through transparent models to render, and render each of them
         if (pTransparentModels)
             for (std::size_t j = 0; j < pTransparentModels->m_Items.size(); ++j)
                 pTransparentModels->m_Items[j]->Render(viewMatrix, m_pRenderer);
+
+        // iterate through transparent particles to render, and render each of them
+        if (pTransparentParticles)
+            for (std::size_t j = 0; j < pTransparentParticles->m_Items.size(); ++j)
+            {
+                // first animate them
+                static_cast<SceneItem_Particles*>(pTransparentParticles->m_Items[j])->Animate(elapsedTime);
+
+                pTransparentParticles->m_Items[j]->Render(viewMatrix, m_pRenderer);
+            }
     }
 
     if (m_fOnEndScene)

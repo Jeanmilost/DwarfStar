@@ -35,6 +35,7 @@
 #include "DWF_Arcball.h"
 #include "DWF_SceneItem.h"
 #include "DWF_SceneItemModel.h"
+#include "DWF_SceneItemParticles.h"
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneAudioItem.h"
 #include "DWF_Renderer.h"
@@ -62,7 +63,9 @@ namespace DWF_Scene
                 IE_GT_Unknown = 0,
                 IE_GT_POV,
                 IE_GT_Model,
-                IE_GT_Transparent
+                IE_GT_Particles,
+                IE_GT_Transparent,
+                IE_GT_TransparentParticles
             };
 
             /**
@@ -191,6 +194,14 @@ namespace DWF_Scene
             *@note The item will be deleted internally, don't delete it from outside
             */
             virtual void Add(SceneItem_ModelBase* pItem, bool transparent);
+
+            /**
+            * Adds an item containing a particles system to the scene
+            *@param pItem - scene item to add
+            *@param transparent - if true, the item should be drawn with transparency support enabled
+            *@note The item will be deleted internally, don't delete it from outside
+            */
+            virtual void Add(SceneItem_Particles* pItem, bool transparent);
 
             /**
             * Adds an item containing an audio to the scene

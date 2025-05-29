@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_SceneItemStaticAsset --------------------------------------------*
+ * ==> DWF_Particle --------------------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing a static asset                       *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description: Item for particles system                                   *
+ * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,79 +26,18 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneItemStaticAsset.h"
+#include "DWF_Particle.h"
 
-// classes
-#include "DWF_SceneTimer.h"
-#include "DWF_FBX.h"
-#include "DWF_IQM.h"
-#include "DWF_MDL.h"
-
-using namespace DWF_Scene;
+using namespace DWF_Particles;
 
 //---------------------------------------------------------------------------
-// SceneItem_StaticAsset
+// Particle
 //---------------------------------------------------------------------------
-SceneItem_StaticAsset::SceneItem_StaticAsset(const std::wstring& name) :
-    SceneItem_ModelBase(name)
-{}
-//---------------------------------------------------------------------------
-SceneItem_StaticAsset::~SceneItem_StaticAsset()
-{}
-//---------------------------------------------------------------------------
-void SceneItem_StaticAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
-                                   const DWF_Renderer::Renderer* pRenderer) const
+Particle::Particle()
 {
-    // not visible? skip it
-    if (!IsVisible())
-        return;
-
-    if (!pRenderer)
-        return;
-
-    if (!m_pShader)
-        return;
-
-    // bind shader program
-    m_pShader->Use(true);
-
-    // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
-
-    DWF_Model::ModelFormat* pModelFormat = m_pModelFormat.get();
-
-    // draw the model
-    DrawModel(pModelFormat, m_pShader, pRenderer);
-
-    // unbind shader program
-    m_pShader->Use(false);
+    m_Matrix = DWF_Math::Matrix4x4F::Identity();
 }
 //---------------------------------------------------------------------------
-void SceneItem_StaticAsset::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
-                                      const DWF_Renderer::Shader*   pShader,
-                                      const DWF_Renderer::Renderer* pRenderer) const
-{
-    if (!pModelFormat)
-        return;
-
-    if (!pShader)
-        return;
-
-    if (!pRenderer)
-        return;
-
-    // get the model
-    const DWF_Model::Model* pModel = pModelFormat->GetModel();
-
-    // no model to draw?
-    if (!pModel)
-        return;
-
-    const std::size_t meshCount = pModel->m_Mesh.size();
-
-    // iterate through the meshes to draw
-    for (std::size_t i = 0; i < meshCount; ++i)
-        // draw the model mesh
-        pRenderer->Draw(*pModel->m_Mesh[i], GetMatrix(), pShader, false);
-}
+Particle::~Particle()
+{}
 //---------------------------------------------------------------------------

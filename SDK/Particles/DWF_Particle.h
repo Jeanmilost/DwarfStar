@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_SceneItemModel --------------------------------------------------*
+ * ==> DWF_Particle --------------------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing a model                              *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description: Item for particles system                                   *
+ * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,44 +26,25 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneItemModel.h"
+#pragma once
 
-using namespace DWF_Scene;
+// classes
+#include "DWF_Vector3.h"
+#include "DWF_Matrix4x4.h"
 
-//---------------------------------------------------------------------------
-// SceneItem_Model
-//---------------------------------------------------------------------------
-SceneItem_Model::SceneItem_Model(const std::wstring& name) :
-    SceneItem_ModelBase(name)
-{}
-//---------------------------------------------------------------------------
-SceneItem_Model::~SceneItem_Model()
-{}
-//---------------------------------------------------------------------------
-void SceneItem_Model::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
-                             const DWF_Renderer::Renderer* pRenderer) const
+namespace DWF_Particles
 {
-    // not visible? skip it
-    if (!IsVisible())
-        return;
+    /**
+    * Item for particle system
+    *@author Jean-Milost Reymond
+    */
+    class Particle
+    {
+        public:
+            DWF_Math::Vector3F   m_Velocity;
+            DWF_Math::Matrix4x4F m_Matrix;
 
-    if (!pRenderer)
-        return;
-
-    if (!m_pShader)
-        return;
-
-    // bind shader program
-    m_pShader->Use(true);
-
-    // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
-
-    // draw the model
-    for (std::size_t i = 0; i < m_pModel->m_Mesh.size(); ++i)
-        pRenderer->Draw(*m_pModel->m_Mesh[i], GetMatrix(), m_pShader, false);
-
-    // unbind shader program
-    m_pShader->Use(false);
+            Particle();
+            virtual ~Particle();
+    };
 }
-//---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> DWF_SceneItemStaticAsset --------------------------------------------*
+ * ==> DWF_SceneItemParticles ----------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing a static asset                       *
+ * Description : Scene item containing a particles system                   *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -26,7 +26,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneItemStaticAsset.h"
+#include "DWF_SceneItemParticles.h"
 
 // classes
 #include "DWF_SceneTimer.h"
@@ -37,17 +37,26 @@
 using namespace DWF_Scene;
 
 //---------------------------------------------------------------------------
-// SceneItem_StaticAsset
+// SceneItem_Particles
 //---------------------------------------------------------------------------
-SceneItem_StaticAsset::SceneItem_StaticAsset(const std::wstring& name) :
-    SceneItem_ModelBase(name)
+SceneItem_Particles::SceneItem_Particles(const std::wstring& name) :
+    SceneItem(name)
 {}
 //---------------------------------------------------------------------------
-SceneItem_StaticAsset::~SceneItem_StaticAsset()
+SceneItem_Particles::~SceneItem_Particles()
 {}
 //---------------------------------------------------------------------------
-void SceneItem_StaticAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
-                                   const DWF_Renderer::Renderer* pRenderer) const
+void SceneItem_Particles::Animate(double elapsedTime)
+{
+    // not visible? skip it
+    if (!IsVisible())
+        return;
+
+    m_pParticles->Animate(elapsedTime);
+}
+//---------------------------------------------------------------------------
+void SceneItem_Particles::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
+                                 const DWF_Renderer::Renderer* pRenderer) const
 {
     // not visible? skip it
     if (!IsVisible())
@@ -65,40 +74,29 @@ void SceneItem_StaticAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     // connect the view matrix to the shader
     pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
 
-    DWF_Model::ModelFormat* pModelFormat = m_pModelFormat.get();
-
-    // draw the model
-    DrawModel(pModelFormat, m_pShader, pRenderer);
-
-    // unbind shader program
-    m_pShader->Use(false);
-}
-//---------------------------------------------------------------------------
-void SceneItem_StaticAsset::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
-                                      const DWF_Renderer::Shader*   pShader,
-                                      const DWF_Renderer::Renderer* pRenderer) const
-{
-    if (!pModelFormat)
-        return;
-
-    if (!pShader)
-        return;
-
-    if (!pRenderer)
-        return;
-
     // get the model
-    const DWF_Model::Model* pModel = pModelFormat->GetModel();
+    const DWF_Model::Model* pModel = m_pParticles->GetModel();
 
     // no model to draw?
     if (!pModel)
         return;
 
-    const std::size_t meshCount = pModel->m_Mesh.size();
+    for (std::size_t i = 0; i < m_pParticles->GetCount(); ++i)
+    {
+        DWF_Particles::Particle* pParticle = m_pParticles->Get(i);
 
-    // iterate through the meshes to draw
-    for (std::size_t i = 0; i < meshCount; ++i)
-        // draw the model mesh
-        pRenderer->Draw(*pModel->m_Mesh[i], GetMatrix(), pShader, false);
+        if (!pParticle)
+            continue;
+
+        const std::size_t meshCount = pModel->m_Mesh.size();
+
+        // iterate through the meshes to draw
+        for (std::size_t i = 0; i < meshCount; ++i)
+            // draw the model mesh
+            pRenderer->Draw(*pModel->m_Mesh[i], pParticle->m_Matrix, m_pShader, false);
+    }
+
+    // unbind shader program
+    m_pShader->Use(false);
 }
 //---------------------------------------------------------------------------

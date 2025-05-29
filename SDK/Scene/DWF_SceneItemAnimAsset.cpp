@@ -53,9 +53,6 @@ SceneItem_AnimAsset::SceneItem_AnimAsset(const std::wstring& name) :
 //---------------------------------------------------------------------------
 SceneItem_AnimAsset::~SceneItem_AnimAsset()
 {
-    if (m_ShaderIsLocal && m_pShader)
-        delete m_pShader;
-
     // delete all animated models
     for (std::size_t i = 0; i < m_Animations.size(); ++i)
         delete m_Animations[i];

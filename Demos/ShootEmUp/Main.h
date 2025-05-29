@@ -41,7 +41,7 @@
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneItemModel.h"
 #include "DWF_SceneItemStaticAsset.h"
-//REM #include "DWF_Force.h"
+#include "DWF_Box.h"
 #include "DWF_MDL.h"
 
 // libraries
@@ -140,6 +140,8 @@ class Main
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
 
+        DWF_Geometry::Box             m_StarBox;
+
         /**
         * Called when a texture should be created for a .mdl model file
         *@param pPixelBuffer - pixel buffer containing the texture
@@ -188,6 +190,8 @@ class Main
                                DWF_Scene::SceneItem*   pItem2,
                                DWF_Collider::Collider* pCollider2,
                          const DWF_Math::Vector3F&     mtv);
+
+        void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime);
 
         /**
         * Loads the cubemap textures

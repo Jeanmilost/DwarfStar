@@ -61,6 +61,9 @@
     <Filter Include="SDK\String">
       <UniqueIdentifier>{4f506c3e-b2a4-4637-98d8-87dacb2289ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK\Particles">
+      <UniqueIdentifier>{111cb7d1-e644-4603-9164-e8ef7da5701d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -264,6 +267,15 @@
     <ClInclude Include="..\..\SDK\Model\DWF_AnimModelFormat.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particles.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particle.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemParticles.h">
+      <Filter>SDK\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShootEmUp.cpp">
@@ -466,6 +478,15 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_AnimModelFormat.cpp">
       <Filter>SDK\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particles.cpp">
+      <Filter>SDK\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particle.cpp">
+      <Filter>SDK\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemParticles.cpp">
+      <Filter>SDK\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

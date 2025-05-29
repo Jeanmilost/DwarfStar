@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_SceneItemStaticAsset --------------------------------------------*
+ * ==> DWF_Particles -------------------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing a static asset                       *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description: Particles system                                            *
+ * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,79 +26,84 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneItemStaticAsset.h"
+#include "DWF_Particles.h"
 
-// classes
-#include "DWF_SceneTimer.h"
-#include "DWF_FBX.h"
-#include "DWF_IQM.h"
-#include "DWF_MDL.h"
-
-using namespace DWF_Scene;
+using namespace DWF_Particles;
 
 //---------------------------------------------------------------------------
-// SceneItem_StaticAsset
+// Particles
 //---------------------------------------------------------------------------
-SceneItem_StaticAsset::SceneItem_StaticAsset(const std::wstring& name) :
-    SceneItem_ModelBase(name)
+Particles::Particles()
 {}
 //---------------------------------------------------------------------------
-SceneItem_StaticAsset::~SceneItem_StaticAsset()
-{}
-//---------------------------------------------------------------------------
-void SceneItem_StaticAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
-                                   const DWF_Renderer::Renderer* pRenderer) const
+Particles::~Particles()
 {
-    // not visible? skip it
-    if (!IsVisible())
-        return;
-
-    if (!pRenderer)
-        return;
-
-    if (!m_pShader)
-        return;
-
-    // bind shader program
-    m_pShader->Use(true);
-
-    // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
-
-    DWF_Model::ModelFormat* pModelFormat = m_pModelFormat.get();
-
-    // draw the model
-    DrawModel(pModelFormat, m_pShader, pRenderer);
-
-    // unbind shader program
-    m_pShader->Use(false);
+    for (std::size_t i = 0; i < m_Particles.size(); ++i)
+        delete m_Particles[i];
 }
 //---------------------------------------------------------------------------
-void SceneItem_StaticAsset::DrawModel(const DWF_Model::ModelFormat* pModelFormat,
-                                      const DWF_Renderer::Shader*   pShader,
-                                      const DWF_Renderer::Renderer* pRenderer) const
+Particle* Particles::Add()
 {
-    if (!pModelFormat)
+    std::unique_ptr<Particle> pParticle = std::make_unique<Particle>();
+
+    m_Particles.push_back(pParticle.get());
+
+    return pParticle.release();
+}
+//---------------------------------------------------------------------------
+void Particles::Add(std::size_t count)
+{
+    for (std::size_t i = 0; i < count; ++i)
+        Add();
+}
+//---------------------------------------------------------------------------
+void Particles::Delete(Particle* pParticle)
+{
+    for (std::size_t i = 0; i < m_Particles.size(); ++i)
+        if (m_Particles[i] == pParticle)
+        {
+            delete m_Particles[i];
+            m_Particles.erase(m_Particles.begin() + i);
+            return;
+        }
+}
+//---------------------------------------------------------------------------
+void Particles::DeleteAt(std::size_t index)
+{
+    if (index >= m_Particles.size())
         return;
 
-    if (!pShader)
+    delete m_Particles[index];
+    m_Particles.erase(m_Particles.begin() + index);
+}
+//---------------------------------------------------------------------------
+Particle* Particles::Get(std::size_t index) const
+{
+    if (index >= m_Particles.size())
+        return nullptr;
+
+    return m_Particles[index];
+}
+//---------------------------------------------------------------------------
+std::size_t Particles::GetCount() const
+{
+    return m_Particles.size();
+}
+//---------------------------------------------------------------------------
+void Particles::Animate(double elapsedTime)
+{
+    if (!m_Particles.size())
         return;
 
-    if (!pRenderer)
+    if (!m_fOnCalculateMotion)
         return;
 
-    // get the model
-    const DWF_Model::Model* pModel = pModelFormat->GetModel();
-
-    // no model to draw?
-    if (!pModel)
-        return;
-
-    const std::size_t meshCount = pModel->m_Mesh.size();
-
-    // iterate through the meshes to draw
-    for (std::size_t i = 0; i < meshCount; ++i)
-        // draw the model mesh
-        pRenderer->Draw(*pModel->m_Mesh[i], GetMatrix(), pShader, false);
+    for (std::size_t i = 0; i < m_Particles.size(); ++i)
+        m_fOnCalculateMotion(this, m_Particles[i], elapsedTime);
+}
+//---------------------------------------------------------------------------
+void Particles::Set_OnCalculateMotion(ITfOnCalculateMotion fOnCalculateMotion)
+{
+    m_fOnCalculateMotion = fOnCalculateMotion;
 }
 //---------------------------------------------------------------------------

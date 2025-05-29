@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_SceneItemModel --------------------------------------------------*
+ * ==> DWF_Particles -------------------------------------------------------*
  ****************************************************************************
- * Description : Scene item containing a model                              *
- * Developer   : Jean-Milost Reymond                                        *
+ * Description: Particles system                                            *
+ * Developer:   Jean-Milost Reymond                                         *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,33 +26,35 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
+#pragma once
+
 // std
 #include <vector>
 
 // classes
-#include "DWF_SceneItemModelBase.h"
+#include "DWF_Particle.h"
 #include "DWF_Model.h"
-#include "DWF_Shader.h"
-#include "DWF_Renderer.h"
 
-#pragma once
-
-namespace DWF_Scene
+namespace DWF_Particles
 {
     /**
-    * Scene item containing a model
+    * Particles system
     *@author Jean-Milost Reymond
     */
-    class SceneItem_Model : public SceneItem_ModelBase
+    class Particles
     {
         public:
             /**
-            * Constructor
-            *@param name - item name
+            * Called when a texture should be loaded
+            *@param arg1 - texture name to load
+            *@param arg2 - if true, the texture is a 32 bit texture
+            *@return the loaded texture
+            *@note The loaded texture will be deleted internally, and should no longer be deleted from outside
             */
-            SceneItem_Model(const std::wstring& name);
+            typedef std::function<void(Particles*, Particle*, double)> ITfOnCalculateMotion;
 
-            virtual ~SceneItem_Model();
+            Particles();
+            virtual ~Particles();
 
             /**
             * Gets the model
@@ -67,52 +69,73 @@ namespace DWF_Scene
             virtual inline void SetModel(const std::shared_ptr<DWF_Model::Model>& pModel);
 
             /**
-            * Gets the shader to use to render the model
-            *@return the shader to use to render the model
+            * Adds a particle
+            *@return the newly added particle
             */
-            virtual inline DWF_Renderer::Shader* GetShader() const;
+            virtual Particle* Add();
 
             /**
-            * Sets the shader to use to render the model
-            *@param pShader - the shader to use to render the model
-            *@note Don't delete the shader from outside, it will be deleted internally
+            * Adds particles
+            *@param count - number of particles to add
             */
-            virtual inline void SetShader(DWF_Renderer::Shader* pShader);
+            virtual void Add(std::size_t count);
 
             /**
-            * Renders the item
-            *@param viewMatrix - view matrix to connect to shader
-            *@param pRenderer - renderer to use to render the scene
+            * Deletes a particle
+            *@param pParticle - particle to delete
             */
-            virtual void Render(const DWF_Math::Matrix4x4F&   viewMatrix,
-                                const DWF_Renderer::Renderer* pRenderer) const;
+            virtual void Delete(Particle* pParticle);
+
+            /**
+            * Deletes a particle at index
+            *@param index - particle index to delete
+            */
+            virtual void DeleteAt(std::size_t index);
+
+            /**
+            * Gets a particle at index
+            *@param index - particle index to get
+            *@return particle at index
+            */
+            virtual Particle* Get(std::size_t index) const;
+
+            /**
+            * Gets the particle count
+            *@return the particle count
+            */
+            virtual std::size_t GetCount() const;
+
+            /**
+            * Animates the particles
+            *@param elapsedTime - elapsed time since last frame
+            */
+            virtual void Animate(double elapsedTime);
+
+            /**
+            * Sets the OnCalculateMotion callback
+            *@param fOnCalculateMotion - callback function handle
+            */
+            void Set_OnCalculateMotion(ITfOnCalculateMotion fOnCalculateMotion);
 
         private:
+            typedef std::vector<Particle*> IParticles;
+
             std::shared_ptr<DWF_Model::Model> m_pModel;
-            DWF_Renderer::Shader*             m_pShader = nullptr;
+            IParticles                        m_Particles;
+            ITfOnCalculateMotion              m_fOnCalculateMotion = nullptr;
     };
 
     //---------------------------------------------------------------------------
-    // SceneItem_Model
+    // Particles
     //---------------------------------------------------------------------------
-    inline DWF_Model::Model* SceneItem_Model::GetModel() const
+    inline DWF_Model::Model* Particles::GetModel() const
     {
         return m_pModel.get();
     }
     //---------------------------------------------------------------------------
-    inline void SceneItem_Model::SetModel(const std::shared_ptr<DWF_Model::Model>& pModel)
+    inline void Particles::SetModel(const std::shared_ptr<DWF_Model::Model>& pModel)
     {
         m_pModel = pModel;
-    }
-    //---------------------------------------------------------------------------
-    inline DWF_Renderer::Shader* SceneItem_Model::GetShader() const
-    {
-        return m_pShader;
-    }
-    //---------------------------------------------------------------------------
-    inline void SceneItem_Model::SetShader(DWF_Renderer::Shader* pShader)
-    {
-        m_pShader = pShader;
     }
     //---------------------------------------------------------------------------
 }

@@ -434,6 +434,11 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    if (pItem1->GetName() != L"scene_spaceship_collider" && pItem2->GetName() != L"scene_spaceship_collider")
+        return;
+
+    int ii = 0;
+
     /*REM
     // as in this demo all the objects against which the player may collide are platforms, we can assume that in case of collisions the player is grounded
     m_Grounded = true;
@@ -562,6 +567,35 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
     }
 }
 */
+//------------------------------------------------------------------------------
+void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime)
+{
+    // calculate next star position
+    pParticle->m_Matrix.m_Table[3][0] += pParticle->m_Velocity.m_X * elapsedTime;
+    pParticle->m_Matrix.m_Table[3][1] += pParticle->m_Velocity.m_Y * elapsedTime;
+    pParticle->m_Matrix.m_Table[3][2] += pParticle->m_Velocity.m_Z * elapsedTime;
+
+    // limit x pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][0] <= m_StarBox.m_Min.m_X)
+        pParticle->m_Matrix.m_Table[3][0] += (m_StarBox.m_Max.m_X - m_StarBox.m_Min.m_X);
+    else
+    if (pParticle->m_Matrix.m_Table[3][0] >= m_StarBox.m_Max.m_X)
+        pParticle->m_Matrix.m_Table[3][0] -= (m_StarBox.m_Max.m_X - m_StarBox.m_Min.m_X);
+
+    // limit y pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][1] <= m_StarBox.m_Min.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] += (m_StarBox.m_Max.m_Y - m_StarBox.m_Min.m_Y);
+    else
+    if (pParticle->m_Matrix.m_Table[3][1] >= m_StarBox.m_Max.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] -= (m_StarBox.m_Max.m_Y - m_StarBox.m_Min.m_Y);
+
+    // limit z pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][2] <= m_StarBox.m_Min.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] += (m_StarBox.m_Max.m_Z - m_StarBox.m_Min.m_Z);
+    else
+    if (pParticle->m_Matrix.m_Table[3][2] >= m_StarBox.m_Max.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] -= (m_StarBox.m_Max.m_Z - m_StarBox.m_Min.m_Z);
+}
 //------------------------------------------------------------------------------
 void Main::AddEnemy(std::size_t                        index,
                     float                              x,
@@ -748,7 +782,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     std::shared_ptr<DWF_Model::Model> pEnemyBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
     for (std::size_t i = 0; i < 5; ++i)
-        AddEnemy(i, 10.0f, -14.0f + (i * 4), pEnemyMdl, pEnemyBox, texShader, colShader);
+        AddEnemy(i, 999.0f, 0.0f + i, pEnemyMdl, pEnemyBox, texShader, colShader);
 
 
 
@@ -948,6 +982,61 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     m_Scene.Add(pModel.get(), false);
     pModel.release();
     */
+
+    // configure the star box
+    m_StarBox.m_Min.m_X = -25.0f;
+    m_StarBox.m_Min.m_Y = -20.0f;
+    m_StarBox.m_Min.m_Z = -60.0f;
+    m_StarBox.m_Max.m_X =  25.0f;
+    m_StarBox.m_Max.m_Y =  20.0f;
+    m_StarBox.m_Max.m_Z = -40.0f;
+
+    // create material
+    mat.m_Color.m_B = 0.95f;
+    mat.m_Color.m_G = 0.98f;
+    mat.m_Color.m_R = 1.0f;
+    mat.m_Color.m_A = 1.0f;
+
+    // create the star model
+    std::shared_ptr<DWF_Model::Model> pStarModel(DWF_Model::Factory::GetSphere(0.1f, 20, 20, vf, vc, mat));
+
+    // create the stars particle system
+    std::shared_ptr<DWF_Particles::Particles> pStars = std::make_shared<DWF_Particles::Particles>();
+    pStars->SetModel(pStarModel);
+    pStars->Set_OnCalculateMotion(std::bind(&Main::OnCalculateStarMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+    // iterate through the particles to create
+    for (std::size_t i = 0; i < 50; ++i)
+    {
+        // add a new particle
+        DWF_Particles::Particle* pParticle = pStars->Add();
+
+        // calculate the particle start position
+        const float x = m_StarBox.m_Min.m_X + (((float)(rand() % (int)5000.0f)) * 0.01f);
+        const float y = m_StarBox.m_Min.m_Y + (((float)(rand() % (int)4000.0f)) * 0.01f);
+        const float z = m_StarBox.m_Min.m_Z + (((float)(rand() % (int)2000.0f)) * 0.01f);
+
+        // calculate the particle initial force
+        pParticle->m_Velocity.m_X = -0.05f;
+        pParticle->m_Velocity.m_Y =  0.0f;
+        pParticle->m_Velocity.m_Z =  0.0f;
+
+        // configure the particle matrix (was set to identity while the particle was created)
+        pParticle->m_Matrix.m_Table[3][0] = x;
+        pParticle->m_Matrix.m_Table[3][1] = y;
+        pParticle->m_Matrix.m_Table[3][2] = z;
+    }
+
+    // create the capsule model item
+    std::unique_ptr<DWF_Scene::SceneItem_Particles> pParticles = std::make_unique<DWF_Scene::SceneItem_Particles>(L"scene_stars_particles");
+    pParticles->SetStatic(true);
+    pParticles->SetVisible(true);
+    pParticles->SetParticles(pStars);
+    pParticles->SetShader(&colShader);
+
+    // set the particles system to the scene
+    m_Scene.Add(pParticles.get(), false);
+    pParticles.release();
 
     // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));

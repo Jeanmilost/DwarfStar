@@ -34,6 +34,7 @@
 #include "DWF_SceneItemModelBase.h"
 #include "DWF_AnimModelFormat.h"
 #include "DWF_Shader.h"
+#include "DWF_Renderer.h"
 
 #pragma once
 
@@ -90,7 +91,6 @@ namespace DWF_Scene
             /**
             * Sets the animation model to use
             *@param pModelFormat - the animation model which contains the animations to play
-            *@note The model will be deleted internally, don't delete it from outside
             */
             virtual inline void SetModel(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat);
 
@@ -127,7 +127,6 @@ namespace DWF_Scene
             *@param frameCount - frame count the animation contains
             *@param frameDuration - frame duration in milliseconds
             *@param loop - if true, the animation will loop
-            *@note The animation will be deleted internally, don't delete it from outside
             */
             virtual void AddAnim(const std::shared_ptr<DWF_Model::AnimModelFormat>& pModelFormat,
                                        std::size_t                                  animSetIndex,
@@ -194,7 +193,7 @@ namespace DWF_Scene
             /**
             * Sets the shader to use to render the model
             *@param pShader - the shader to use to render the model
-            *@??? Don't delete the model from outside, it will be deleted internally
+            *@note Don't delete the shader from outside, it will be deleted internally
             */
             virtual inline void SetShader(DWF_Renderer::Shader* pShader);
 
@@ -225,7 +224,6 @@ namespace DWF_Scene
             std::shared_ptr<DWF_Model::AnimModelFormat> m_pModelFormat;
             DWF_Renderer::Shader*                       m_pShader       = nullptr;
             std::size_t                                 m_Index         = 0;
-            bool                                        m_ShaderIsLocal = false;
             bool                                        m_DrawSkeleton  = false;
             ITfOnFrame                                  m_fOnFrame      = nullptr;
             ITfOnEndReached                             m_fOnEndReached = nullptr;
