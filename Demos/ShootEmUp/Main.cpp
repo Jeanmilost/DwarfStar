@@ -983,6 +983,8 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel.release();
     */
 
+    // FIXME for Jean: make shader shared pointers
+    // FIXME for Jean: move to particle system
     // configure the star box
     m_StarBox.m_Min.m_X = -25.0f;
     m_StarBox.m_Min.m_Y = -20.0f;

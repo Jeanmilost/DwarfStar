@@ -117,6 +117,7 @@ class Main
 
         DWF_Scene::Scene              m_Scene;
         DWF_Renderer::Renderer_OpenGL m_Renderer;
+        DWF_Geometry::Box             m_StarBox;
         //REM Textures                      m_TextureItems;
         /*REM
         DWF_Physics::Force            m_Force;
@@ -139,8 +140,6 @@ class Main
         */
         bool                          m_ShowColliders    =  false;
         bool                          m_OldShowColliders =  false;
-
-        DWF_Geometry::Box             m_StarBox;
 
         /**
         * Called when a texture should be created for a .mdl model file

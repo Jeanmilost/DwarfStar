@@ -43,6 +43,7 @@ namespace DWF_Particles
         public:
             DWF_Math::Vector3F   m_Velocity;
             DWF_Math::Matrix4x4F m_Matrix;
+            float                m_Gravity = 0.0f;
 
             Particle();
             virtual ~Particle();
