@@ -61,6 +61,9 @@
     <Filter Include="SDK\Physics">
       <UniqueIdentifier>{7e9696b0-b196-4f6a-9c45-c2006c419cdd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK\Particles">
+      <UniqueIdentifier>{a4669a80-6eae-427b-919a-9f79484db975}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -258,6 +261,12 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.h">
       <Filter>SDK\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particle.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particles.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Platformer.cpp">
@@ -454,6 +463,12 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.cpp">
       <Filter>SDK\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particle.cpp">
+      <Filter>SDK\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particles.cpp">
+      <Filter>SDK\Particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -74,25 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\String\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\String\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\String\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Particles\;..\..\SDK\Physics\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\String\;..\..\Third-Party\convertUTF\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

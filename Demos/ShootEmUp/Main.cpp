@@ -1058,21 +1058,20 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
                                       std::placeholders::_5,
                                       std::placeholders::_6));
 
-    /*REM
-    // load footsteps sound
+    // load background music
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
-    pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps_run_grass.wav");
-    pSound->Loop(false);
+    pSound->OpenWav(L"..\\..\\Resources\\Sound\\Music\\Electro-Jazz\\electro-jazz.wav");
+    pSound->Loop(true);
+    pSound->Play();
 
     // create a sound item
-    std::unique_ptr<DWF_Scene::SceneAudioItem> pSoundItem = std::make_unique<DWF_Scene::SceneAudioItem>(L"sound_footsteps");
+    std::unique_ptr<DWF_Scene::SceneAudioItem> pSoundItem = std::make_unique<DWF_Scene::SceneAudioItem>(L"scene_background_music");
     pSoundItem->SetSound(pSound.get());
     pSound.release();
 
     // add sound to scene
     m_Scene.Add(pSoundItem.get());
     pSoundItem.release();
-    */
 
     return true;
 }

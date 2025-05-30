@@ -67,6 +67,9 @@
     <Filter Include="SDK\String">
       <UniqueIdentifier>{290b1288-fb2d-4051-8c58-0abce12cd10c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK\Particles">
+      <UniqueIdentifier>{07898775-ea00-4b2d-8754-8cf7798f5abb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -255,6 +258,12 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.h">
       <Filter>SDK\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particle.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Particles\DWF_Particles.h">
+      <Filter>SDK\Particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdPersonDemo.cpp">
@@ -442,6 +451,12 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemAnimAsset.cpp">
       <Filter>SDK\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particle.cpp">
+      <Filter>SDK\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Particles\DWF_Particles.cpp">
+      <Filter>SDK\Particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
