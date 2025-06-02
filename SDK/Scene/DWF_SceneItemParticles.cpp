@@ -72,7 +72,7 @@ void SceneItem_Particles::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     m_pShader->Use(true);
 
     // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
+    pRenderer->ConnectViewMatrixToShader(m_pShader.get(), viewMatrix);
 
     // get the model
     const DWF_Model::Model* pModel = m_pParticles->GetModel();
@@ -93,7 +93,7 @@ void SceneItem_Particles::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
         // iterate through the meshes to draw
         for (std::size_t i = 0; i < meshCount; ++i)
             // draw the model mesh
-            pRenderer->Draw(*pModel->m_Mesh[i], pParticle->m_Matrix, m_pShader, false);
+            pRenderer->Draw(*pModel->m_Mesh[i], pParticle->m_Matrix, m_pShader.get(), false);
     }
 
     // unbind shader program

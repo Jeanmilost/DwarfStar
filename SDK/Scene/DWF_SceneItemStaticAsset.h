@@ -62,19 +62,6 @@ namespace DWF_Scene
             virtual inline void SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat);
 
             /**
-            * Gets the shader to use to render the model
-            *@return the shader to use to render the model
-            */
-            virtual inline DWF_Renderer::Shader* GetShader() const;
-
-            /**
-            * Sets the shader to use to render the model
-            *@param pShader - the shader to use to render the model
-            *@note Don't delete the shader from outside, it will be deleted internally
-            */
-            virtual inline void SetShader(DWF_Renderer::Shader* pShader);
-
-            /**
             * Renders the item
             *@param viewMatrix - view matrix to connect to shader
             *@param pRenderer - renderer to use to render the scene
@@ -84,7 +71,6 @@ namespace DWF_Scene
 
         private:
             std::shared_ptr<DWF_Model::ModelFormat> m_pModelFormat;
-            DWF_Renderer::Shader*                   m_pShader = nullptr;
 
             /**
             * Draws a model
@@ -103,16 +89,6 @@ namespace DWF_Scene
     inline void SceneItem_StaticAsset::SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat)
     {
         m_pModelFormat = pModelFormat;
-    }
-    //---------------------------------------------------------------------------
-    inline DWF_Renderer::Shader* SceneItem_StaticAsset::GetShader() const
-    {
-        return m_pShader;
-    }
-    //---------------------------------------------------------------------------
-    inline void SceneItem_StaticAsset::SetShader(DWF_Renderer::Shader* pShader)
-    {
-        m_pShader = pShader;
     }
     //---------------------------------------------------------------------------
 }

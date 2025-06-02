@@ -185,19 +185,6 @@ namespace DWF_Scene
             virtual void ResetAnim(std::size_t index);
 
             /**
-            * Gets the shader to use to render the model
-            *@return the shader to use to render the model
-            */
-            virtual inline DWF_Renderer::Shader* GetShader() const;
-
-            /**
-            * Sets the shader to use to render the model
-            *@param pShader - the shader to use to render the model
-            *@note Don't delete the shader from outside, it will be deleted internally
-            */
-            virtual inline void SetShader(DWF_Renderer::Shader* pShader);
-
-            /**
             * Renders the item
             *@param viewMatrix - view matrix to connect to shader
             *@param pRenderer - renderer to use to render the scene
@@ -222,7 +209,6 @@ namespace DWF_Scene
 
             IAnimations                                 m_Animations;
             std::shared_ptr<DWF_Model::AnimModelFormat> m_pModelFormat;
-            DWF_Renderer::Shader*                       m_pShader       = nullptr;
             std::size_t                                 m_Index         = 0;
             bool                                        m_DrawSkeleton  = false;
             ITfOnFrame                                  m_fOnFrame      = nullptr;
@@ -284,16 +270,6 @@ namespace DWF_Scene
     inline void SceneItem_AnimAsset::SetDrawSkeleton(bool value)
     {
         m_DrawSkeleton = value;
-    }
-    //---------------------------------------------------------------------------
-    inline DWF_Renderer::Shader* SceneItem_AnimAsset::GetShader() const
-    {
-        return m_pShader;
-    }
-    //---------------------------------------------------------------------------
-    inline void SceneItem_AnimAsset::SetShader(DWF_Renderer::Shader* pShader)
-    {
-        m_pShader = pShader;
     }
     //---------------------------------------------------------------------------
 }

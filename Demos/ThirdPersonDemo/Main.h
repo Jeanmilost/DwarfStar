@@ -169,15 +169,15 @@ class Main
 
         /**
         * Loads the scene
-        *@param texShader - texture shader
-        *@param colShader - color shader
-        *@param cubemapShader - cubemap shader
+        *@param pTexShader - texture shader
+        *@param pColShader - color shader
+        *@param pCubemapShader - cubemap shader
         *@param clientRect - application client rectangle
         */
-        bool LoadScene(DWF_Renderer::Shader_OpenGL& texShader,
-                       DWF_Renderer::Shader_OpenGL& colShader,
-                       DWF_Renderer::Shader_OpenGL& cubemapShader,
-                 const RECT&                        clientRect);
+        bool LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
+                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader,
+                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pCubemapShader,
+                       const RECT&                                         clientRect);
 };
 
 //---------------------------------------------------------------------------

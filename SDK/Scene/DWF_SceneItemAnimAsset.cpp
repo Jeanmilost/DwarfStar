@@ -204,7 +204,7 @@ void SceneItem_AnimAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     m_pShader->Use(true);
 
     // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
+    pRenderer->ConnectViewMatrixToShader(m_pShader.get(), viewMatrix);
 
     DWF_Model::AnimModelFormat* pModelFormat =
             m_Animations[m_Index]->m_pModelFormat ? m_Animations[m_Index]->m_pModelFormat.get() : m_pModelFormat.get();
@@ -232,7 +232,7 @@ void SceneItem_AnimAsset::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
               m_Animations[m_Index]->m_FrameStart + m_Animations[m_Index]->m_FrameIndex,
               m_Animations[m_Index]->m_FrameCount,
               elapsedTime,
-              m_pShader,
+              m_pShader.get(),
               pRenderer);
 
     // unbind shader program

@@ -57,11 +57,11 @@ void SceneItem_Model::Render(const DWF_Math::Matrix4x4F&   viewMatrix,
     m_pShader->Use(true);
 
     // connect the view matrix to the shader
-    pRenderer->ConnectViewMatrixToShader(m_pShader, viewMatrix);
+    pRenderer->ConnectViewMatrixToShader(m_pShader.get(), viewMatrix);
 
     // draw the model
     for (std::size_t i = 0; i < m_pModel->m_Mesh.size(); ++i)
-        pRenderer->Draw(*m_pModel->m_Mesh[i], GetMatrix(), m_pShader, false);
+        pRenderer->Draw(*m_pModel->m_Mesh[i], GetMatrix(), m_pShader.get(), false);
 
     // unbind shader program
     m_pShader->Use(false);

@@ -94,7 +94,7 @@ void Scene::Clear()
         delete m_pSkybox;
 }
 //---------------------------------------------------------------------------
-void Scene::SetSkybox(DWF_Model::Texture* pTexture, DWF_Renderer::Shader* pShader)
+void Scene::SetSkybox(DWF_Model::Texture* pTexture, const std::shared_ptr<DWF_Renderer::Shader>& pShader)
 {
     if (!pTexture)
         return;
@@ -519,7 +519,7 @@ void Scene::Render(double elapsedTime)
 
         // do draw the skybox?
         if (m_pSkybox && m_pSkyboxShader)
-            m_pRenderer->DrawSkybox(*m_pSkybox->m_Mesh[0], viewMatrix, m_pSkyboxShader);
+            m_pRenderer->DrawSkybox(*m_pSkybox->m_Mesh[0], viewMatrix, m_pSkyboxShader.get());
 
         // iterate through models to render, and render each of them
         if (pModels)

@@ -225,12 +225,28 @@ namespace DWF_Scene
             virtual std::size_t GetColliderCount() const;
 
             /**
+            * Gets the shader to use to render the model
+            *@return the shader to use to render the model
+            */
+            virtual inline DWF_Renderer::Shader* GetShader() const;
+
+            /**
+            * Sets the shader to use to render the model
+            *@param pShader - the shader to use to render the model
+            *@note Don't delete the shader from outside, it will be deleted internally
+            */
+            virtual inline void SetShader(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+            /**
             * Renders the item
             *@param viewMatrix - view matrix to connect to shader
             *@param pRenderer - renderer to use to render the scene
             */
             virtual void Render(const DWF_Math::Matrix4x4F&   viewMatrix,
                                 const DWF_Renderer::Renderer* pRenderer) const = 0;
+
+        protected:
+            std::shared_ptr<DWF_Renderer::Shader> m_pShader;
 
         private:
             DWF_Collider::Colliders m_Colliders;
@@ -301,6 +317,16 @@ namespace DWF_Scene
     inline void SceneItem::SetZ(float value)
     {
         SetYaw(value);
+    }
+    //---------------------------------------------------------------------------
+    inline DWF_Renderer::Shader* SceneItem::GetShader() const
+    {
+        return m_pShader.get();
+    }
+    //---------------------------------------------------------------------------
+    inline void SceneItem::SetShader(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
+    {
+        m_pShader = pShader;
     }
     //---------------------------------------------------------------------------
 }

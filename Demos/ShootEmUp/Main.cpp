@@ -57,6 +57,31 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
+// Shader
+//------------------------------------------------------------------------------
+const std::string starVS = "#version 130\n"
+                           "precision mediump float;\n"
+                           "attribute    vec3 dwf_aVertices;\n"
+                           "attribute    vec4 dwf_aColor;\n"
+                           "uniform      mat4 dwf_uProjection;\n"
+                           "uniform      mat4 dwf_uView;\n"
+                           "uniform      mat4 dwf_uModel;\n"
+                           "varying lowp vec4 dwf_vColor;\n"
+                           "void main(void)\n"
+                           "{\n"
+                           "    float factor = clamp((dwf_uModel[3][2] + 60.0) / 20.0, 0.2, 1.0);"
+                           "    dwf_vColor   = vec4(dwf_aColor.x * factor, dwf_aColor.y * factor, dwf_aColor.z * factor, dwf_aColor.w);\n"
+                           "    gl_Position  = dwf_uProjection * dwf_uView * dwf_uModel * vec4(dwf_aVertices, 1.0);\n"
+                           "}";
+//------------------------------------------------------------------------------
+const std::string starFS = "#version 130\n"
+                           "precision mediump float;\n"
+                           "varying lowp vec4 dwf_vColor;\n"
+                           "void main(void)\n"
+                           "{\n"
+                           "    gl_FragColor = dwf_vColor;\n"
+                           "}";
+//------------------------------------------------------------------------------
 // Global functions
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -209,41 +234,30 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
         return 1;
     }
 
-    // load texture and normal shader
-    DWF_Renderer::Shader_OpenGL texNormShader;
-    texNormShader.CreateProgram();
-    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    texNormShader.Link(true);
-
     // load texture shader
-    DWF_Renderer::Shader_OpenGL texShader;
-    texShader.CreateProgram();
-    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pTexShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    pTexShader->CreateProgram();
+    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
             DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    texShader.Link(true);
+    pTexShader->Link(true);
 
     // load color shader
-    DWF_Renderer::Shader_OpenGL colShader;
-    colShader.CreateProgram();
-    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pColShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    pColShader->CreateProgram();
+    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
             DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    colShader.Link(true);
+    pColShader->Link(true);
 
-    // load skybox shader
-    DWF_Renderer::Shader_OpenGL skyboxShader;
-    skyboxShader.CreateProgram();
-    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    skyboxShader.Link(true);
+    // load stars shader
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pStarShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    pStarShader->CreateProgram();
+    pStarShader->Attach(starVS, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    pStarShader->Attach(starFS, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    pStarShader->Link(true);
 
     DWF_Math::Matrix4x4F projMatrix;
 
@@ -252,15 +266,15 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                               float(clientRect.bottom - clientRect.top),
                               0.1f,
                               100.0f,
-                              &texShader,
+                              pTexShader.get(),
                               projMatrix);
 
     // connect the projection matrix to the other shaders
-    m_Renderer.ConnectProjectionMatrixToShader(&colShader, projMatrix);
-    m_Renderer.ConnectProjectionMatrixToShader(&skyboxShader, projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(pColShader.get(), projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(pStarShader.get(), projMatrix);
 
     // create and configure the scene
-    LoadScene(texNormShader, texShader, colShader, skyboxShader, clientRect);
+    LoadScene(pTexShader, pColShader, pStarShader, clientRect);
 
     double lastTime  = DWF_Scene::Timer::GetInstance()->GetElapsedTimeSinceStart();
     int    idleIndex = 0;
@@ -596,20 +610,20 @@ void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Parti
         pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
 //------------------------------------------------------------------------------
-void Main::AddEnemy(std::size_t                        index,
-                    float                              x,
-                    float                              y,
-              const std::shared_ptr<DWF_Model::MDL>&   pMdl,
-              const std::shared_ptr<DWF_Model::Model>& pCollider,
-                    DWF_Renderer::Shader_OpenGL&       texShader,
-                    DWF_Renderer::Shader_OpenGL&       colShader)
+void Main::AddEnemy(std::size_t                            index,
+                    float                                  x,
+                    float                                  y,
+              const std::shared_ptr<DWF_Model::MDL>&       pMdl,
+              const std::shared_ptr<DWF_Model::Model>&     pCollider,
+              const std::shared_ptr<DWF_Renderer::Shader>& pTexShader,
+              const std::shared_ptr<DWF_Renderer::Shader>& pColShader)
 {
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
             std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_" + std::to_wstring(index));
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pMdl);
-    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetShader(pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
     pStaticModel->SetRoll(-0.25f);
     pStaticModel->SetPitch((float)M_PI + m_Angle);
@@ -626,7 +640,7 @@ void Main::AddEnemy(std::size_t                        index,
     pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pCollider);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
@@ -647,11 +661,10 @@ void Main::AddEnemy(std::size_t                        index,
     pModel.release();
 }
 //------------------------------------------------------------------------------
-bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
-                     DWF_Renderer::Shader_OpenGL& texShader,
-                     DWF_Renderer::Shader_OpenGL& colShader,
-                     DWF_Renderer::Shader_OpenGL& cubemapShader,
-               const RECT&                        clientRect)
+bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
+                     const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader,
+                     const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pStarShader,
+                     const RECT&                                         clientRect)
 {
     // configure the background color
     DWF_Model::ColorF bgColor;
@@ -662,26 +675,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
     m_Scene.SetRenderer(m_Renderer);
     m_Scene.SetColor(bgColor);
-
-    /*REM
-    IFilenames cubemapFilenames;
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\right.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\left.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\top.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\bottom.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\front.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Exterior\\Day\\Mountains\\back.png");
-
-    // load the skybox textures
-    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture = std::make_unique<DWF_Model::Texture_OpenGL>();
-    pTexture->m_Target = DWF_Model::Texture::IETarget::IE_TT_Cubemap;
-    m_SkyboxTexId = LoadCubemap(cubemapFilenames, false);
-    pTexture->SetID(m_SkyboxTexId);
-
-    // set the skybox in scene
-    m_Scene.SetSkybox(pTexture.get() , &cubemapShader);
-    pTexture.release();
-    */
 
     // create the player arcball
     std::unique_ptr<DWF_Scene::Camera> pCamera = std::make_unique<DWF_Scene::Camera>();
@@ -704,7 +697,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_spaceship");
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pPlayerMdl);
-    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetShader(pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
     pStaticModel->SetRoll(-0.25f);
     pStaticModel->SetPitch(m_Angle);
@@ -737,7 +730,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pSpaceshipBox);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
@@ -781,7 +774,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     std::shared_ptr<DWF_Model::Model> pEnemyBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
     for (std::size_t i = 0; i < 5; ++i)
-        AddEnemy(i, 999.0f, 0.0f + i, pEnemyMdl, pEnemyBox, texShader, colShader);
+        AddEnemy(i, 999.0f, 0.0f + i, pEnemyMdl, pEnemyBox, pTexShader, pColShader);
 
 
 
@@ -789,200 +782,10 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
 
 
 
-    /*REM
-    // create the capsule model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider_2");
-    pModel->SetStatic(false);
-    pModel->SetVisible(true);
-    pModel->SetModel(pEnemyBox);
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(10.0f, 5.0f, -40.0f));
-    pModel->SetRoll(m_Angle);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
 
-    // create the spaceship box collider
-    pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
-                                                         DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
-                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
 
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-    */
 
-    /*REM
-    // load first platform
-    std::unique_ptr<DWF_Model::Wavefront> pPlatform = std::make_unique<DWF_Model::Wavefront>();
-    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
 
-    // take the ownership of the generated platform model, and release the Wavefront object
-    std::unique_ptr<DWF_Model::Model> pPlatformModel(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // set material
-    mat.m_Color.m_B = 0.0f;
-    mat.m_Color.m_G = 0.0f;
-    mat.m_Color.m_R = 1.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the matching collision box model
-    std::unique_ptr<DWF_Model::Model> pBox(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
-
-    // create the box model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider");
-    pModel->SetStatic(true);
-    pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
-
-    // box collider
-    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
-                                                         DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
-                                                         DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // todo -cFeature -oJean: allow assets to be copied and thus reused
-    // load second platform
-    pPlatform = std::make_unique<DWF_Model::Wavefront>();
-    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
-
-    // take the ownership of the generated platform model, and release the Wavefront object
-    pPlatformModel.reset(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_2");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.0f, 2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // create the matching collision box model
-    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
-
-    // create the box model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_2");
-    pModel->SetStatic(true);
-    pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25, 0.0f, 2.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
-
-    // box collider
-    pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),
-                                                 DWF_Math::Matrix4x4F::Identity(),
-                                                 DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
-                                                 DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f)));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // load third platform
-    pPlatform = std::make_unique<DWF_Model::Wavefront>();
-    pPlatform->Set_OnOpenMaterialFile(std::bind(&Main::OnOpenMaterialFile, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Set_OnLoadTexture(std::bind(&Main::OnLoadPlatformTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pPlatform->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\Platform.obj");
-
-    // take the ownership of the generated platform model, and release the Wavefront object
-    pPlatformModel.reset(pPlatform->ReleaseModel());
-    pPlatform.release();
-
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_3");
-    pModel->SetStatic(true);
-    pModel->SetModel(pPlatformModel.release());
-    pModel->SetShader(&texShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(0.8f, 0.8f, 0.8f));
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // create the matching collision box model
-    pBox.reset(DWF_Model::Factory::GetBox(1.61f, 0.5f, 3.05f, false, vf, vc, mat));
-
-    // create the box model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_collider_3");
-    pModel->SetStatic(true);
-    pModel->SetVisible(false);
-    pModel->SetModel(pBox.get());
-    pModel->SetShader(&colShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-    pBox.release();
-
-    // box collider
-    pBoxCol.reset(new DWF_Collider::Box_Collider(DWF_Math::Vector3F(),
-                                                 DWF_Math::Matrix4x4F::Identity(),
-                                                 DWF_Math::Vector3F(-0.805f, -0.25f, -1.525f),
-                                                 DWF_Math::Vector3F( 0.805f,  0.25f,  1.525f)));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-    */
-
-    // FIXME for Jean: make shader shared pointers
     // create material
     mat.m_Color.m_B = 0.95f;
     mat.m_Color.m_G = 0.98f;
@@ -1032,7 +835,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pParticles->SetStatic(true);
     pParticles->SetVisible(true);
     pParticles->SetParticles(pStars);
-    pParticles->SetShader(&colShader);
+    pParticles->SetShader(pStarShader);
 
     // set the particles system to the scene
     m_Scene.Add(pParticles.get(), false);

@@ -62,19 +62,6 @@ namespace DWF_Scene
             virtual inline void SetParticles(const std::shared_ptr<DWF_Particles::Particles>& pParticles);
 
             /**
-            * Gets the shader to use to render the model
-            *@return the shader to use to render the model
-            */
-            virtual inline DWF_Renderer::Shader* GetShader() const;
-
-            /**
-            * Sets the shader to use to render the model
-            *@param pShader - the shader to use to render the model
-            *@note Don't delete the model from outside, it will be deleted internally
-            */
-            virtual inline void SetShader(DWF_Renderer::Shader* pShader);
-
-            /**
             * Gets position
             *@return position
             */
@@ -164,7 +151,6 @@ namespace DWF_Scene
 
         private:
             std::shared_ptr<DWF_Particles::Particles> m_pParticles;
-            DWF_Renderer::Shader*                     m_pShader = nullptr;
     };
 
     //---------------------------------------------------------------------------
@@ -173,16 +159,6 @@ namespace DWF_Scene
     inline void SceneItem_Particles::SetParticles(const std::shared_ptr<DWF_Particles::Particles>& pParticles)
     {
         m_pParticles = pParticles;
-    }
-    //---------------------------------------------------------------------------
-    inline DWF_Renderer::Shader* SceneItem_Particles::GetShader() const
-    {
-        return m_pShader;
-    }
-    //---------------------------------------------------------------------------
-    inline void SceneItem_Particles::SetShader(DWF_Renderer::Shader* pShader)
-    {
-        m_pShader = pShader;
     }
     //---------------------------------------------------------------------------
 }

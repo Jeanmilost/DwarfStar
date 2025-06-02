@@ -198,27 +198,24 @@ class Main
         */
         //REM GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
 
-        void AddEnemy(std::size_t                        index,
-                      float                              x,
-                      float                              y,
-                const std::shared_ptr<DWF_Model::MDL>&   pMdl,
-                const std::shared_ptr<DWF_Model::Model>& pCollider,
-                      DWF_Renderer::Shader_OpenGL&       texShader,
-                      DWF_Renderer::Shader_OpenGL&       colShader);
+        void AddEnemy(std::size_t                            index,
+                      float                                  x,
+                      float                                  y,
+                const std::shared_ptr<DWF_Model::MDL>&       pMdl,
+                const std::shared_ptr<DWF_Model::Model>&     pCollider,
+                const std::shared_ptr<DWF_Renderer::Shader>& pTexShader,
+                const std::shared_ptr<DWF_Renderer::Shader>& pColShader);
 
         /**
         * Loads the scene
-        *@param texNormShader - texture and normal shader
-        *@param texShader - texture shader
-        *@param colShader - color shader
-        *@param cubemapShader - cubemap shader
+        *@param pTexShader - texture shader
+        *@param pColShader - color shader
         *@param clientRect - application client rectangle
         */
-        bool LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
-                       DWF_Renderer::Shader_OpenGL& texShader,
-                       DWF_Renderer::Shader_OpenGL& colShader,
-                       DWF_Renderer::Shader_OpenGL& cubemapShader,
-                 const RECT&                        clientRect);
+        bool LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
+                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader,
+                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pStarShader,
+                       const RECT&                                         clientRect);
 };
 
 //---------------------------------------------------------------------------

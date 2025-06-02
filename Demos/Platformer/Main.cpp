@@ -204,41 +204,32 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
         return 1;
     }
 
-    // load texture and normal shader
-    DWF_Renderer::Shader_OpenGL texNormShader;
-    texNormShader.CreateProgram();
-    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texNormShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture_Normal),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    texNormShader.Link(true);
-
     // load texture shader
-    DWF_Renderer::Shader_OpenGL texShader;
-    texShader.CreateProgram();
-    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pTexShader = std::make_unique<DWF_Renderer::Shader_OpenGL>();
+    pTexShader->CreateProgram();
+    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
             DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    texShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    texShader.Link(true);
+    pTexShader->Link(true);
 
     // load color shader
-    DWF_Renderer::Shader_OpenGL colShader;
-    colShader.CreateProgram();
-    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pColShader = std::make_unique<DWF_Renderer::Shader_OpenGL>();
+    pColShader->CreateProgram();
+    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
             DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    colShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    colShader.Link(true);
+    pColShader->Link(true);
 
     // load skybox shader
-    DWF_Renderer::Shader_OpenGL skyboxShader;
-    skyboxShader.CreateProgram();
-    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
+    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pSkyboxShader = std::make_unique<DWF_Renderer::Shader_OpenGL>();
+    pSkyboxShader->CreateProgram();
+    pSkyboxShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
             DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    skyboxShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
+    pSkyboxShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Skybox),
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    skyboxShader.Link(true);
+    pSkyboxShader->Link(true);
 
     DWF_Math::Matrix4x4F projMatrix;
 
@@ -247,15 +238,15 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
                               float(clientRect.bottom - clientRect.top),
                               0.1f,
                               100.0f,
-                              &texShader,
+                              pTexShader.get(),
                               projMatrix);
 
     // connect the projection matrix to the other shaders
-    m_Renderer.ConnectProjectionMatrixToShader(&colShader, projMatrix);
-    m_Renderer.ConnectProjectionMatrixToShader(&skyboxShader, projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(pColShader.get(), projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(pSkyboxShader.get(), projMatrix);
 
     // create and configure the scene
-    LoadScene(texNormShader, texShader, colShader, skyboxShader, clientRect);
+    LoadScene(pTexShader, pColShader, pSkyboxShader, clientRect);
 
     double lastTime  = DWF_Scene::Timer::GetInstance()->GetElapsedTimeSinceStart();
     int    idleIndex = 0;
@@ -701,11 +692,10 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
     }
 }
 //------------------------------------------------------------------------------
-bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
-                     DWF_Renderer::Shader_OpenGL& texShader,
-                     DWF_Renderer::Shader_OpenGL& colShader,
-                     DWF_Renderer::Shader_OpenGL& cubemapShader,
-               const RECT&                        clientRect)
+bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader>& pTexShader,
+                     const std::shared_ptr<DWF_Renderer::Shader>& pColShader,
+                     const std::shared_ptr<DWF_Renderer::Shader>& pCubemapShader,
+                     const RECT&                                  clientRect)
 {
     // configure the background color
     DWF_Model::ColorF bgColor;
@@ -732,7 +722,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pTexture->SetID(m_SkyboxTexId);
 
     // set the skybox in scene
-    m_Scene.SetSkybox(pTexture.get() , &cubemapShader);
+    m_Scene.SetSkybox(pTexture.get(), pCubemapShader);
     pTexture.release();
 
     // create the player arcball
@@ -758,7 +748,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // create the background model item
     std::unique_ptr<DWF_Scene::SceneItem_AnimAsset> pAnim = std::make_unique<DWF_Scene::SceneItem_AnimAsset>(L"scene_player_model");
     pAnim->SetStatic(true);
-    pAnim->SetShader(&texShader);
+    pAnim->SetShader(pTexShader);
     pAnim->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pAnim->SetRoll(-(float)M_PI / 2.0f);
     pAnim->SetPitch(0.0f);
@@ -804,7 +794,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pPlayerCapsule);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
@@ -832,7 +822,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform");
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pPlatform);
-    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetShader(pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
     pStaticModel->SetRoll(0.0f);
     pStaticModel->SetPitch(0.0f);
@@ -857,7 +847,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(true);
     pModel->SetVisible(false);
     pModel->SetModel(pBox);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25f, -0.25f, -2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
@@ -881,7 +871,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform_2");
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pPlatform);
-    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetShader(pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, 0.0f, 2.0f));
     pStaticModel->SetRoll(0.0f);
     pStaticModel->SetPitch(0.0f);
@@ -897,7 +887,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(true);
     pModel->SetVisible(false);
     pModel->SetModel(pBox);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25, 0.0f, 2.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
@@ -920,7 +910,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_platform_3");
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pPlatform);
-    pStaticModel->SetShader(&texShader);
+    pStaticModel->SetShader(pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
     pStaticModel->SetRoll(0.0f);
     pStaticModel->SetPitch(0.0f);
@@ -936,7 +926,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pModel->SetStatic(true);
     pModel->SetVisible(false);
     pModel->SetModel(pBox);
-    pModel->SetShader(&colShader);
+    pModel->SetShader(pColShader);
     pModel->SetPos(DWF_Math::Vector3F(0.25f, 0.25f, 6.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
