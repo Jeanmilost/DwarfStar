@@ -33,6 +33,7 @@
 
 // classes
 #include "DWF_Particle.h"
+#include "DWF_Box.h"
 #include "DWF_Model.h"
 
 namespace DWF_Particles
@@ -44,6 +45,8 @@ namespace DWF_Particles
     class Particles
     {
         public:
+            DWF_Geometry::Box m_Area; // area which will contain the particles
+
             /**
             * Called when a texture should be loaded
             *@param arg1 - texture name to load

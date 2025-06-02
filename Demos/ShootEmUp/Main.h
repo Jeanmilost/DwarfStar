@@ -41,7 +41,6 @@
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneItemModel.h"
 #include "DWF_SceneItemStaticAsset.h"
-#include "DWF_Box.h"
 #include "DWF_MDL.h"
 
 // libraries
@@ -117,7 +116,6 @@ class Main
 
         DWF_Scene::Scene              m_Scene;
         DWF_Renderer::Renderer_OpenGL m_Renderer;
-        DWF_Geometry::Box             m_StarBox;
         //REM Textures                      m_TextureItems;
         /*REM
         DWF_Physics::Force            m_Force;

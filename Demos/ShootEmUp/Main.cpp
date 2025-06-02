@@ -570,31 +570,30 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime)
 {
-    // calculate next star position
+    // calculate next star position, adds a small scrolling effect on y axis
     pParticle->m_Matrix.m_Table[3][0] += pParticle->m_Velocity.m_X * elapsedTime;
-    pParticle->m_Matrix.m_Table[3][1] += pParticle->m_Velocity.m_Y * elapsedTime;
-    pParticle->m_Matrix.m_Table[3][2] += pParticle->m_Velocity.m_Z * elapsedTime;
+    pParticle->m_Matrix.m_Table[3][1]  = pParticle->m_StartPos.m_Y + (m_yPos * 0.5f);
 
     // limit x pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][0] <= m_StarBox.m_Min.m_X)
-        pParticle->m_Matrix.m_Table[3][0] += (m_StarBox.m_Max.m_X - m_StarBox.m_Min.m_X);
+    if (pParticle->m_Matrix.m_Table[3][0] <= pParticles->m_Area.m_Min.m_X)
+        pParticle->m_Matrix.m_Table[3][0] += (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
     else
-    if (pParticle->m_Matrix.m_Table[3][0] >= m_StarBox.m_Max.m_X)
-        pParticle->m_Matrix.m_Table[3][0] -= (m_StarBox.m_Max.m_X - m_StarBox.m_Min.m_X);
+    if (pParticle->m_Matrix.m_Table[3][0] >= pParticles->m_Area.m_Max.m_X)
+        pParticle->m_Matrix.m_Table[3][0] -= (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
 
     // limit y pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][1] <= m_StarBox.m_Min.m_Y)
-        pParticle->m_Matrix.m_Table[3][1] += (m_StarBox.m_Max.m_Y - m_StarBox.m_Min.m_Y);
+    if (pParticle->m_Matrix.m_Table[3][1] <= pParticles->m_Area.m_Min.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] += (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
     else
-    if (pParticle->m_Matrix.m_Table[3][1] >= m_StarBox.m_Max.m_Y)
-        pParticle->m_Matrix.m_Table[3][1] -= (m_StarBox.m_Max.m_Y - m_StarBox.m_Min.m_Y);
+    if (pParticle->m_Matrix.m_Table[3][1] >= pParticles->m_Area.m_Max.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] -= (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
 
     // limit z pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][2] <= m_StarBox.m_Min.m_Z)
-        pParticle->m_Matrix.m_Table[3][2] += (m_StarBox.m_Max.m_Z - m_StarBox.m_Min.m_Z);
+    if (pParticle->m_Matrix.m_Table[3][2] <= pParticles->m_Area.m_Min.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] += (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
     else
-    if (pParticle->m_Matrix.m_Table[3][2] >= m_StarBox.m_Max.m_Z)
-        pParticle->m_Matrix.m_Table[3][2] -= (m_StarBox.m_Max.m_Z - m_StarBox.m_Min.m_Z);
+    if (pParticle->m_Matrix.m_Table[3][2] >= pParticles->m_Area.m_Max.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
 //------------------------------------------------------------------------------
 void Main::AddEnemy(std::size_t                        index,
@@ -984,15 +983,6 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     */
 
     // FIXME for Jean: make shader shared pointers
-    // FIXME for Jean: move to particle system
-    // configure the star box
-    m_StarBox.m_Min.m_X = -25.0f;
-    m_StarBox.m_Min.m_Y = -20.0f;
-    m_StarBox.m_Min.m_Z = -60.0f;
-    m_StarBox.m_Max.m_X =  25.0f;
-    m_StarBox.m_Max.m_Y =  20.0f;
-    m_StarBox.m_Max.m_Z = -40.0f;
-
     // create material
     mat.m_Color.m_B = 0.95f;
     mat.m_Color.m_G = 0.98f;
@@ -1007,6 +997,14 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     pStars->SetModel(pStarModel);
     pStars->Set_OnCalculateMotion(std::bind(&Main::OnCalculateStarMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+    // configure the star box
+    pStars->m_Area.m_Min.m_X = -30.0f;
+    pStars->m_Area.m_Min.m_Y = -25.0f;
+    pStars->m_Area.m_Min.m_Z = -60.0f;
+    pStars->m_Area.m_Max.m_X =  30.0f;
+    pStars->m_Area.m_Max.m_Y =  25.0f;
+    pStars->m_Area.m_Max.m_Z = -40.0f;
+
     // iterate through the particles to create
     for (std::size_t i = 0; i < 50; ++i)
     {
@@ -1014,9 +1012,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
         DWF_Particles::Particle* pParticle = pStars->Add();
 
         // calculate the particle start position
-        const float x = m_StarBox.m_Min.m_X + (((float)(rand() % (int)5000.0f)) * 0.01f);
-        const float y = m_StarBox.m_Min.m_Y + (((float)(rand() % (int)4000.0f)) * 0.01f);
-        const float z = m_StarBox.m_Min.m_Z + (((float)(rand() % (int)2000.0f)) * 0.01f);
+        pParticle->m_StartPos.m_X = pStars->m_Area.m_Min.m_X + (((float)(rand() % (int)6000.0f)) * 0.01f);
+        pParticle->m_StartPos.m_Y = pStars->m_Area.m_Min.m_Y + (((float)(rand() % (int)5000.0f)) * 0.01f);
+        pParticle->m_StartPos.m_Z = pStars->m_Area.m_Min.m_Z + (((float)(rand() % (int)2000.0f)) * 0.01f);
 
         // calculate the particle initial force
         pParticle->m_Velocity.m_X = -0.05f;
@@ -1024,9 +1022,9 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
         pParticle->m_Velocity.m_Z =  0.0f;
 
         // configure the particle matrix (was set to identity while the particle was created)
-        pParticle->m_Matrix.m_Table[3][0] = x;
-        pParticle->m_Matrix.m_Table[3][1] = y;
-        pParticle->m_Matrix.m_Table[3][2] = z;
+        pParticle->m_Matrix.m_Table[3][0] = pParticle->m_StartPos.m_X;
+        pParticle->m_Matrix.m_Table[3][1] = pParticle->m_StartPos.m_Y;
+        pParticle->m_Matrix.m_Table[3][2] = pParticle->m_StartPos.m_Z;
     }
 
     // create the capsule model item
@@ -1061,6 +1059,7 @@ bool Main::LoadScene(DWF_Renderer::Shader_OpenGL& texNormShader,
     // load background music
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
     pSound->OpenWav(L"..\\..\\Resources\\Sound\\Music\\Electro-Jazz\\electro-jazz.wav");
+    pSound->ChangeVolume(0.8f);
     pSound->Loop(true);
     pSound->Play();
 
