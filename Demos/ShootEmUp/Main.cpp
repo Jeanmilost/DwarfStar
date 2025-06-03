@@ -234,47 +234,8 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
         return 1;
     }
 
-    // load texture shader
-    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pTexShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
-    pTexShader->CreateProgram();
-    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    pTexShader->Link(true);
-
-    // load color shader
-    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pColShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
-    pColShader->CreateProgram();
-    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    pColShader->Link(true);
-
-    // load stars shader
-    std::shared_ptr<DWF_Renderer::Shader_OpenGL> pStarShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
-    pStarShader->CreateProgram();
-    pStarShader->Attach(starVS, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    pStarShader->Attach(starFS, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    pStarShader->Link(true);
-
-    DWF_Math::Matrix4x4F projMatrix;
-
-    // create the viewport
-    m_Renderer.CreateViewport(float(clientRect.right - clientRect.left),
-                              float(clientRect.bottom - clientRect.top),
-                              0.1f,
-                              100.0f,
-                              pTexShader.get(),
-                              projMatrix);
-
-    // connect the projection matrix to the other shaders
-    m_Renderer.ConnectProjectionMatrixToShader(pColShader.get(), projMatrix);
-    m_Renderer.ConnectProjectionMatrixToShader(pStarShader.get(), projMatrix);
-
     // create and configure the scene
-    LoadScene(pTexShader, pColShader, pStarShader, clientRect);
+    LoadScene(clientRect);
 
     double lastTime  = DWF_Scene::Timer::GetInstance()->GetElapsedTimeSinceStart();
     int    idleIndex = 0;
@@ -405,7 +366,16 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 
     // fire
     if (::GetKeyState(VK_SPACE) & 0x8000)
-    {}
+    {
+        AddEnemy(m_Index, (float)(-19 + (std::rand() % 38)), (float)(-15 + (std::rand() % 30)));
+        ++m_Index;
+    }
+    else
+    if (::GetKeyState(VK_DELETE) & 0x8000)
+    {
+        --m_Index;
+        DelEnemy(m_Index);
+    }
 
     // move the spaceship left or right
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
@@ -484,103 +454,6 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     pCollider1->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
     */
 }
-//---------------------------------------------------------------------------
-/*REM
-GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
-{
-    try
-    {
-        GLuint textureID = -1;
-
-        // create new OpenGL texture
-        glGenTextures(1, &textureID);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-        const std::size_t fileNameCount = fileNames.size();
-
-        // iterate through the cubemap texture files to load
-        for (std::size_t i = 0; i < fileNameCount; ++i)
-        {
-            std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
-
-            // load the texture
-            if (!pPixelBuffer->FromPng(fileNames[i], false))
-                return -1;
-
-            GLint pixelType;
-
-            // select the correct pixel type to use
-            switch (pPixelBuffer->m_BytePerPixel)
-            {
-                case 24:  pixelType = GL_RGB;  break;
-                case 32:  pixelType = GL_RGBA; break;
-                default: return -1;
-            }
-
-            // do convert pixels?
-            if (convertPixels)
-            {
-                // calculate image stride
-                const std::size_t stride = ((((std::size_t)pPixelBuffer->m_Width) * 3 + 3) / 4) * 4 - (((std::size_t)pPixelBuffer->m_Width) * 3 % 4);
-
-                // reorder the pixels
-                unsigned char* pPixels = new unsigned char[(std::size_t)pPixelBuffer->m_Width * (std::size_t)pPixelBuffer->m_Height * 3];
-
-                try
-                {
-                    // get bitmap data into right format
-                    for (unsigned y = 0; y < pPixelBuffer->m_Height; ++y)
-                        for (unsigned x = 0; x < pPixelBuffer->m_Width; ++x)
-                            for (unsigned char c = 0; c < 3; ++c)
-                                pPixels[3 * (pPixelBuffer->m_Width * y + x) + c] =
-                                        ((unsigned char*)pPixelBuffer->m_pData)[stride * y + 3 * ((std::size_t)pPixelBuffer->m_Width - x - 1) + (2 - c)];
-
-                    // load the texture on the GPU
-                    glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
-                                 0,
-                                 pixelType,
-                                 (GLsizei)pPixelBuffer->m_Width,
-                                 (GLsizei)pPixelBuffer->m_Height,
-                                 0,
-                                 pixelType,
-                                 GL_UNSIGNED_BYTE,
-                                 pPixels);
-                }
-                catch (...)
-                {
-                    delete[] pPixels;
-                    throw;
-                }
-
-                delete[] pPixels;
-            }
-            else
-                // load the texture on the GPU
-                glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
-                             0,
-                             pixelType,
-                             (GLsizei)pPixelBuffer->m_Width,
-                             (GLsizei)pPixelBuffer->m_Height,
-                             0,
-                             pixelType,
-                             GL_UNSIGNED_BYTE,
-                             (unsigned char*)pPixelBuffer->m_pData);
-        }
-
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,     GL_CLAMP_TO_EDGE);
-
-        return textureID;
-    }
-    catch (...)
-    {
-        return -1;
-    }
-}
-*/
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime)
 {
@@ -610,20 +483,14 @@ void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Parti
         pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
 //------------------------------------------------------------------------------
-void Main::AddEnemy(std::size_t                            index,
-                    float                                  x,
-                    float                                  y,
-              const std::shared_ptr<DWF_Model::MDL>&       pMdl,
-              const std::shared_ptr<DWF_Model::Model>&     pCollider,
-              const std::shared_ptr<DWF_Renderer::Shader>& pTexShader,
-              const std::shared_ptr<DWF_Renderer::Shader>& pColShader)
+void Main::AddEnemy(std::size_t index, float x, float y)
 {
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
             std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_" + std::to_wstring(index));
     pStaticModel->SetStatic(true);
-    pStaticModel->SetModel(pMdl);
-    pStaticModel->SetShader(pTexShader);
+    pStaticModel->SetModel(m_pEnemyMdl);
+    pStaticModel->SetShader(m_pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
     pStaticModel->SetRoll(-0.25f);
     pStaticModel->SetPitch((float)M_PI + m_Angle);
@@ -639,8 +506,8 @@ void Main::AddEnemy(std::size_t                            index,
             std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_enemy_collider_" + std::to_wstring(index));
     pModel->SetStatic(false);
     pModel->SetVisible(false);
-    pModel->SetModel(pCollider);
-    pModel->SetShader(pColShader);
+    pModel->SetModel(m_pEnemyBox);
+    pModel->SetShader(m_pColShader);
     pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
@@ -659,13 +526,73 @@ void Main::AddEnemy(std::size_t                            index,
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pModel.release();
+
+    m_Enemies.push_back(index);
 }
 //------------------------------------------------------------------------------
-bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
-                     const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader,
-                     const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pStarShader,
-                     const RECT&                                         clientRect)
+void Main::DelEnemy(std::size_t index)
 {
+    DWF_Scene::SceneItem_StaticAsset* pModel =
+            static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_enemy_" + std::to_wstring(index)));
+
+    if (pModel)
+        m_Scene.Delete(pModel);
+
+    DWF_Scene::SceneItem_Model* pModelCollider =
+            static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_enemy_collider_" + std::to_wstring(index)));
+
+    if (pModelCollider)
+        m_Scene.Delete(pModelCollider);
+
+    for (std::size_t i = 0; i < m_Enemies.size(); ++i)
+        if (m_Enemies[i] == index)
+        {
+            m_Enemies.erase(m_Enemies.begin() + i);
+            break;
+        }
+}
+//------------------------------------------------------------------------------
+bool Main::LoadScene(const RECT& clientRect)
+{
+    // load texture shader
+    m_pTexShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    m_pTexShader->CreateProgram();
+    m_pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    m_pTexShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Texture),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    m_pTexShader->Link(true);
+
+    // load color shader
+    m_pColShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    m_pColShader->CreateProgram();
+    m_pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    m_pColShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Color),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    m_pColShader->Link(true);
+
+    // load stars shader
+    m_pStarShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    m_pStarShader->CreateProgram();
+    m_pStarShader->Attach(starVS, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    m_pStarShader->Attach(starFS, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    m_pStarShader->Link(true);
+
+    DWF_Math::Matrix4x4F projMatrix;
+
+    // create the viewport
+    m_Renderer.CreateViewport(float(clientRect.right  - clientRect.left),
+                              float(clientRect.bottom - clientRect.top),
+                              0.1f,
+                              100.0f,
+                              m_pTexShader.get(),
+                              projMatrix);
+
+    // connect the projection matrix to the other shaders
+    m_Renderer.ConnectProjectionMatrixToShader(m_pColShader.get(),  projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(m_pStarShader.get(), projMatrix);
+
     // configure the background color
     DWF_Model::ColorF bgColor;
     bgColor.m_R = 0.0f;
@@ -697,7 +624,7 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel = std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_spaceship");
     pStaticModel->SetStatic(true);
     pStaticModel->SetModel(pPlayerMdl);
-    pStaticModel->SetShader(pTexShader);
+    pStaticModel->SetShader(m_pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, -40.0f));
     pStaticModel->SetRoll(-0.25f);
     pStaticModel->SetPitch(m_Angle);
@@ -730,7 +657,7 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     pModel->SetStatic(false);
     pModel->SetVisible(false);
     pModel->SetModel(pSpaceshipBox);
-    pModel->SetShader(pColShader);
+    pModel->SetShader(m_pColShader);
     pModel->SetPos(DWF_Math::Vector3F(m_xPos + 0.35f, m_yPos, -40.0f));
     pModel->SetRoll(m_Angle);
     pModel->SetPitch(0.0f);
@@ -750,41 +677,21 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
-
-
-
-
-
-
-
-
-
-
-
-
-    // load enemy spaceship
-    std::shared_ptr<DWF_Model::MDL> pEnemyMdl = std::make_shared<DWF_Model::MDL>();
-    pEnemyMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
-    pEnemyMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_red.mdl");
+    // load enemy spaceship, keep it globally in order to allow new spaceship to be spawned on runtime
+    m_pEnemyMdl = std::make_shared<DWF_Model::MDL>();
+    m_pEnemyMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
+    m_pEnemyMdl->Open("..\\..\\Resources\\Model\\Spaceships\\spaceship_red.mdl");
 
     mat.m_Color.m_B = 0.0f;
     mat.m_Color.m_R = 1.0f;
 
     // create the spaceship box model
-    std::shared_ptr<DWF_Model::Model> pEnemyBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
+    m_pEnemyBox.reset(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
+    /*REM
     for (std::size_t i = 0; i < 5; ++i)
-        AddEnemy(i, 999.0f, 0.0f + i, pEnemyMdl, pEnemyBox, pTexShader, pColShader);
-
-
-
-
-
-
-
-
-
-
+        AddEnemy(i, 999.0f, 0.0f + i, m_pEnemyMdl, m_pEnemyBox, pTexShader, pColShader);
+    */
 
     // create material
     mat.m_Color.m_B = 0.95f;
@@ -807,6 +714,9 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     pStars->m_Area.m_Max.m_X =  30.0f;
     pStars->m_Area.m_Max.m_Y =  25.0f;
     pStars->m_Area.m_Max.m_Z = -40.0f;
+
+    // set random seed
+    std::srand(0);
 
     // iterate through the particles to create
     for (std::size_t i = 0; i < 50; ++i)
@@ -835,7 +745,7 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     pParticles->SetStatic(true);
     pParticles->SetVisible(true);
     pParticles->SetParticles(pStars);
-    pParticles->SetShader(pStarShader);
+    pParticles->SetShader(m_pStarShader);
 
     // set the particles system to the scene
     m_Scene.Add(pParticles.get(), false);
@@ -862,7 +772,7 @@ bool Main::LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexSha
     // load background music
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
     pSound->OpenWav(L"..\\..\\Resources\\Sound\\Music\\Electro-Jazz\\electro-jazz.wav");
-    pSound->ChangeVolume(0.8f);
+    pSound->ChangeVolume(0.2f);
     pSound->Loop(true);
     pSound->Play();
 

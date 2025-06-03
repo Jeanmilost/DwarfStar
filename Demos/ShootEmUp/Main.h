@@ -109,35 +109,25 @@ class Main
             IE_CT_Follow
         };
 
-        //REM typedef std::map<std::string, DWF_Model::Texture*> Textures;
-        typedef std::vector<std::string>                   IFilenames;
+        typedef std::vector<std::string> IFilenames;
 
         static Main* m_This;
 
-        DWF_Scene::Scene              m_Scene;
-        DWF_Renderer::Renderer_OpenGL m_Renderer;
-        //REM Textures                      m_TextureItems;
-        /*REM
-        DWF_Physics::Force            m_Force;
-        IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
-        GLuint                        m_SkyboxTexId      = -1;
-        */
-        float                         m_xPos             =  0.0f;
-        float                         m_yPos             =  0.0f;
-        float                         m_Angle            =  (float)(-M_PI / 2.0);
-        /*REM
-        float                         m_zPos             =  0.0f;
-        float                         m_Velocity         =  0.00125f;
-        float                         m_JumpVelocity     =  0.00875f;
-        float                         m_WalkOffset       =  0.0f;
-        bool                          m_Walking          =  false;
-        bool                          m_Jumping          =  false;
-        bool                          m_Grounded         =  false;
-        bool                          m_ShowSkeleton     =  false;
-        bool                          m_OldShowSkeleton  =  false;
-        */
-        bool                          m_ShowColliders    =  false;
-        bool                          m_OldShowColliders =  false;
+        DWF_Scene::Scene                             m_Scene;
+        DWF_Renderer::Renderer_OpenGL                m_Renderer;
+        std::shared_ptr<DWF_Model::MDL>              m_pEnemyMdl;
+        std::shared_ptr<DWF_Model::Model>            m_pEnemyBox;
+        std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pTexShader;
+        std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pColShader;
+        std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pStarShader;
+        float                                        m_xPos             = 0.0f;
+        float                                        m_yPos             = 0.0f;
+        float                                        m_Angle            = (float)(-M_PI / 2.0);
+        bool                                         m_ShowColliders    = false;
+        bool                                         m_OldShowColliders = false;
+
+        std::size_t m_Index = 0;
+        std::vector<std::size_t> m_Enemies;
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -190,32 +180,15 @@ class Main
 
         void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime);
 
-        /**
-        * Loads the cubemap textures
-        *@param fileNames - texture file names
-        *@param convertPixels - if true, image pixels will be converted from BGR(A) to RGB(A)
-        *@return texture identifier
-        */
-        //REM GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
+        void AddEnemy(std::size_t index, float x, float y);
 
-        void AddEnemy(std::size_t                            index,
-                      float                                  x,
-                      float                                  y,
-                const std::shared_ptr<DWF_Model::MDL>&       pMdl,
-                const std::shared_ptr<DWF_Model::Model>&     pCollider,
-                const std::shared_ptr<DWF_Renderer::Shader>& pTexShader,
-                const std::shared_ptr<DWF_Renderer::Shader>& pColShader);
+        void DelEnemy(std::size_t index);
 
         /**
         * Loads the scene
-        *@param pTexShader - texture shader
-        *@param pColShader - color shader
         *@param clientRect - application client rectangle
         */
-        bool LoadScene(const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
-                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader,
-                       const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pStarShader,
-                       const RECT&                                         clientRect);
+        bool LoadScene(const RECT& clientRect);
 };
 
 //---------------------------------------------------------------------------
