@@ -238,6 +238,7 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemModelBase.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemPOV.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.h" />
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneSpawner.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneTimer.h" />
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
     <ClInclude Include="Main.h" />
@@ -307,6 +308,7 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemModelBase.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemPOV.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneItemStaticAsset.cpp" />
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneSpawner.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneTimer.cpp" />
     <ClCompile Include="..\..\SDK\String\DWF_StringHelper.cpp" />
     <ClCompile Include="Main.cpp" />

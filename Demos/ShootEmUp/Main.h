@@ -178,11 +178,47 @@ class Main
                                DWF_Collider::Collider* pCollider2,
                          const DWF_Math::Vector3F&     mtv);
 
-        void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime);
+        /**
+        * Called to check if a new model should be spawn
+        *@param pSpawner - scene spawner
+        *@return true if a new model should be spawn, otherwise false
+        */
+        bool OnDoSpawn(DWF_Scene::Spawner* pSpawner);
+
+        /**
+        * Called to check if a new model was spawned
+        *@param pSpawner - scene spawner
+        *@param pItem - spawned model
+        */
+        void OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem);
+
+        /**
+        * Called to check if a model owned by the spawner manager should be deleted
+        *@param pSpawner - scene spawner
+        *@param pItem - spawned model
+        *@return true if the model should be deleted, otherwise false
+        */
+        bool OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem);
+
+        /**
+        * Called when the next position should be calculated for a model owned by the spawner manager
+        *@param pSpawner - scene spawner
+        *@param pItem - spawned model
+        *@param elapsedTime - elapsed time since last calculated position
+        */
+        void OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime);
 
         void AddEnemy(std::size_t index, float x, float y);
 
         void DelEnemy(std::size_t index);
+
+        /**
+        * Called when the next position should be calculated for a star particle
+        *@param pParticles - particles system
+        *@param pParticle - particle for which the new position should be calculated
+        *@param elapsedTime - elapsed time since last calculated position
+        */
+        void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime);
 
         /**
         * Loads the scene

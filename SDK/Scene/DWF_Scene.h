@@ -26,6 +26,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
+#pragma once
+
 // std
 #include <functional>
 
@@ -38,9 +40,8 @@
 #include "DWF_SceneItemParticles.h"
 #include "DWF_SceneItemPOV.h"
 #include "DWF_SceneAudioItem.h"
+#include "DWF_SceneSpawner.h"
 #include "DWF_Renderer.h"
-
-#pragma once
 
 namespace DWF_Scene
 {
@@ -211,6 +212,13 @@ namespace DWF_Scene
             virtual void Add(SceneAudioItem* pItem);
 
             /**
+            * Adds a spawner to the scene
+            *@param pSpawner - spawner to add
+            *@note The spawner will be deleted internally, don't delete it from outside
+            */
+            virtual void AddSpawner(Spawner* pSpawner);
+
+            /**
             * Deletes an item from the scene
             *@param pItem - scene item to delete
             */
@@ -223,6 +231,12 @@ namespace DWF_Scene
             virtual void Delete(SceneAudioItem* pItem);
 
             /**
+            * Deletes a spawner from the scene
+            *@param pSpawner - scene spawner to delete
+            */
+            virtual void DeleteSpawner(Spawner* pSpawner);
+
+            /**
             * Deletes an item from the scene at index
             *@param id - item identifier to delete
             */
@@ -233,6 +247,12 @@ namespace DWF_Scene
             *@param index - audio item index to delete
             */
             virtual void DeleteAt(std::size_t index);
+
+            /**
+            * Deletes a spawner from the scene at index
+            *@param index - spawner index to delete
+            */
+            virtual void DeleteSpawnerAt(std::size_t index);
 
             /**
             * Gets a scene item at index
@@ -249,6 +269,13 @@ namespace DWF_Scene
             virtual SceneAudioItem* Get(std::size_t index) const;
 
             /**
+            * Gets a spawner at index
+            *@param index - spawner index to get
+            *@return spawner, nullptr if not found or on error
+            */
+            virtual Spawner* GetSpawner(std::size_t index) const;
+
+            /**
             * Gets the scene item count
             *@param group - group for which the items should be count
             *@return scene item count
@@ -260,6 +287,12 @@ namespace DWF_Scene
             *@return audio item count
             */
             virtual std::size_t GetCount() const;
+
+            /**
+            * Gets the spawner count
+            *@return spawner count
+            */
+            virtual std::size_t GetSpawnerCount() const;
 
             /**
             * Searches an item in the whole scene
@@ -329,6 +362,7 @@ namespace DWF_Scene
                 virtual ~IGroup();
             };
 
+            typedef std::vector<Spawner*>                   ISpawners;
             typedef std::vector<IGroup*>                    IGroups;
             typedef std::map<std::wstring, SceneItem*>      IItemDictionary;
             typedef std::map<std::wstring, SceneAudioItem*> IAudioDictionary;
@@ -338,6 +372,7 @@ namespace DWF_Scene
             std::shared_ptr<DWF_Renderer::Shader> m_pSkyboxShader;
             IGroups                               m_Groups;
             SceneAudioItems                       m_AudioItems;
+            ISpawners                             m_Spawners;
             mutable IItemDictionary               m_ItemCache;
             mutable IAudioDictionary              m_AudioCache;
             DWF_Model::ColorF                     m_Color;
@@ -365,7 +400,7 @@ namespace DWF_Scene
             void AddItem(IGroup* pGroup, SceneItem* pItem);
 
             /**
-            * Processes the game physics for the curent frame
+            * Processes the game physics for the current frame
             *@param elapsedTime - elapsed time since last rendering
             */
             void ProcessPhysics(double elapsedTime) const;

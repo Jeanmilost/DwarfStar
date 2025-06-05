@@ -56,8 +56,8 @@ namespace DWF_Scene
             virtual ~SceneItem_StaticAsset();
 
             /**
-            * Sets the animation model to use
-            *@param pModelFormat - the animation model which contains the animations to play
+            * Sets the model to use
+            *@param pModelFormat - the model to use
             */
             virtual inline void SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat);
 

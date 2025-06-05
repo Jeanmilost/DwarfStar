@@ -39,6 +39,7 @@
 #include "DWF_GJK.h"
 #include "DWF_Camera.h"
 #include "DWF_Arcball.h"
+#include "DWF_SceneSpawner.h"
 #include "DWF_SceneTimer.h"
 #include "DWF_Sound_OpenAL.h"
 #include "DWF_Sound_MiniAudio.h"
@@ -455,33 +456,74 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     */
 }
 //------------------------------------------------------------------------------
-void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, float elapsedTime)
+bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
 {
-    // calculate next star position, adds a small scrolling effect on y axis
-    pParticle->m_Matrix.m_Table[3][0] += pParticle->m_Velocity.m_X * elapsedTime;
-    pParticle->m_Matrix.m_Table[3][1]  = pParticle->m_StartPos.m_Y + (m_yPos * 0.5f);
+    ++m_Index;
 
-    // limit x pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][0] <= pParticles->m_Area.m_Min.m_X)
-        pParticle->m_Matrix.m_Table[3][0] += (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
-    else
-    if (pParticle->m_Matrix.m_Table[3][0] >= pParticles->m_Area.m_Max.m_X)
-        pParticle->m_Matrix.m_Table[3][0] -= (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
+    if (m_Index == 250)
+        return true;
 
-    // limit y pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][1] <= pParticles->m_Area.m_Min.m_Y)
-        pParticle->m_Matrix.m_Table[3][1] += (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
-    else
-    if (pParticle->m_Matrix.m_Table[3][1] >= pParticles->m_Area.m_Max.m_Y)
-        pParticle->m_Matrix.m_Table[3][1] -= (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
-
-    // limit z pos inside the star box
-    if (pParticle->m_Matrix.m_Table[3][2] <= pParticles->m_Area.m_Min.m_Z)
-        pParticle->m_Matrix.m_Table[3][2] += (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
-    else
-    if (pParticle->m_Matrix.m_Table[3][2] >= pParticles->m_Area.m_Max.m_Z)
-        pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
+    return false;
 }
+//------------------------------------------------------------------------------
+void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
+{
+    float x = 15.0f;
+    float y = 0.0f;
+
+    // create the player spaceship scene model item
+    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
+            std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_1");
+    pStaticModel->SetStatic(true);
+    pStaticModel->SetModel(m_pEnemyMdl);
+    pStaticModel->SetShader(m_pTexShader);
+    pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
+    pStaticModel->SetRoll(-0.25f);
+    pStaticModel->SetPitch((float)M_PI + m_Angle);
+    pStaticModel->SetYaw((float)(M_PI / 2.0));
+    pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
+
+    // set the model to the scene
+    m_Scene.Add(pStaticModel.get(), false);
+    pItem->m_pModel = pStaticModel.release();
+
+    // create the capsule model item
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel =
+            std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_enemy_collider_1");
+    pModel->SetStatic(false);
+    pModel->SetVisible(false);
+    pModel->SetModel(m_pEnemyBox);
+    pModel->SetShader(m_pColShader);
+    pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
+    pModel->SetRoll(m_Angle);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // create the spaceship box collider
+    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
+            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
+                                                         DWF_Math::Matrix4x4F::Identity(),
+                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
+                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
+    pModel->AddCollider(pBoxCol.get());
+    pBoxCol.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pItem->m_pCollider = pModel.release();
+}
+//------------------------------------------------------------------------------
+bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
+{
+    if (m_Index == 2500)
+        return true;
+
+    return false;
+}
+//------------------------------------------------------------------------------
+void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime)
+{}
 //------------------------------------------------------------------------------
 void Main::AddEnemy(std::size_t index, float x, float y)
 {
@@ -550,6 +592,34 @@ void Main::DelEnemy(std::size_t index)
             m_Enemies.erase(m_Enemies.begin() + i);
             break;
         }
+}
+//------------------------------------------------------------------------------
+void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
+{
+    // calculate next star position, adds a small scrolling effect on y axis
+    pParticle->m_Matrix.m_Table[3][0] += pParticle->m_Velocity.m_X * (float)elapsedTime;
+    pParticle->m_Matrix.m_Table[3][1]  = pParticle->m_StartPos.m_Y + (m_yPos * 0.5f);
+
+    // limit x pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][0] <= pParticles->m_Area.m_Min.m_X)
+        pParticle->m_Matrix.m_Table[3][0] += (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
+    else
+    if (pParticle->m_Matrix.m_Table[3][0] >= pParticles->m_Area.m_Max.m_X)
+        pParticle->m_Matrix.m_Table[3][0] -= (pParticles->m_Area.m_Max.m_X - pParticles->m_Area.m_Min.m_X);
+
+    // limit y pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][1] <= pParticles->m_Area.m_Min.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] += (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
+    else
+    if (pParticle->m_Matrix.m_Table[3][1] >= pParticles->m_Area.m_Max.m_Y)
+        pParticle->m_Matrix.m_Table[3][1] -= (pParticles->m_Area.m_Max.m_Y - pParticles->m_Area.m_Min.m_Y);
+
+    // limit z pos inside the star box
+    if (pParticle->m_Matrix.m_Table[3][2] <= pParticles->m_Area.m_Min.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] += (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
+    else
+    if (pParticle->m_Matrix.m_Table[3][2] >= pParticles->m_Area.m_Max.m_Z)
+        pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const RECT& clientRect)
@@ -687,6 +757,15 @@ bool Main::LoadScene(const RECT& clientRect)
 
     // create the spaceship box model
     m_pEnemyBox.reset(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
+
+    // create a spawner for the enemies and add it to scene
+    std::unique_ptr<DWF_Scene::Spawner> pEnemySpawner = std::make_unique<DWF_Scene::Spawner>(L"scene_enemy_spawner");
+    pEnemySpawner->Set_OnDoSpawn(std::bind(&Main::OnDoSpawn, this, std::placeholders::_1));
+    pEnemySpawner->Set_OnSpawned(std::bind(&Main::OnSpawned, this, std::placeholders::_1, std::placeholders::_2));
+    pEnemySpawner->Set_OnDoDelete(std::bind(&Main::OnDoDelete, this, std::placeholders::_1, std::placeholders::_2));
+    pEnemySpawner->Set_OnCalculateMotion(std::bind(&Main::OnCalculateMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    m_Scene.AddSpawner(pEnemySpawner.get());
+    pEnemySpawner.release();
 
     /*REM
     for (std::size_t i = 0; i < 5; ++i)

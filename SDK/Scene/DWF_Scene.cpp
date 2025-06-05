@@ -78,6 +78,10 @@ void Scene::Clear()
     m_ItemCache.clear();
     m_AudioCache.clear();
 
+    // iterate through spawner list to delete, and delete each of them
+    for (std::size_t i = 0; i < m_Spawners.size(); ++i)
+        delete m_Spawners[i];
+
     // iterate through groups to delete, and delete each of them
     for (std::size_t i = 0; i < m_Groups.size(); ++i)
         delete m_Groups[i];
@@ -85,6 +89,9 @@ void Scene::Clear()
     // iterate through audio items to delete, and delete each of them
     for (std::size_t i = 0; i < m_AudioItems.size(); ++i)
         delete m_AudioItems[i];
+
+    // clear the spawner list
+    m_Spawners.clear();
 
     // clear the groups
     m_Groups.clear();
@@ -254,6 +261,20 @@ void Scene::Add(SceneAudioItem* pItem)
     m_AudioCache[itemName] = pItem;
 }
 //---------------------------------------------------------------------------
+void Scene::AddSpawner(Spawner* pSpawner)
+{
+    if (!pSpawner)
+        return;
+
+    // search if spawner already exists, in order to not add it twice
+    for (std::size_t i = 0; i < m_Spawners.size(); ++i)
+        if (m_Spawners[i] == pSpawner)
+            return;
+
+    // add spawner to scene
+    m_Spawners.push_back(pSpawner);
+}
+//---------------------------------------------------------------------------
 void Scene::Delete(SceneItem* pItem)
 {
     if (!pItem)
@@ -306,6 +327,24 @@ void Scene::Delete(SceneAudioItem* pItem)
         }
 }
 //---------------------------------------------------------------------------
+void Scene::DeleteSpawner(Spawner* pSpawner)
+{
+    if (!pSpawner)
+        return;
+
+    // iterate through spawner list and find spawner to delete
+    for (std::size_t i = 0; i < m_AudioItems.size(); ++i)
+        // found spawner to delete?
+        if (m_Spawners[i] == pSpawner)
+        {
+            // delete spawner from scene
+            delete m_Spawners[i];
+            m_Spawners.erase(m_Spawners.begin() + i);
+
+            return;
+        }
+}
+//---------------------------------------------------------------------------
 void Scene::DeleteAt(const IItemID& id)
 {
     // iterate through groups and find item to delete
@@ -350,6 +389,17 @@ void Scene::DeleteAt(std::size_t index)
     m_AudioItems.erase(m_AudioItems.begin() + index);
 }
 //---------------------------------------------------------------------------
+void Scene::DeleteSpawnerAt(std::size_t index)
+{
+    // is index out of bounds?
+    if (index >= m_Spawners.size())
+        return;
+
+    // delete spawner from scene
+    delete m_Spawners[index];
+    m_Spawners.erase(m_Spawners.begin() + index);
+}
+//---------------------------------------------------------------------------
 SceneItem* Scene::Get(const IItemID& id) const
 {
     // iterate through groups and find item to get
@@ -380,6 +430,16 @@ SceneAudioItem* Scene::Get(std::size_t index) const
     return m_AudioItems[index];
 }
 //---------------------------------------------------------------------------
+Spawner* Scene::GetSpawner(std::size_t index) const
+{
+    // is index out of bounds?
+    if (index >= m_Spawners.size())
+        return nullptr;
+
+    // get spawner
+    return m_Spawners[index];
+}
+//---------------------------------------------------------------------------
 std::size_t Scene::GetCount(IEGroupType group) const
 {
     // iterate through groups and find item to get
@@ -398,6 +458,11 @@ std::size_t Scene::GetCount(IEGroupType group) const
 std::size_t Scene::GetCount() const
 {
     return m_AudioItems.size();
+}
+//---------------------------------------------------------------------------
+std::size_t Scene::GetSpawnerCount() const
+{
+    return m_Spawners.size();
 }
 //---------------------------------------------------------------------------
 SceneItem* Scene::SearchItem(const std::wstring& name) const
@@ -478,6 +543,10 @@ void Scene::Render(double elapsedTime)
 
     if (m_fOnUpdateScene)
         m_fOnUpdateScene(this, elapsedTime);
+
+    // animate the spawned objects
+    for (std::size_t i = 0; i < m_Spawners.size(); ++i)
+        m_Spawners[i]->Animate(this, elapsedTime);
 
     // no renderer?
     if (!m_pRenderer)

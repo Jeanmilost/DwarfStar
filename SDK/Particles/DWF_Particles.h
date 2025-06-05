@@ -48,11 +48,10 @@ namespace DWF_Particles
             DWF_Geometry::Box m_Area; // area which will contain the particles
 
             /**
-            * Called when a texture should be loaded
-            *@param arg1 - texture name to load
-            *@param arg2 - if true, the texture is a 32 bit texture
-            *@return the loaded texture
-            *@note The loaded texture will be deleted internally, and should no longer be deleted from outside
+            * Called when the next position should be calculated for a particle
+            *@param arg1 - particles system
+            *@param arg2 - particle for which the new position should be calculated
+            *@param arg3 - elapsed time since last calculated position
             */
             typedef std::function<void(Particles*, Particle*, double)> ITfOnCalculateMotion;
 

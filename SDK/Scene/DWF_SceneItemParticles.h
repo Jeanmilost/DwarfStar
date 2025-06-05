@@ -31,7 +31,7 @@
 #include <vector>
 
 // classes
-#include "DWF_SceneItemModelBase.h"
+#include "DWF_SceneItem.h"
 #include "DWF_Particles.h"
 #include "DWF_Shader.h"
 #include "DWF_Renderer.h"

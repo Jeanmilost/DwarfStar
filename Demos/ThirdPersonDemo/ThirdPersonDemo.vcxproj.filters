@@ -264,6 +264,9 @@
     <ClInclude Include="..\..\SDK\Particles\DWF_Particles.h">
       <Filter>SDK\Particles</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Scene\DWF_SceneSpawner.h">
+      <Filter>SDK\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdPersonDemo.cpp">
@@ -457,6 +460,9 @@
     </ClCompile>
     <ClCompile Include="..\..\SDK\Particles\DWF_Particles.cpp">
       <Filter>SDK\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Scene\DWF_SceneSpawner.cpp">
+      <Filter>SDK\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
