@@ -246,6 +246,7 @@
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Sequencer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Audio\DWF_Sound.cpp" />
@@ -318,6 +319,7 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneTimer.cpp" />
     <ClCompile Include="..\..\SDK\String\DWF_StringHelper.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Sequencer.cpp" />
     <ClCompile Include="ShootEmUp.cpp" />
   </ItemGroup>
   <ItemGroup>

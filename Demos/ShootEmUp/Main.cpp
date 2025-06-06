@@ -517,7 +517,17 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
     if (m_Index == 2500)
+    {
+        // delete the collider item from the scene
+        if (pItem->m_pCollider)
+            m_Scene.Delete(pItem->m_pCollider);
+
+        // delete the model item from the scene
+        if (pItem->m_pModel)
+            m_Scene.Delete(pItem->m_pModel);
+
         return true;
+    }
 
     return false;
 }

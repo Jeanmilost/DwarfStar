@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_SceneSpawner ----------------------------------------------------*
+ * ==> Sequencer -----------------------------------------------------------*
  ****************************************************************************
- * Description: Scene spawner                                               *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Sequencer which executes patterns                          *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,83 +26,98 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "DWF_SceneSpawner.h"
+#include "Sequencer.h"
 
-using namespace DWF_Scene;
+// std
+#include <memory>
 
 //---------------------------------------------------------------------------
-// Spawner
+// Sequencer::ICommand
 //---------------------------------------------------------------------------
-Spawner::Spawner(const std::wstring& name) :
-    m_Name(name)
+Sequencer::ICommand::ICommand()
 {}
 //---------------------------------------------------------------------------
-Spawner::~Spawner()
+Sequencer::ICommand::~ICommand()
+{}
+//---------------------------------------------------------------------------
+// Sequencer::ISequence
+//---------------------------------------------------------------------------
+Sequencer::ISequence::ISequence()
+{}
+//---------------------------------------------------------------------------
+Sequencer::ISequence::~ISequence()
 {
-    for (std::size_t i = 0; i < m_Items.size(); ++i)
-        delete m_Items[i];
+    for (std::size_t i = 0; i < m_Pattern.size(); ++i)
+        delete m_Pattern[i];
 }
 //---------------------------------------------------------------------------
-void Spawner::Animate(double elapsedTime)
+// Sequencer::ITask
+//---------------------------------------------------------------------------
+Sequencer::ITask::ITask()
+{}
+//---------------------------------------------------------------------------
+Sequencer::ITask::~ITask()
 {
-    // do add a new item?
-    if (m_fOnDoSpawn && m_fOnDoSpawn(this))
+    if (m_pSequence)
+        delete m_pSequence;
+}
+//---------------------------------------------------------------------------
+// Sequencer
+//---------------------------------------------------------------------------
+Sequencer::Sequencer()
+{}
+//---------------------------------------------------------------------------
+Sequencer::~Sequencer()
+{
+    // delete all remaining running tasks
+    for (ITasks::iterator it = m_Tasks.begin(); it != m_Tasks.end(); ++it)
+        delete it->second;
+}
+//---------------------------------------------------------------------------
+bool Sequencer::Add(ISequence* pSequence)
+{
+    if (!pSequence)
+        return false;
+
+    // sequence should be named
+    if (pSequence->m_Name.empty())
+        return false;
+
+    // task already exists?
+    if (m_Tasks.find(pSequence->m_Name) != m_Tasks.end())
+        return false;
+
+    // create a new task for the sequence
+    std::unique_ptr<ITask> pTask = std::make_unique<ITask>();
+    pTask->m_pSequence           = pSequence;
+    pTask->m_Position            = pSequence->m_Position;
+
+    // add the task to the running tasks
+    m_Tasks[pSequence->m_Name] = pTask.get();
+    pTask.release();
+
+    return true;
+}
+//---------------------------------------------------------------------------
+DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elapsedTime) const
+{
+    ITasks::const_iterator it = m_Tasks.find(name);
+
+    // task not found?
+    if (it == m_Tasks.end())
+        return DWF_Math::Vector3F();
+
+    if (it->second->m_CmdIndex >= it->second->m_pSequence->m_Pattern.size())
+        return DWF_Math::Vector3F();
+
+    const ICommand* pRunningCmd = it->second->m_pSequence->m_Pattern[it->second->m_CmdIndex];
+
+    switch (pRunningCmd->m_Curve)
     {
-        std::unique_ptr<IItem> pItem = std::make_unique<IItem>();
+        case IECurve::IE_C_Linear:
 
-        // configure the newly added item
-        if (m_fOnSpawned)
-            m_fOnSpawned(this, pItem.get());
-
-        m_Items.push_back(pItem.get());
-
-        pItem.release();
+        default:
+            return DWF_Math::Vector3F();
     }
-
-    if (m_Items.size())
-    {
-        std::size_t index = m_Items.size() - 1;
-
-        // revert iterate through spawned items, thus they can be deleted if required
-        do
-        {
-            // do delete the item, or calculate its motion?
-            if (m_fOnDoDelete && m_fOnDoDelete(this, m_Items[index]))
-            {
-                // delete the item at index
-                delete m_Items[index];
-                m_Items.erase(m_Items.begin() + index);
-            }
-            else
-            if (m_fOnCalculateMotion)
-                m_fOnCalculateMotion(this, m_Items[index], elapsedTime);
-
-            if (index == 0)
-                break;
-
-            --index;
-        }
-        while (1);
-    }
-}
-//---------------------------------------------------------------------------
-void Spawner::Set_OnDoSpawn(ITfOnDoSpawn fOnDoSpawn)
-{
-    m_fOnDoSpawn = fOnDoSpawn;
-}
-//---------------------------------------------------------------------------
-void Spawner::Set_OnSpawned(ITfOnSpawned fOnSpawned)
-{
-    m_fOnSpawned = fOnSpawned;
-}
-//---------------------------------------------------------------------------
-void Spawner::Set_OnDoDelete(ITfOnDoDelete fOnDoDelete)
-{
-    m_fOnDoDelete = fOnDoDelete;
-}
-//---------------------------------------------------------------------------
-void Spawner::Set_OnCalculateMotion(ITfOnCalculateMotion fOnCalculateMotion)
-{
-    m_fOnCalculateMotion = fOnCalculateMotion;
 }
 //---------------------------------------------------------------------------

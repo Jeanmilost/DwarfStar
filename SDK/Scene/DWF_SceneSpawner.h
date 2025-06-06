@@ -40,9 +40,6 @@
 
 namespace DWF_Scene
 {
-    // scene class prototype
-    class Scene;
-
     /**
     * Scene spawner
     *@author Jean-Milost Reymond
@@ -104,28 +101,10 @@ namespace DWF_Scene
             virtual inline std::wstring GetName() const;
 
             /**
-            * Sets the model to use
-            *@param pModelFormat - the model to use
-            */
-            //REM virtual inline void SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat);
-
-            /**
-            * Sets the collider model to use
-            *@param pModel - the collider model to use
-            */
-            //REM virtual inline void SetColliderModel(const std::shared_ptr<DWF_Model::Model>& pModel);
-
-            /**
-            * Sets the collider to use
-            *@param pCollider - the collider to use
-            */
-            //REM virtual inline void SetCollider(DWF_Collider::Collider* pCollider);
-
-            /**
             * Animates the particles
             *@param elapsedTime - elapsed time since last frame
             */
-            virtual void Animate(Scene* pScene, double elapsedTime);
+            virtual void Animate(double elapsedTime);
 
             /**
             * Sets the OnDoSpawn callback
@@ -154,15 +133,12 @@ namespace DWF_Scene
         private:
             typedef std::vector<IItem*> IItems;
 
-            std::wstring                            m_Name;
-            //REM std::shared_ptr<DWF_Model::ModelFormat> m_pModelFormat;
-            //REM std::shared_ptr<DWF_Model::Model>       m_pColliderModel;
-            //REM DWF_Collider::Collider*                 m_pCollider         = nullptr;
-            IItems                                  m_Items;
-            ITfOnDoSpawn                            m_fOnDoSpawn         = nullptr;
-            ITfOnSpawned                            m_fOnSpawned         = nullptr;
-            ITfOnDoDelete                           m_fOnDoDelete        = nullptr;
-            ITfOnCalculateMotion                    m_fOnCalculateMotion = nullptr;
+            std::wstring         m_Name;
+            IItems               m_Items;
+            ITfOnDoSpawn         m_fOnDoSpawn         = nullptr;
+            ITfOnSpawned         m_fOnSpawned         = nullptr;
+            ITfOnDoDelete        m_fOnDoDelete        = nullptr;
+            ITfOnCalculateMotion m_fOnCalculateMotion = nullptr;
     };
 
     //---------------------------------------------------------------------------
@@ -172,22 +148,5 @@ namespace DWF_Scene
     {
         return m_Name;
     }
-    /*REM
-    //---------------------------------------------------------------------------
-    inline void Spawner::SetModel(const std::shared_ptr<DWF_Model::ModelFormat>& pModelFormat)
-    {
-        m_pModelFormat = pModelFormat;
-    }
-    //---------------------------------------------------------------------------
-    inline void Spawner::SetColliderModel(const std::shared_ptr<DWF_Model::Model>& pModel)
-    {
-        m_pColliderModel = pModel;
-    }
-    //---------------------------------------------------------------------------
-    inline void Spawner::SetCollider(DWF_Collider::Collider* pCollider)
-    {
-        m_pCollider = pCollider;
-    }
-    */
     //---------------------------------------------------------------------------
 }

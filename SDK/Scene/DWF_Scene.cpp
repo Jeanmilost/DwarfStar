@@ -537,6 +537,7 @@ void Scene::Render(double elapsedTime)
     // process the missing frames in case elapsed time is higher than a frame duration
     while (m_Time >= m_FrameDuration)
     {
+        // process the scene physics
         ProcessPhysics(m_FrameDuration);
         m_Time -= m_FrameDuration;
     }
@@ -546,7 +547,7 @@ void Scene::Render(double elapsedTime)
 
     // animate the spawned objects
     for (std::size_t i = 0; i < m_Spawners.size(); ++i)
-        m_Spawners[i]->Animate(this, elapsedTime);
+        m_Spawners[i]->Animate(elapsedTime);
 
     // no renderer?
     if (!m_pRenderer)
