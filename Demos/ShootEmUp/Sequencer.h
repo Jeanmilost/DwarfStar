@@ -95,7 +95,7 @@ class Sequencer
         {
             ISequence*         m_pSequence   = nullptr;
             DWF_Math::Vector3F m_Position;
-            std::size_t        m_CmdIndex    = 0;
+            std::size_t        m_Index       = 0;
             double             m_ElapsedTime = 0.0;
 
             ITask();

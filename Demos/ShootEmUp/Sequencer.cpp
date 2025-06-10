@@ -107,14 +107,40 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
     if (it == m_Tasks.end())
         return DWF_Math::Vector3F();
 
-    if (it->second->m_CmdIndex >= it->second->m_pSequence->m_Pattern.size())
+    if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
         return DWF_Math::Vector3F();
 
-    const ICommand* pRunningCmd = it->second->m_pSequence->m_Pattern[it->second->m_CmdIndex];
+    const ICommand* pRunningCmd = it->second->m_pSequence->m_Pattern[it->second->m_Index];
 
     switch (pRunningCmd->m_Curve)
     {
         case IECurve::IE_C_Linear:
+        {
+            it->second->m_ElapsedTime += elapsedTime;
+
+            if (it->second->m_ElapsedTime >= pRunningCmd->m_Time)
+            {
+                it->second->m_ElapsedTime = pRunningCmd->m_Time;
+                ++it->second->m_Index;
+
+                if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
+                {
+                    // FIXME do something when pattern reached end
+                    return DWF_Math::Vector3F();
+                }
+                else
+                {
+                    it->second->m_Position    += pRunningCmd->m_Direction * pRunningCmd->m_Length;
+                    it->second->m_ElapsedTime  = 0.0;
+
+                    return it->second->m_Position;
+                }
+            }
+
+            const double distance = (pRunningCmd->m_Length * it->second->m_ElapsedTime) / pRunningCmd->m_Time;
+
+            return it->second->m_Position + (pRunningCmd->m_Direction * distance);
+        }
 
         default:
             return DWF_Math::Vector3F();

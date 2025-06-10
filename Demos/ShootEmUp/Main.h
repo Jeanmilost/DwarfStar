@@ -43,6 +43,9 @@
 #include "DWF_SceneItemStaticAsset.h"
 #include "DWF_MDL.h"
 
+// demo specific classes
+#include "Sequencer.h"
+
 // libraries
 #include <windows.h>
 
@@ -128,6 +131,8 @@ class Main
 
         std::size_t m_Index = 0;
         std::vector<std::size_t> m_Enemies;
+
+        Sequencer m_Sequencer;
 
         /**
         * Called when a texture should be created for a .mdl model file

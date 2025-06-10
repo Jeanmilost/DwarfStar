@@ -461,15 +461,45 @@ bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
     ++m_Index;
 
     if (m_Index == 250)
+    {
+        std::unique_ptr<Sequencer::ISequence> pSequence = std::make_unique<Sequencer::ISequence>();
+        pSequence->m_Name     = L"first_enemy";
+        pSequence->m_Position = DWF_Math::Vector3F(20.0f, 14.0f, -40.0f);
+
+        std::unique_ptr<Sequencer::ICommand> pCmd = std::make_unique<Sequencer::ICommand>();
+        pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+        pCmd->m_Length    = 35.0f;
+        pCmd->m_Time      = 2000.0;
+        pSequence->m_Pattern.push_back(pCmd.get());
+        pCmd.release();
+
+        pCmd = std::make_unique<Sequencer::ICommand>();
+        pCmd->m_Direction = DWF_Math::Vector3F(1.0f, -0.75f, 0.0f);
+        pCmd->m_Length    = 35.0f;
+        pCmd->m_Time      = 2000.0;
+        pSequence->m_Pattern.push_back(pCmd.get());
+        pCmd.release();
+
+        pCmd = std::make_unique<Sequencer::ICommand>();
+        pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+        pCmd->m_Length    = 45.0f;
+        pCmd->m_Time      = 2000.0;
+        pSequence->m_Pattern.push_back(pCmd.get());
+        pCmd.release();
+
+        m_Sequencer.Add(pSequence.get());
+        pSequence.release();
+
         return true;
+    }
 
     return false;
 }
 //------------------------------------------------------------------------------
 void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
-    float x = 15.0f;
-    float y = 0.0f;
+    float x = 20.0f;
+    float y = 14.0f;
 
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
@@ -479,7 +509,7 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
     pStaticModel->SetShader(m_pTexShader);
     pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
     pStaticModel->SetRoll(-0.25f);
-    pStaticModel->SetPitch((float)M_PI + m_Angle);
+    pStaticModel->SetPitch((float)(M_PI / 2.0));
     pStaticModel->SetYaw((float)(M_PI / 2.0));
     pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
 
@@ -516,6 +546,7 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
 //------------------------------------------------------------------------------
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
+    /*
     if (m_Index == 2500)
     {
         // delete the collider item from the scene
@@ -528,12 +559,21 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
 
         return true;
     }
+    */
 
     return false;
 }
 //------------------------------------------------------------------------------
 void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime)
-{}
+{
+    const DWF_Math::Vector3F position = m_Sequencer.GetPosition(L"first_enemy", elapsedTime);
+
+    if (pItem->m_pCollider)
+        pItem->m_pCollider->SetPos(position);
+
+    if (pItem->m_pModel)
+        pItem->m_pModel->SetPos(position);
+}
 //------------------------------------------------------------------------------
 void Main::AddEnemy(std::size_t index, float x, float y)
 {
