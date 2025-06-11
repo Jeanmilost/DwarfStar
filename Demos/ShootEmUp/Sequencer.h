@@ -1,7 +1,7 @@
 /****************************************************************************
  * ==> Sequencer -----------------------------------------------------------*
  ****************************************************************************
- * Description : Sequencer which executes patterns                          *
+ * Description : Shoot-em-up sequencer which executes patterns              *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -36,73 +36,76 @@
 // classes
 #include "DWF_Vector3.h"
 
-/**
-* Sequencer which executes patterns
-*@author Jean-Milost Reymond
-*/
-class Sequencer
+namespace ShootEmUp
 {
-    public:
-        /**
-        * Curve type
-        */
-        enum class IECurve
-        {
-            IE_C_Linear
-        };
+    /**
+    * Shoot-em-up sequencer which executes patterns
+    *@author Jean-Milost Reymond
+    */
+    class Sequencer
+    {
+        public:
+            /**
+            * Curve type
+            */
+            enum class IECurve
+            {
+                IE_C_Linear
+            };
 
-        /**
-        * Command belonging to a sequence
-        */
-        struct ICommand
-        {
-            DWF_Math::Vector3F m_Direction;
-            IECurve            m_Curve  = IECurve::IE_C_Linear;
-            float              m_Length = 0.0f;
-            double             m_Time   = 0.0;
+            /**
+            * Command belonging to a sequence
+            */
+            struct ICommand
+            {
+                DWF_Math::Vector3F m_Direction;
+                IECurve            m_Curve  = IECurve::IE_C_Linear;
+                float              m_Length = 0.0f;
+                double             m_Time   = 0.0;
 
-            ICommand();
-            virtual ~ICommand();
-        };
+                ICommand();
+                virtual ~ICommand();
+            };
 
-        typedef std::vector<ICommand*> IPattern;
+            typedef std::vector<ICommand*> IPattern;
 
-        /**
-        * Sequence to execute
-        */
-        struct ISequence
-        {
-            std::wstring       m_Name;
-            DWF_Math::Vector3F m_Position;
-            IPattern           m_Pattern;
+            /**
+            * Sequence to execute
+            */
+            struct ISequence
+            {
+                std::wstring       m_Name;
+                DWF_Math::Vector3F m_Position;
+                IPattern           m_Pattern;
 
-            ISequence();
-            virtual ~ISequence();
-        };
+                ISequence();
+                virtual ~ISequence();
+            };
 
-        Sequencer();
-        virtual ~Sequencer();
+            Sequencer();
+            virtual ~Sequencer();
 
-        virtual bool Add(ISequence* pSequence);
+            virtual bool Add(ISequence* pSequence);
 
-        virtual DWF_Math::Vector3F GetPosition(const std::wstring& name, double elapsedTime) const;
+            virtual DWF_Math::Vector3F GetPosition(const std::wstring& name, double elapsedTime) const;
 
-    private:
-        /**
-        * Currently running task
-        */
-        struct ITask
-        {
-            ISequence*         m_pSequence   = nullptr;
-            DWF_Math::Vector3F m_Position;
-            std::size_t        m_Index       = 0;
-            double             m_ElapsedTime = 0.0;
+        private:
+            /**
+            * Currently running task
+            */
+            struct ITask
+            {
+                ISequence*         m_pSequence   = nullptr;
+                DWF_Math::Vector3F m_Position;
+                std::size_t        m_Index       = 0;
+                double             m_ElapsedTime = 0.0;
 
-            ITask();
-            ~ITask();
-        };
+                ITask();
+                ~ITask();
+            };
 
-        typedef std::map<std::wstring, ITask*> ITasks;
+            typedef std::map<std::wstring, ITask*> ITasks;
 
-        ITasks m_Tasks;
-};
+            ITasks m_Tasks;
+    };
+}

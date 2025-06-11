@@ -365,6 +365,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     const float spaceshipSpeed         = 0.25f;
     const float spaceshipRotationSpeed = 0.05f;
 
+    /*REM
     // fire
     if (::GetKeyState(VK_SPACE) & 0x8000)
     {
@@ -377,6 +378,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         --m_Index;
         DelEnemy(m_Index);
     }
+    */
 
     // move the spaceship left or right
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
@@ -460,27 +462,27 @@ bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
 {
     ++m_Index;
 
-    if (m_Index == 250)
+    if (m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450)
     {
-        std::unique_ptr<Sequencer::ISequence> pSequence = std::make_unique<Sequencer::ISequence>();
-        pSequence->m_Name     = L"first_enemy";
-        pSequence->m_Position = DWF_Math::Vector3F(20.0f, 14.0f, -40.0f);
+        std::unique_ptr<ShootEmUp::Sequencer::ISequence> pSequence = std::make_unique<ShootEmUp::Sequencer::ISequence>();
+        pSequence->m_Name     = L"enemy_" + std::to_wstring(m_Index);
+        pSequence->m_Position = DWF_Math::Vector3F(20.0f, -14.0f, -40.0f);
 
-        std::unique_ptr<Sequencer::ICommand> pCmd = std::make_unique<Sequencer::ICommand>();
+        std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
         pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
         pCmd->m_Length    = 35.0f;
         pCmd->m_Time      = 2000.0;
         pSequence->m_Pattern.push_back(pCmd.get());
         pCmd.release();
 
-        pCmd = std::make_unique<Sequencer::ICommand>();
-        pCmd->m_Direction = DWF_Math::Vector3F(1.0f, -0.75f, 0.0f);
+        pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+        pCmd->m_Direction = DWF_Math::Vector3F(1.0f, 0.75f, 0.0f);
         pCmd->m_Length    = 35.0f;
         pCmd->m_Time      = 2000.0;
         pSequence->m_Pattern.push_back(pCmd.get());
         pCmd.release();
 
-        pCmd = std::make_unique<Sequencer::ICommand>();
+        pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
         pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
         pCmd->m_Length    = 45.0f;
         pCmd->m_Time      = 2000.0;
@@ -500,6 +502,19 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
 {
     float x = 20.0f;
     float y = 14.0f;
+
+    std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(L"enemy_" + std::to_wstring(m_Index),
+                                                                                     m_pEnemyMdl,
+                                                                                     m_pEnemyBox,
+                                                                                     m_pTexShader,
+                                                                                     m_pColShader);
+
+    pEntity->AddAsset(pItem, m_Scene, x, y);
+    m_Entities[pItem] = pEntity.get();
+    pEntity.release();
+
+    /*REM
+    m_OldPos = DWF_Math::Vector3F(x, y, -40.0f);
 
     // create the player spaceship scene model item
     std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
@@ -542,6 +557,7 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
     // set the model to the scene
     m_Scene.Add(pModel.get(), false);
     pItem->m_pCollider = pModel.release();
+    */
 }
 //------------------------------------------------------------------------------
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
@@ -566,15 +582,40 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
 //------------------------------------------------------------------------------
 void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime)
 {
+    ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
+
+    if (it == m_Entities.end())
+        return;
+
+    it->second->Move(&m_Sequencer, pItem, elapsedTime);
+
+    /*REM
+    const float spaceshipRotationSpeed = 0.0025f;
+
     const DWF_Math::Vector3F position = m_Sequencer.GetPosition(L"first_enemy", elapsedTime);
 
+    if (position.m_Y != m_OldPos.m_Y)
+        m_EnemyAngle = std::max(m_EnemyAngle - (spaceshipRotationSpeed * (float)elapsedTime), 0.0f);
+    else
+        m_EnemyAngle = std::min(m_EnemyAngle + (spaceshipRotationSpeed * (float)elapsedTime), (float)(M_PI / 2.0));
+
     if (pItem->m_pCollider)
+    {
         pItem->m_pCollider->SetPos(position);
+        pItem->m_pCollider->SetRoll(m_EnemyAngle);
+    }
 
     if (pItem->m_pModel)
+    {
         pItem->m_pModel->SetPos(position);
+        pItem->m_pModel->SetPitch(m_EnemyAngle);
+    }
+
+    m_OldPos = position;
+    */
 }
 //------------------------------------------------------------------------------
+/*REM
 void Main::AddEnemy(std::size_t index, float x, float y)
 {
     // create the player spaceship scene model item
@@ -621,7 +662,9 @@ void Main::AddEnemy(std::size_t index, float x, float y)
 
     m_Enemies.push_back(index);
 }
+*/
 //------------------------------------------------------------------------------
+/*REM
 void Main::DelEnemy(std::size_t index)
 {
     DWF_Scene::SceneItem_StaticAsset* pModel =
@@ -643,6 +686,7 @@ void Main::DelEnemy(std::size_t index)
             break;
         }
 }
+*/
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
 {

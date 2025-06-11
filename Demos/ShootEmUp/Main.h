@@ -44,6 +44,7 @@
 #include "DWF_MDL.h"
 
 // demo specific classes
+#include "Entity.h"
 #include "Sequencer.h"
 
 // libraries
@@ -130,9 +131,11 @@ class Main
         bool                                         m_OldShowColliders = false;
 
         std::size_t m_Index = 0;
-        std::vector<std::size_t> m_Enemies;
-
-        Sequencer m_Sequencer;
+        //REM std::vector<std::size_t> m_Enemies;
+        ShootEmUp::Sequencer m_Sequencer;
+        ShootEmUp::Entities m_Entities;
+        //REM DWF_Math::Vector3F m_OldPos;
+        //REM float m_EnemyAngle = (float)(M_PI / 2.0);
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -213,9 +216,9 @@ class Main
         */
         void OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime);
 
-        void AddEnemy(std::size_t index, float x, float y);
+        //REM void AddEnemy(std::size_t index, float x, float y);
 
-        void DelEnemy(std::size_t index);
+        //REM void DelEnemy(std::size_t index);
 
         /**
         * Called when the next position should be calculated for a star particle

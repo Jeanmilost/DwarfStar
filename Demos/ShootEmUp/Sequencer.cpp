@@ -1,7 +1,7 @@
 /****************************************************************************
  * ==> Sequencer -----------------------------------------------------------*
  ****************************************************************************
- * Description : Sequencer which executes patterns                          *
+ * Description : Shoot-em-up sequencer which executes patterns              *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -30,6 +30,8 @@
 
 // std
 #include <memory>
+
+using namespace ShootEmUp;
 
 //---------------------------------------------------------------------------
 // Sequencer::ICommand
