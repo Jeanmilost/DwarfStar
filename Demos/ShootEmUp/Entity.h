@@ -51,6 +51,15 @@ namespace ShootEmUp
     {
         public:
             /**
+            * Available sequence type
+            */
+            enum class IESequenceType
+            {
+                IE_ST_BottomToTop,
+                IE_ST_TopToBottom
+            };
+
+            /**
             * Constructor
             *@param name - entity name
             *@param pModel - entity model
@@ -94,8 +103,18 @@ namespace ShootEmUp
             void AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y);
 
             /**
+            * Adds a sequence which will be followed by the entity
+            *@param pSequencer - sequencer
+            *@param sequenceType - sequence type
+            *@param startPos - sequence start position
+            */
+            void AddSequence(Sequencer* pSequencer, IESequenceType sequenceType, const DWF_Math::Vector3F& startPos) const;
+
+            /**
             * Moves the entity to a new position
-            *
+            *@param pSequencer - sequencer
+            *@param pItem - spawned item in the scene
+            *@param elapsedTime - elapsed time since last move
             */
             void Move(Sequencer* pSequencer, DWF_Scene::Spawner::IItem* pItem, double elapsedTime);
 

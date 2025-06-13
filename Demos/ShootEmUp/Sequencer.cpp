@@ -101,37 +101,63 @@ bool Sequencer::Add(ISequence* pSequence)
     return true;
 }
 //---------------------------------------------------------------------------
+void Sequencer::Delete(const std::wstring& name)
+{
+    // get matching task
+    ITasks::const_iterator it = m_Tasks.find(name);
+
+    // task not found?
+    if (it == m_Tasks.end())
+        return;
+
+    // delete task
+    delete it->second;
+    m_Tasks.erase(it);
+}
+//---------------------------------------------------------------------------
 DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elapsedTime) const
 {
+    // get matching task
     ITasks::const_iterator it = m_Tasks.find(name);
 
     // task not found?
     if (it == m_Tasks.end())
         return DWF_Math::Vector3F();
 
+    // end reached?
     if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
         return DWF_Math::Vector3F();
 
+    // get running command
     const ICommand* pRunningCmd = it->second->m_pSequence->m_Pattern[it->second->m_Index];
 
+    // dispatch the curve type
     switch (pRunningCmd->m_Curve)
     {
         case IECurve::IE_C_Linear:
         {
+            // increase elapsed time
             it->second->m_ElapsedTime += elapsedTime;
 
+            // sequence end reached?
             if (it->second->m_ElapsedTime >= pRunningCmd->m_Time)
             {
+                // set time end and increase to next command
                 it->second->m_ElapsedTime = pRunningCmd->m_Time;
                 ++it->second->m_Index;
 
+                // sequence end reached?
                 if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
                 {
-                    // FIXME do something when pattern reached end
+                    // notify that sequence end was reached
+                    if (m_fOnEndReached)
+                        m_fOnEndReached(this, it->second->m_pSequence);
+
                     return DWF_Math::Vector3F();
                 }
                 else
                 {
+                    // calculate next start position and reset time
                     it->second->m_Position    += pRunningCmd->m_Direction * pRunningCmd->m_Length;
                     it->second->m_ElapsedTime  = 0.0;
 
@@ -139,13 +165,32 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
                 }
             }
 
+            // calculate distance from start point
             const double distance = (pRunningCmd->m_Length * it->second->m_ElapsedTime) / pRunningCmd->m_Time;
 
-            return it->second->m_Position + (pRunningCmd->m_Direction * distance);
+            // calculate and return next position
+            return it->second->m_Position + (pRunningCmd->m_Direction * (float)distance);
         }
 
         default:
             return DWF_Math::Vector3F();
     }
+}
+//---------------------------------------------------------------------------
+bool Sequencer::EndReached(const std::wstring& name) const
+{
+    // get matching task
+    ITasks::const_iterator it = m_Tasks.find(name);
+
+    // task not found?
+    if (it == m_Tasks.end())
+        return false;
+
+    return (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size());
+}
+//---------------------------------------------------------------------------
+void Sequencer::Set_OnEndReached(ITfOnEndReached fOnEndReached)
+{
+    m_fOnEndReached = fOnEndReached;
 }
 //---------------------------------------------------------------------------

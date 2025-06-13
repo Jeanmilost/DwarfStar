@@ -32,6 +32,9 @@
 #include <cstring>
 #include <codecvt>
 
+// classes
+#include "DWF_StringHelper.h"
+
 using namespace DWF_Buffer;
 
 //---------------------------------------------------------------------------
@@ -48,8 +51,22 @@ StdFileBuffer::~StdFileBuffer()
 //---------------------------------------------------------------------------
 bool StdFileBuffer::Open(const std::wstring& fileName, IEMode mode)
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    return (Open(converter.to_bytes(fileName.c_str()), mode));
+    // open file stream
+    #ifdef _MSC_VER
+        // call base function to execute common stuffs
+        if (!FileBuffer::Open(fileName, mode))
+            return false;
+
+        switch (m_Mode)
+        {
+            case IEMode::IE_M_Read:  return !_wfopen_s(&m_FileBuffer, fileName.c_str(), L"r+b");
+            case IEMode::IE_M_Write: return !_wfopen_s(&m_FileBuffer, fileName.c_str(), L"w+b");
+            case IEMode::IE_M_RW:    return !_wfopen_s(&m_FileBuffer, fileName.c_str(), L"rw+b");
+            default:                 return false;
+        }
+    #else
+        return Open(DWF_String::Helper::Utf16ToUtf8(fileName), mode);
+    #endif
 }
 //---------------------------------------------------------------------------
 bool StdFileBuffer::Open(const std::string& fileName, IEMode mode)
@@ -75,9 +92,9 @@ bool StdFileBuffer::Open(const std::string& fileName, IEMode mode)
             case IEMode::IE_M_RW:    m_FileBuffer = std::fopen(fileName.c_str(), "rw+b"); break;
             default:                 return false;
         }
-
-        return m_FileBuffer;
     #endif
+
+    return m_FileBuffer;
 }
 //---------------------------------------------------------------------------
 void StdFileBuffer::Clear()

@@ -32,6 +32,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <functional>
 
 // classes
 #include "DWF_Vector3.h"
@@ -82,12 +83,29 @@ namespace ShootEmUp
                 virtual ~ISequence();
             };
 
+            /**
+            * Called to notify that the sequence end was reached
+            *@param arg1 - sequencer at which belongs the sequence
+            *@param arg2 - sequence which reached the end
+            */
+            typedef std::function<void(const Sequencer*, const ISequence*)> ITfOnEndReached;
+
             Sequencer();
             virtual ~Sequencer();
 
             virtual bool Add(ISequence* pSequence);
 
+            virtual void Delete(const std::wstring& name);
+
             virtual DWF_Math::Vector3F GetPosition(const std::wstring& name, double elapsedTime) const;
+
+            virtual bool EndReached(const std::wstring& name) const;
+
+            /**
+            * Sets the OnEndReached callback
+            *@param fOnEndReached - callback function handle
+            */
+            void Set_OnEndReached(ITfOnEndReached fOnEndReached);
 
         private:
             /**
@@ -106,6 +124,7 @@ namespace ShootEmUp
 
             typedef std::map<std::wstring, ITask*> ITasks;
 
-            ITasks m_Tasks;
+            ITasks          m_Tasks;
+            ITfOnEndReached m_fOnEndReached = nullptr;
     };
 }

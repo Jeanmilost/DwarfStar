@@ -52,8 +52,9 @@ namespace DWF_Scene
             */
             struct IItem
             {
-                SceneItem* m_pModel    = nullptr;
-                SceneItem* m_pCollider = nullptr;
+                SceneItem*   m_pModel    = nullptr;
+                SceneItem*   m_pCollider = nullptr;
+                std::wstring m_Name;
             };
 
             /**

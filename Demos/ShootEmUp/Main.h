@@ -130,7 +130,9 @@ class Main
         bool                                         m_ShowColliders    = false;
         bool                                         m_OldShowColliders = false;
 
+        double m_CurrentTime = 0.0;
         std::size_t m_Index = 0;
+        std::size_t m_LastIndex = 0;
         //REM std::vector<std::size_t> m_Enemies;
         ShootEmUp::Sequencer m_Sequencer;
         ShootEmUp::Entities m_Entities;
@@ -216,10 +218,6 @@ class Main
         */
         void OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime);
 
-        //REM void AddEnemy(std::size_t index, float x, float y);
-
-        //REM void DelEnemy(std::size_t index);
-
         /**
         * Called when the next position should be calculated for a star particle
         *@param pParticles - particles system
@@ -227,6 +225,13 @@ class Main
         *@param elapsedTime - elapsed time since last calculated position
         */
         void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime);
+
+        /**
+        * Called to notify that the sequence end was reached
+        *@param pSequencer - sequencer at which belongs the sequence
+        *@param pSequence - sequence which reached the end
+        */
+        void OnSequenceEndReached(const ShootEmUp::Sequencer* pSequencer, const ShootEmUp::Sequencer::ISequence* pSequence);
 
         /**
         * Loads the scene

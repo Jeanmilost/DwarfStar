@@ -146,10 +146,9 @@ Main::Main()
 //---------------------------------------------------------------------------
 Main::~Main()
 {
-    /*REM
-    if (m_SkyboxTexId != -1)
-        glDeleteTextures(1, &m_SkyboxTexId);
-    */
+    // delete the remaining entities
+    for (ShootEmUp::Entities::iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
+        delete it->second;
 }
 //---------------------------------------------------------------------------
 Main* Main::GetInstance()
@@ -412,7 +411,16 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 }
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
-{}
+{
+    m_CurrentTime += elapsedTime;
+
+    while (m_CurrentTime >= 10.0)
+    {
+        m_CurrentTime -= 10.0;
+
+        ++m_Index;
+    }
+}
 //------------------------------------------------------------------------------
 void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Scene::SceneItem*   pItem1,
@@ -460,38 +468,17 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
 //------------------------------------------------------------------------------
 bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
 {
-    ++m_Index;
+    //REM ++m_Index;
 
-    if (m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450)
+    if ((m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450) && (!m_LastIndex || m_Index != m_LastIndex))
     {
-        std::unique_ptr<ShootEmUp::Sequencer::ISequence> pSequence = std::make_unique<ShootEmUp::Sequencer::ISequence>();
-        pSequence->m_Name     = L"enemy_" + std::to_wstring(m_Index);
-        pSequence->m_Position = DWF_Math::Vector3F(20.0f, -14.0f, -40.0f);
-
-        std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
-        pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
-        pCmd->m_Length    = 35.0f;
-        pCmd->m_Time      = 2000.0;
-        pSequence->m_Pattern.push_back(pCmd.get());
-        pCmd.release();
-
-        pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
-        pCmd->m_Direction = DWF_Math::Vector3F(1.0f, 0.75f, 0.0f);
-        pCmd->m_Length    = 35.0f;
-        pCmd->m_Time      = 2000.0;
-        pSequence->m_Pattern.push_back(pCmd.get());
-        pCmd.release();
-
-        pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
-        pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
-        pCmd->m_Length    = 45.0f;
-        pCmd->m_Time      = 2000.0;
-        pSequence->m_Pattern.push_back(pCmd.get());
-        pCmd.release();
-
-        m_Sequencer.Add(pSequence.get());
-        pSequence.release();
-
+        m_LastIndex = m_Index;
+        return true;
+    }
+    else
+    if ((m_Index == 1250 || m_Index == 1300 || m_Index == 1350 || m_Index == 1400 || m_Index == 1450) && (!m_LastIndex || m_Index != m_LastIndex))
+    {
+        m_LastIndex = m_Index;
         return true;
     }
 
@@ -500,71 +487,71 @@ bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
 //------------------------------------------------------------------------------
 void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
-    float x = 20.0f;
-    float y = 14.0f;
+    if (m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450)
+    {
+        float x = 20.0f;
+        float y = 14.0f;
 
-    std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(L"enemy_" + std::to_wstring(m_Index),
-                                                                                     m_pEnemyMdl,
-                                                                                     m_pEnemyBox,
-                                                                                     m_pTexShader,
-                                                                                     m_pColShader);
+        // create a name for the new entity/sequence/spawned item group
+        const std::wstring name = L"enemy_" + std::to_wstring(m_Index);
 
-    pEntity->AddAsset(pItem, m_Scene, x, y);
-    m_Entities[pItem] = pEntity.get();
-    pEntity.release();
+        // set the spawned item name
+        pItem->m_Name = name;
 
-    /*REM
-    m_OldPos = DWF_Math::Vector3F(x, y, -40.0f);
+        // create a new entity, add the assets to use and sequence to follow
+        std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
+                                                                                         m_pEnemyMdl,
+                                                                                         m_pEnemyBox,
+                                                                                         m_pTexShader,
+                                                                                         m_pColShader);
+        pEntity->AddAsset(pItem, m_Scene, x, y);
+        pEntity->AddSequence(&m_Sequencer, ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop, DWF_Math::Vector3F(20.0f, -14.0f, -40.0f));
+        m_Entities[pItem] = pEntity.get();
+        pEntity.release();
+    }
+    else
+    if (m_Index == 1250 || m_Index == 1300 || m_Index == 1350 || m_Index == 1400 || m_Index == 1450)
+    {
+        float x =  20.0f;
+        float y = -14.0f;
 
-    // create the player spaceship scene model item
-    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
-            std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_1");
-    pStaticModel->SetStatic(true);
-    pStaticModel->SetModel(m_pEnemyMdl);
-    pStaticModel->SetShader(m_pTexShader);
-    pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
-    pStaticModel->SetRoll(-0.25f);
-    pStaticModel->SetPitch((float)(M_PI / 2.0));
-    pStaticModel->SetYaw((float)(M_PI / 2.0));
-    pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
+        // create a name for the new entity/sequence/spawned item group
+        const std::wstring name = L"enemy_" + std::to_wstring(m_Index);
 
-    // set the model to the scene
-    m_Scene.Add(pStaticModel.get(), false);
-    pItem->m_pModel = pStaticModel.release();
+        // set the spawned item name
+        pItem->m_Name = name;
 
-    // create the capsule model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel =
-            std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_enemy_collider_1");
-    pModel->SetStatic(false);
-    pModel->SetVisible(false);
-    pModel->SetModel(m_pEnemyBox);
-    pModel->SetShader(m_pColShader);
-    pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
-    pModel->SetRoll(m_Angle);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-    // create the spaceship box collider
-    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
-                                                         DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
-                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pItem->m_pCollider = pModel.release();
-    */
+        // create a new entity, add the assets to use and sequence to follow
+        std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
+                                                                                         m_pEnemyMdl,
+                                                                                         m_pEnemyBox,
+                                                                                         m_pTexShader,
+                                                                                         m_pColShader);
+        pEntity->AddAsset(pItem, m_Scene, x, y);
+        pEntity->AddSequence(&m_Sequencer, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom, DWF_Math::Vector3F(20.0f, 14.0f, -40.0f));
+        m_Entities[pItem] = pEntity.get();
+        pEntity.release();
+    }
 }
 //------------------------------------------------------------------------------
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
-    /*
-    if (m_Index == 2500)
+    // check if the sequence reached the end for the current item
+    if (m_Sequencer.EndReached(pItem->m_Name))
     {
+        // delete the sequence
+        m_Sequencer.Delete(pItem->m_Name);
+
+        // search for the matching entity
+        ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
+
+        // delete it
+        if (it != m_Entities.end())
+        {
+            delete it->second;
+            m_Entities.erase(it);
+        }
+
         // delete the collider item from the scene
         if (pItem->m_pCollider)
             m_Scene.Delete(pItem->m_pCollider);
@@ -575,7 +562,6 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
 
         return true;
     }
-    */
 
     return false;
 }
@@ -615,79 +601,6 @@ void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::I
     */
 }
 //------------------------------------------------------------------------------
-/*REM
-void Main::AddEnemy(std::size_t index, float x, float y)
-{
-    // create the player spaceship scene model item
-    std::unique_ptr<DWF_Scene::SceneItem_StaticAsset> pStaticModel =
-            std::make_unique<DWF_Scene::SceneItem_StaticAsset>(L"scene_enemy_" + std::to_wstring(index));
-    pStaticModel->SetStatic(true);
-    pStaticModel->SetModel(m_pEnemyMdl);
-    pStaticModel->SetShader(m_pTexShader);
-    pStaticModel->SetPos(DWF_Math::Vector3F(x, y, -40.0f));
-    pStaticModel->SetRoll(-0.25f);
-    pStaticModel->SetPitch((float)M_PI + m_Angle);
-    pStaticModel->SetYaw((float)(M_PI / 2.0));
-    pStaticModel->SetScale(DWF_Math::Vector3F(2.0f, 2.0f, 2.0f));
-
-    // set the model to the scene
-    m_Scene.Add(pStaticModel.get(), false);
-    pStaticModel.release();
-
-    // create the capsule model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel =
-            std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_enemy_collider_" + std::to_wstring(index));
-    pModel->SetStatic(false);
-    pModel->SetVisible(false);
-    pModel->SetModel(m_pEnemyBox);
-    pModel->SetShader(m_pColShader);
-    pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));
-    pModel->SetRoll(m_Angle);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-    // create the spaceship box collider
-    std::unique_ptr<DWF_Collider::Box_Collider> pBoxCol =
-            std::make_unique<DWF_Collider::Box_Collider>(DWF_Math::Vector3F(),
-                                                         DWF_Math::Matrix4x4F::Identity(),
-                                                         DWF_Math::Vector3F(-2.0f, -1.0f, -0.5f),
-                                                         DWF_Math::Vector3F( 2.0f,  1.0f,  0.75f));
-    pModel->AddCollider(pBoxCol.get());
-    pBoxCol.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    m_Enemies.push_back(index);
-}
-*/
-//------------------------------------------------------------------------------
-/*REM
-void Main::DelEnemy(std::size_t index)
-{
-    DWF_Scene::SceneItem_StaticAsset* pModel =
-            static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_enemy_" + std::to_wstring(index)));
-
-    if (pModel)
-        m_Scene.Delete(pModel);
-
-    DWF_Scene::SceneItem_Model* pModelCollider =
-            static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_enemy_collider_" + std::to_wstring(index)));
-
-    if (pModelCollider)
-        m_Scene.Delete(pModelCollider);
-
-    for (std::size_t i = 0; i < m_Enemies.size(); ++i)
-        if (m_Enemies[i] == index)
-        {
-            m_Enemies.erase(m_Enemies.begin() + i);
-            break;
-        }
-}
-*/
-//------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
 {
     // calculate next star position, adds a small scrolling effect on y axis
@@ -715,6 +628,9 @@ void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Parti
     if (pParticle->m_Matrix.m_Table[3][2] >= pParticles->m_Area.m_Max.m_Z)
         pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
+//------------------------------------------------------------------------------
+void Main::OnSequenceEndReached(const ShootEmUp::Sequencer* pSequencer, const ShootEmUp::Sequencer::ISequence* pSequence)
+{}
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const RECT& clientRect)
 {
@@ -861,11 +777,6 @@ bool Main::LoadScene(const RECT& clientRect)
     m_Scene.AddSpawner(pEnemySpawner.get());
     pEnemySpawner.release();
 
-    /*REM
-    for (std::size_t i = 0; i < 5; ++i)
-        AddEnemy(i, 999.0f, 0.0f + i, m_pEnemyMdl, m_pEnemyBox, pTexShader, pColShader);
-    */
-
     // create material
     mat.m_Color.m_B = 0.95f;
     mat.m_Color.m_G = 0.98f;
@@ -927,10 +838,8 @@ bool Main::LoadScene(const RECT& clientRect)
     // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));
 
-    /*REM
     // bind the update scene callback to the scene
     m_Scene.Set_OnUpdateScene(std::bind(&Main::OnSceneUpdate, this, std::placeholders::_1, std::placeholders::_2));
-    */
 
     // bind the collision notification callback to the scene
     m_Scene.Set_OnCollision(std::bind(&Main::OnCollision,
@@ -941,6 +850,9 @@ bool Main::LoadScene(const RECT& clientRect)
                                       std::placeholders::_4,
                                       std::placeholders::_5,
                                       std::placeholders::_6));
+
+    // bind the end reached callback to the sequencer
+    m_Sequencer.Set_OnEndReached(std::bind(&Main::OnSequenceEndReached, this, std::placeholders::_1, std::placeholders::_2));
 
     // load background music
     std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();

@@ -99,29 +99,114 @@ void Entity::AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene,
     pItem->m_pCollider = pModel.release();
 }
 //---------------------------------------------------------------------------
+void Entity::AddSequence(Sequencer* pSequencer, IESequenceType sequenceType, const DWF_Math::Vector3F& startPos) const
+{
+    // create a sequence
+    std::unique_ptr<ShootEmUp::Sequencer::ISequence> pSequence = std::make_unique<ShootEmUp::Sequencer::ISequence>();
+    pSequence->m_Name                                          = m_Name;
+    pSequence->m_Position                                      = startPos;
+
+    // dispatch the sequence type
+    switch (sequenceType)
+    {
+        case IESequenceType::IE_ST_BottomToTop:
+        {
+            // first command, move the entity from the screen right on the bottom
+            std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction                                    = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+            pCmd->m_Length                                       = 35.0f;
+            pCmd->m_Time                                         = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // second command, move the entity from the bottom-left to the top-right
+            pCmd              = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction = DWF_Math::Vector3F(1.0f, 0.75f, 0.0f);
+            pCmd->m_Length    = 35.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // third command, move the entity from the screen right on the top
+            pCmd              = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+            pCmd->m_Length    = 45.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // add the sequence to the sequencer
+            pSequencer->Add(pSequence.get());
+            pSequence.release();
+
+            break;
+        }
+
+        case IESequenceType::IE_ST_TopToBottom:
+        {
+            // first command, move the entity from the screen right on the bottom
+            std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction                                    = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+            pCmd->m_Length                                       = 35.0f;
+            pCmd->m_Time                                         = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // second command, move the entity from the bottom-left to the top-right
+            pCmd              = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction = DWF_Math::Vector3F(1.0f, -0.75f, 0.0f);
+            pCmd->m_Length    = 35.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // third command, move the entity from the screen right on the top
+            pCmd              = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Direction = DWF_Math::Vector3F(-1.0f, 0.0f, 0.0f);
+            pCmd->m_Length    = 45.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // add the sequence to the sequencer
+            pSequencer->Add(pSequence.get());
+            pSequence.release();
+
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+//---------------------------------------------------------------------------
 void Entity::Move(Sequencer* pSequencer, DWF_Scene::Spawner::IItem* pItem, double elapsedTime)
 {
-    const float spaceshipRotationSpeed = 0.0025f;
+    // get the current rotation speed and entity position
+    const float              rotationSpeed = 0.0025f;
+    const DWF_Math::Vector3F position      = pSequencer->GetPosition(m_Name, elapsedTime);
 
-    const DWF_Math::Vector3F position = pSequencer->GetPosition(m_Name, elapsedTime);
-
+    // check if entity moved vertically, if yes, rotate the model
     if (position.m_Y != m_OldPos.m_Y)
-        m_Angle = std::max(m_Angle - (spaceshipRotationSpeed * (float)elapsedTime), 0.0f);
+        m_Angle = std::max(m_Angle - (rotationSpeed * (float)elapsedTime), 0.0f);
     else
-        m_Angle = std::min(m_Angle + (spaceshipRotationSpeed * (float)elapsedTime), (float)(M_PI / 2.0));
+        m_Angle = std::min(m_Angle + (rotationSpeed * (float)elapsedTime), (float)(M_PI / 2.0));
 
-    if (pItem->m_pCollider)
-    {
-        pItem->m_pCollider->SetPos(position);
-        pItem->m_pCollider->SetRoll(m_Angle);
-    }
-
+    // apply the position to the model
     if (pItem->m_pModel)
     {
         pItem->m_pModel->SetPos(position);
         pItem->m_pModel->SetPitch(m_Angle);
     }
 
+    // apply the rotation to the collider
+    if (pItem->m_pCollider)
+    {
+        pItem->m_pCollider->SetPos(position);
+        pItem->m_pCollider->SetRoll(m_Angle);
+    }
+
+    // keep old position
     m_OldPos = position;
 }
 //---------------------------------------------------------------------------
