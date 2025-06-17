@@ -30,7 +30,9 @@
 
 // std
 #include <string>
+#include <vector>
 #include <map>
+#include <set>
 
 // classes
 #include "DWF_PixelBuffer.h"
@@ -117,6 +119,7 @@ class Main
 
         static Main* m_This;
 
+        HWND                                         m_hWnd             = nullptr;
         DWF_Scene::Scene                             m_Scene;
         DWF_Renderer::Renderer_OpenGL                m_Renderer;
         std::shared_ptr<DWF_Model::MDL>              m_pEnemyMdl;
@@ -124,6 +127,7 @@ class Main
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pTexShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pColShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pStarShader;
+        std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pExplosionShader;
         float                                        m_xPos             = 0.0f;
         float                                        m_yPos             = 0.0f;
         float                                        m_Angle            = (float)(-M_PI / 2.0);
@@ -131,13 +135,23 @@ class Main
         bool                                         m_OldShowColliders = false;
 
         double m_CurrentTime = 0.0;
-        std::size_t m_Index = 0;
-        std::size_t m_LastIndex = 0;
+        double m_GameOverTime = 0.0;
+        //REM std::size_t m_Index = 0;
+        //REM std::size_t m_LastIndex = 0;
         //REM std::vector<std::size_t> m_Enemies;
         ShootEmUp::Sequencer m_Sequencer;
         ShootEmUp::Entities m_Entities;
         //REM DWF_Math::Vector3F m_OldPos;
         //REM float m_EnemyAngle = (float)(M_PI / 2.0);
+        typedef std::vector<std::pair<int, ShootEmUp::Entity::IESequenceType>> IEvents;
+        typedef std::set<int> IRaisedEvents;
+
+        IEvents       m_Events;
+        IRaisedEvents m_RaisedEvents;
+
+
+        GLint m_AlphaSlot = 0;
+        bool m_GameOver = false;
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -147,18 +161,12 @@ class Main
         DWF_Model::Texture* OnCreateTexture(const DWF_Buffer::PixelBuffer* pPixelBuffer);
 
         /**
-        * Called when a new frame is calculated in an animation
-        *@param pAnim - the animation for which the frame is calculated
-        *@param pAnimDesc - animation description
+        * Called when a texture should be loaded
+        *@param textureName - texture name to load
+        *@param is32bit - if true, the texture is a 32 bit (RGBA) texture
+        *@return texture
         */
-        //REM void OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
-
-        /**
-        * Called when an animation end is reached
-        *@param pAnim - the animation for which the end was reached
-        *@param pAnimDesc - animation description
-        */
-        //REM void OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc);
+        DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit);
 
         /**
         * Called when a scene physics should be updated
@@ -227,11 +235,32 @@ class Main
         void OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime);
 
         /**
+        * Called when the next position should be calculated for an explosion particle
+        *@param pParticles - particles system
+        *@param pParticle - particle for which the new position should be calculated
+        *@param elapsedTime - elapsed time since last calculated position
+        */
+        void OnCalculateExplosionMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime);
+
+        /**
         * Called to notify that the sequence end was reached
         *@param pSequencer - sequencer at which belongs the sequence
         *@param pSequence - sequence which reached the end
         */
         void OnSequenceEndReached(const ShootEmUp::Sequencer* pSequencer, const ShootEmUp::Sequencer::ISequence* pSequence);
+
+        /**
+        * Checks if an event should be raised (e.g. if an enemy should spawn)
+        *@param index - event index
+        *@return true if event should be raised, otherwise false
+        */
+        bool DoRaiseEvent(std::size_t index) const;
+
+        /**
+        * Runs the game over sequence
+        *@param pScene - scene
+        */
+        void RunGameOver(const DWF_Scene::Scene* pScene);
 
         /**
         * Loads the scene

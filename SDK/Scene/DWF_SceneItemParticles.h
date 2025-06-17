@@ -56,6 +56,12 @@ namespace DWF_Scene
             virtual ~SceneItem_Particles();
 
             /**
+            * Gets the particle system
+            *@return the particle system
+            */
+            virtual inline DWF_Particles::Particles* GetParticles() const;
+
+            /**
             * Sets the particle system to use
             *@param pParticles - the particle system to set
             */
@@ -155,6 +161,11 @@ namespace DWF_Scene
 
     //---------------------------------------------------------------------------
     // SceneItem_Particles
+    //---------------------------------------------------------------------------
+    inline DWF_Particles::Particles* SceneItem_Particles::GetParticles() const
+    {
+        return m_pParticles.get();
+    }
     //---------------------------------------------------------------------------
     inline void SceneItem_Particles::SetParticles(const std::shared_ptr<DWF_Particles::Particles>& pParticles)
     {

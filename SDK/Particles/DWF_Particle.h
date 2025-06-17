@@ -41,10 +41,12 @@ namespace DWF_Particles
     class Particle
     {
         public:
-            DWF_Math::Vector3F   m_StartPos;       // particle start position
-            DWF_Math::Vector3F   m_Velocity;       // velocity to apply to the particle
-            DWF_Math::Matrix4x4F m_Matrix;         // particle matrix, which will be applied while the drawing
-            float                m_Gravity = 0.0f; // gravity to apply to particle
+            DWF_Math::Vector3F   m_StartPos;           // particle start position
+            DWF_Math::Vector3F   m_Velocity;           // velocity to apply to the particle
+            DWF_Math::Matrix4x4F m_Matrix;             // particle matrix, which will be applied while the drawing
+            float                m_Gravity     = 0.0f; // gravity to apply to particle
+            double               m_Lifetime    = 0.0;  // particle lifetime
+            double               m_ElapsedTime = 0.0;  // elapsed time since particle appeared
 
             Particle();
             virtual ~Particle();

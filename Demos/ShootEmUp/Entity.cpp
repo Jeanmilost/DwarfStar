@@ -55,7 +55,7 @@ Entity::Entity(const std::wstring&                                 name,
 Entity::~Entity()
 {}
 //---------------------------------------------------------------------------
-void Entity::AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y)
+void Entity::AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y, bool showColliders)
 {
     m_OldPos = DWF_Math::Vector3F(x, y, -40.0f);
 
@@ -77,7 +77,7 @@ void Entity::AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene,
     // create the asset collider model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(GetColliderNameInScene());
     pModel->SetStatic(false);
-    pModel->SetVisible(false);
+    pModel->SetVisible(showColliders);
     pModel->SetModel(m_pColliderModel);
     pModel->SetShader(m_pColShader);
     pModel->SetPos(DWF_Math::Vector3F(x - 0.35f, y, -40.0f));

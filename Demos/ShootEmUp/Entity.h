@@ -99,8 +99,9 @@ namespace ShootEmUp
             *@param scene - scene in which the asset should be added
             *@param x - entity start x position
             *@param y - entity start y position
+            *@param showColliders - if true, colliders are shown
             */
-            void AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y);
+            void AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y, bool showColliders);
 
             /**
             * Adds a sequence which will be followed by the entity

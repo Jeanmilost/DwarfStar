@@ -83,6 +83,33 @@ const std::string starFS = "#version 130\n"
                            "    gl_FragColor = dwf_vColor;\n"
                            "}";
 //------------------------------------------------------------------------------
+const std::string explosionVS = "#version 130\n"
+                                "precision mediump float;\n"
+                                "attribute    vec3  dwf_aVertices;\n"
+                                "attribute    vec4  dwf_aColor;\n"
+                                "uniform      mat4  dwf_uProjection;\n"
+                                "uniform      mat4  dwf_uView;\n"
+                                "uniform      mat4  dwf_uModel;\n"
+                                "uniform      float dwf_uAlpha;\n"
+                                "varying lowp vec4  dwf_vColor;\n"
+                                "varying      float dwf_fAlpha;\n"
+                                "void main(void)\n"
+                                "{\n"
+                                "    dwf_vColor  = dwf_aColor;\n"
+                                "    dwf_fAlpha  = dwf_uAlpha;\n"
+                                "    gl_Position = dwf_uProjection * dwf_uView * dwf_uModel * vec4(dwf_aVertices, 1.0);\n"
+                                "}";
+//------------------------------------------------------------------------------
+const std::string explosionFS = "#version 130\n"
+                                "precision mediump float;\n"
+                                "varying lowp vec4  dwf_vColor;\n"
+                                "varying      float dwf_fAlpha;\n"
+                                "void main(void)\n"
+                                "{\n"
+                                "    gl_FragColor = vec4(dwf_vColor.r, 0.3f + 0.7f * dwf_fAlpha, 0.2f * dwf_fAlpha, dwf_fAlpha);\n"
+                                "}";;
+
+//------------------------------------------------------------------------------
 // Global functions
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -99,27 +126,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
-                /*REM
-                case '1':
-                    if (Main::GetInstance())
-                        Main::GetInstance()->SetShowSkeleton(!Main::GetInstance()->GetShowSkeleton());
-
-                    break;
-                */
-
                 case '1':
                     if (Main::GetInstance())
                         Main::GetInstance()->SetShowColliders(!Main::GetInstance()->GetShowColliders());
 
                     break;
-
-                /*REM
-                case '3':
-                    if (Main::GetInstance())
-                        Main::GetInstance()->ChangeCameraType();
-
-                    break;
-                */
 
                 case VK_ESCAPE:
                     ::PostQuitMessage(0);
@@ -180,27 +191,27 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
         return 0;
 
     // create main window
-    HWND hWnd = ::CreateWindowEx(0,
-                                 L"ShootEmUpDemo",
-                                 L"DwarfStar Shoot Em Up Demo",
-                                 WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
-                                 CW_USEDEFAULT,
-                                 CW_USEDEFAULT,
-                                 800,
-                                 650,
-                                 nullptr,
-                                 nullptr,
-                                 hInstance,
-                                 nullptr);
+    m_hWnd = ::CreateWindowEx(0,
+                              L"ShootEmUpDemo",
+                              L"DwarfStar Shoot Em Up Demo",
+                              WS_DLGFRAME | WS_CAPTION | WS_SYSMENU,
+                              CW_USEDEFAULT,
+                              CW_USEDEFAULT,
+                              800,
+                              650,
+                              nullptr,
+                              nullptr,
+                              hInstance,
+                              nullptr);
 
-    ::ShowWindow(hWnd, nCmdShow);
+    ::ShowWindow(m_hWnd, nCmdShow);
 
     // get the window client rect
     RECT clientRect;
-    ::GetClientRect(hWnd, &clientRect);
+    ::GetClientRect(m_hWnd, &clientRect);
 
     // get the window device context
-    HDC hDC = ::GetDC(hWnd);
+    HDC hDC = ::GetDC(m_hWnd);
 
     // please wait text background
     HBRUSH hBrush = ::CreateSolidBrush(RGB(20, 30, 43));
@@ -212,12 +223,12 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     ::SetBkColor(hDC, 0x000000);
     ::SetTextColor(hDC, 0xffffff);
     ::DrawText(hDC, L"Please wait...", 14, &clientRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-    ::ReleaseDC(hWnd, hDC);
+    ::ReleaseDC(m_hWnd, hDC);
 
     DWF_Audio::OpenAL* pOpenALInstance = DWF_Audio::OpenAL::GetInstance();
 
     // enable OpenGL for the window
-    m_Renderer.EnableOpenGL(hWnd);
+    m_Renderer.EnableOpenGL(m_hWnd);
 
     // stop GLEW crashing on OSX :-/
     glewExperimental = GL_TRUE;
@@ -226,10 +237,10 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     if (glewInit() != GLEW_OK)
     {
         // shutdown OpenGL
-        m_Renderer.DisableOpenGL(hWnd);
+        m_Renderer.DisableOpenGL(m_hWnd);
 
         // destroy the window explicitly
-        ::DestroyWindow(hWnd);
+        ::DestroyWindow(m_hWnd);
 
         return 1;
     }
@@ -263,48 +274,38 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
             const double elapsedTime = DWF_Scene::Timer::GetInstance()->GetElapsedTimeSinceStart() - lastTime;
                          lastTime    = curTime;
 
-            /*REM
-            // do show or hide the skeleton?
-            if (m_ShowSkeleton != m_OldShowSkeleton)
-            {
-                DWF_Scene::SceneItem_Animation* pModelItem = static_cast<DWF_Scene::SceneItem_Animation*>(m_Scene.SearchItem(L"scene_player_model"));
-
-                if (pModelItem)
-                    pModelItem->SetDrawSkeleton(m_ShowSkeleton);
-
-                m_OldShowSkeleton = m_ShowSkeleton;
-            }
-            */
-
             // do show or hide the colliders?
             if (m_ShowColliders != m_OldShowColliders)
             {
+                // get the space shift
                 DWF_Scene::SceneItem_Model* pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_spaceship_collider"));
 
+                // Show or hide the space shift collider
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
 
-                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_enemy_collider_0"));
+                // iterate through the scene models
+                for (std::size_t i = 0; i < m_Scene.GetCount(DWF_Scene::Scene::IEGroupType::IE_GT_Model); ++i)
+                {
+                    // build the model identifier
+                    DWF_Scene::Scene::IItemID id;
+                    id.m_Group = DWF_Scene::Scene::IEGroupType::IE_GT_Model;
+                    id.m_Index = i;
 
-                if (pModelCollider)
-                    pModelCollider->SetVisible(m_ShowColliders);
+                    // get the model
+                    DWF_Scene::SceneItem* pItem = m_Scene.Get(id);
 
-                /*REM
-                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider"));
+                    // not found?
+                    if (!pItem)
+                        continue;
 
-                if (pModelCollider)
-                    pModelCollider->SetVisible(m_ShowColliders);
+                    // is not a collider?
+                    if (pItem->GetName().find(L"_collider_") == pItem->GetName().npos)
+                        continue;
 
-                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider_2"));
-
-                if (pModelCollider)
-                    pModelCollider->SetVisible(m_ShowColliders);
-
-                pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_platform_collider_3"));
-
-                if (pModelCollider)
-                    pModelCollider->SetVisible(m_ShowColliders);
-                */
+                    // Show or hide the collider
+                    pItem->SetVisible(m_ShowColliders);
+                }
 
                 m_OldShowColliders = m_ShowColliders;
             }
@@ -314,10 +315,10 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
         }
 
     // shutdown OpenGL
-    m_Renderer.DisableOpenGL(hWnd);
+    m_Renderer.DisableOpenGL(m_hWnd);
 
     // destroy the window explicitly
-    ::DestroyWindow(hWnd);
+    ::DestroyWindow(m_hWnd);
 
     return (int)msg.wParam;
 }
@@ -342,19 +343,37 @@ DWF_Model::Texture* Main::OnCreateTexture(const DWF_Buffer::PixelBuffer* pPixelB
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
-/*REM
-void Main::OnFrame(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{}
-*/
-//---------------------------------------------------------------------------
-/*REM
-void Main::OnEndReached(const DWF_Scene::SceneItem_Animation* pAnim, const DWF_Scene::SceneItem_Animation::IAnimDesc* pAnimDesc)
-{}
-*/
+DWF_Model::Texture* Main::OnLoadTexture(const std::string& textureName, bool is32bit)
+{
+    std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
+
+    // load the texture
+    if (!pPixelBuffer->FromPng(textureName, true))
+        return nullptr;
+
+    if (!pPixelBuffer->m_pData)
+        return nullptr;
+
+    // create the texture
+    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
+    pTexture->m_Width     = (int)pPixelBuffer->m_Width;
+    pTexture->m_Height    = (int)pPixelBuffer->m_Height;
+    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
+    pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
+    pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
+    pTexture->Create(pPixelBuffer->m_pData);
+
+    return pTexture.release();
+}
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
     if (!pScene)
+        return;
+
+    // do nothing if game over
+    if (m_GameOver)
         return;
 
     // get the objects of interest from scene
@@ -412,13 +431,17 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
-    m_CurrentTime += elapsedTime;
+    // as enemies are raised based on time, get current time but limit to 10 milliseconds for each frame. This way there is no possible high jump
+    // in case e.g. the window loses the activation
+    m_CurrentTime += std::min(elapsedTime, 10.0);
 
-    while (m_CurrentTime >= 10.0)
+    // if game over, show the game over notification after 2 seconds
+    if (m_GameOver && m_CurrentTime >= m_GameOverTime + 2000.0)
     {
-        m_CurrentTime -= 10.0;
+        DWF_Scene::SceneItem_Model* pModelItem = static_cast<DWF_Scene::SceneItem_Model*>(pScene->SearchItem(L"scene_game_over"));
 
-        ++m_Index;
+        if (pModelItem)
+            pModelItem->SetVisible(true);
     }
 }
 //------------------------------------------------------------------------------
@@ -429,109 +452,96 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
+    // do nothing if game over
+    if (m_GameOver)
+        return;
+
+    // one of the collider belongs to the player space shift?
     if (pItem1->GetName() != L"scene_spaceship_collider" && pItem2->GetName() != L"scene_spaceship_collider")
         return;
 
-    int ii = 0;
+    std::wstring spawnedItemName;
 
-    /*REM
-    // as in this demo all the objects against which the player may collide are platforms, we can assume that in case of collisions the player is grounded
-    m_Grounded = true;
+    // hit an enemy?
+    if (pItem1->GetName().find(L"enemy_") == 0)
+    {
+        const std::size_t sepPos = pItem1->GetName().find(L"_", 6);
 
-    // use the minimum translation vector to correct the cached position
-    m_xPos -= mtv.m_X;
-    m_yPos += mtv.m_Y;
-    m_zPos -= mtv.m_Z;
+        if (sepPos != pItem1->GetName().npos)
+            spawnedItemName = pItem1->GetName().substr(0, sepPos);
+    }
+    else
+    if (pItem2->GetName().find(L"enemy_") == 0)
+    {
+        const std::size_t sepPos = pItem2->GetName().find(L"_", 6);
 
-    if (!pItem1)
-        return;
+        if (sepPos != pItem2->GetName().npos)
+            spawnedItemName = pItem2->GetName().substr(0, sepPos);
+    }
 
-    // get the point of view from the scene
-    DWF_Scene::SceneItem_PointOfView* pPOV = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-
-    if (!pPOV)
-        return;
-
-    // get the player model from the scene
-    DWF_Scene::SceneItem_Animation* pPlayer = static_cast<DWF_Scene::SceneItem_Animation*>(pScene->SearchItem(L"scene_player_model"));
-
-    if (!pPlayer)
-        return;
-
-    // apply modifications to player (to avoid a parasite thrill effect)
-    pPOV->SetPos      (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
-    pPlayer->SetPos   (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pItem1->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pCollider1->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    */
+    // found hit enemy name?
+    if (!spawnedItemName.empty())
+        RunGameOver(pScene);
 }
 //------------------------------------------------------------------------------
 bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
 {
-    //REM ++m_Index;
+    // no longer spawn nothing if game over
+    if (m_GameOver)
+        return false;
 
-    if ((m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450) && (!m_LastIndex || m_Index != m_LastIndex))
-    {
-        m_LastIndex = m_Index;
-        return true;
-    }
-    else
-    if ((m_Index == 1250 || m_Index == 1300 || m_Index == 1350 || m_Index == 1400 || m_Index == 1450) && (!m_LastIndex || m_Index != m_LastIndex))
-    {
-        m_LastIndex = m_Index;
-        return true;
-    }
+    for (std::size_t i = 0; i < m_Events.size(); ++i)
+        if (DoRaiseEvent(i))
+            return true;
 
     return false;
 }
 //------------------------------------------------------------------------------
 void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
-    if (m_Index == 250 || m_Index == 300 || m_Index == 350 || m_Index == 400 || m_Index == 450)
-    {
-        float x = 20.0f;
-        float y = 14.0f;
+    for (std::size_t i = 0; i < m_Events.size(); ++i)
+        if (DoRaiseEvent(i))
+        {
+            float x, y;
 
-        // create a name for the new entity/sequence/spawned item group
-        const std::wstring name = L"enemy_" + std::to_wstring(m_Index);
+            switch (m_Events[i].second)
+            {
+                case ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop:
+                    x = 20.0f;
+                    y = 14.0f;
+                    break;
 
-        // set the spawned item name
-        pItem->m_Name = name;
+                case ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom:
+                    x =  20.0f;
+                    y = -14.0f;
+                    break;
 
-        // create a new entity, add the assets to use and sequence to follow
-        std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
-                                                                                         m_pEnemyMdl,
-                                                                                         m_pEnemyBox,
-                                                                                         m_pTexShader,
-                                                                                         m_pColShader);
-        pEntity->AddAsset(pItem, m_Scene, x, y);
-        pEntity->AddSequence(&m_Sequencer, ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop, DWF_Math::Vector3F(20.0f, -14.0f, -40.0f));
-        m_Entities[pItem] = pEntity.get();
-        pEntity.release();
-    }
-    else
-    if (m_Index == 1250 || m_Index == 1300 || m_Index == 1350 || m_Index == 1400 || m_Index == 1450)
-    {
-        float x =  20.0f;
-        float y = -14.0f;
+                default:
+                    x = 999.0f;
+                    y = 999.0f;
+            }
 
-        // create a name for the new entity/sequence/spawned item group
-        const std::wstring name = L"enemy_" + std::to_wstring(m_Index);
+            // create a name for the new entity/sequence/spawned item group
+            const std::wstring name = L"enemy_" + std::to_wstring(m_Events[i].first);
 
-        // set the spawned item name
-        pItem->m_Name = name;
+            // set the spawned item name
+            pItem->m_Name = name;
 
-        // create a new entity, add the assets to use and sequence to follow
-        std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
-                                                                                         m_pEnemyMdl,
-                                                                                         m_pEnemyBox,
-                                                                                         m_pTexShader,
-                                                                                         m_pColShader);
-        pEntity->AddAsset(pItem, m_Scene, x, y);
-        pEntity->AddSequence(&m_Sequencer, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom, DWF_Math::Vector3F(20.0f, 14.0f, -40.0f));
-        m_Entities[pItem] = pEntity.get();
-        pEntity.release();
-    }
+            // create a new entity, add the assets to use and sequence to follow
+            std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
+                                                                                             m_pEnemyMdl,
+                                                                                             m_pEnemyBox,
+                                                                                             m_pTexShader,
+                                                                                             m_pColShader);
+            pEntity->AddAsset(pItem, m_Scene, x, y, m_ShowColliders);
+            pEntity->AddSequence(&m_Sequencer, m_Events[i].second, DWF_Math::Vector3F(x, -y, -40.0f));
+            m_Entities[pItem] = pEntity.get();
+            pEntity.release();
+
+            // notify that the event was raised
+            m_RaisedEvents.insert(m_Events[i].first);
+            return;
+        }
 }
 //------------------------------------------------------------------------------
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
@@ -542,7 +552,7 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
         // delete the sequence
         m_Sequencer.Delete(pItem->m_Name);
 
-        // search for the matching entity
+        // search for the entity to delete
         ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
 
         // delete it
@@ -560,6 +570,7 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
         if (pItem->m_pModel)
             m_Scene.Delete(pItem->m_pModel);
 
+        // returning true, the spawned item will be deleted by the spawner
         return true;
     }
 
@@ -568,37 +579,14 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
 //------------------------------------------------------------------------------
 void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem, double elapsedTime)
 {
+    // find the moving entity
     ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
 
     if (it == m_Entities.end())
         return;
 
+    // move it
     it->second->Move(&m_Sequencer, pItem, elapsedTime);
-
-    /*REM
-    const float spaceshipRotationSpeed = 0.0025f;
-
-    const DWF_Math::Vector3F position = m_Sequencer.GetPosition(L"first_enemy", elapsedTime);
-
-    if (position.m_Y != m_OldPos.m_Y)
-        m_EnemyAngle = std::max(m_EnemyAngle - (spaceshipRotationSpeed * (float)elapsedTime), 0.0f);
-    else
-        m_EnemyAngle = std::min(m_EnemyAngle + (spaceshipRotationSpeed * (float)elapsedTime), (float)(M_PI / 2.0));
-
-    if (pItem->m_pCollider)
-    {
-        pItem->m_pCollider->SetPos(position);
-        pItem->m_pCollider->SetRoll(m_EnemyAngle);
-    }
-
-    if (pItem->m_pModel)
-    {
-        pItem->m_pModel->SetPos(position);
-        pItem->m_pModel->SetPitch(m_EnemyAngle);
-    }
-
-    m_OldPos = position;
-    */
 }
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
@@ -629,8 +617,69 @@ void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Parti
         pParticle->m_Matrix.m_Table[3][2] -= (pParticles->m_Area.m_Max.m_Z - pParticles->m_Area.m_Min.m_Z);
 }
 //------------------------------------------------------------------------------
+void Main::OnCalculateExplosionMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
+{
+    if (pParticle->m_ElapsedTime >= pParticle->m_Lifetime)
+    {
+        pParticle->m_Matrix.m_Table[3][0] = 999.0f;
+        pParticle->m_Matrix.m_Table[3][1] = 999.0f;
+        return;
+    }
+
+    pParticle->m_Matrix.m_Table[3][0] +=  pParticle->m_Velocity.m_X * (float)elapsedTime;
+    pParticle->m_Matrix.m_Table[3][1] += (pParticle->m_Velocity.m_Y * (float)elapsedTime) - pParticle->m_Gravity;
+
+    if (m_AlphaSlot != -1)
+    {
+        m_pExplosionShader->Use(true);
+        glUniform1f(m_AlphaSlot, 1.0f - (float)(pParticle->m_ElapsedTime / pParticle->m_Lifetime));
+    }
+
+    pParticle->m_ElapsedTime += elapsedTime;
+}
+//------------------------------------------------------------------------------
 void Main::OnSequenceEndReached(const ShootEmUp::Sequencer* pSequencer, const ShootEmUp::Sequencer::ISequence* pSequence)
 {}
+//------------------------------------------------------------------------------
+bool Main::DoRaiseEvent(std::size_t index) const
+{
+    if (index >= m_Events.size())
+        return false;
+
+    return ((std::size_t)(m_CurrentTime * 0.1) >= m_Events[index].first && m_RaisedEvents.find(m_Events[index].first) == m_RaisedEvents.end());
+}
+//------------------------------------------------------------------------------
+void Main::RunGameOver(const DWF_Scene::Scene* pScene)
+{
+    // get the objects of interest from scene
+    DWF_Scene::SceneItem_StaticAsset* pModelItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(pScene->SearchItem(L"scene_spaceship"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_spaceship_collider"));
+    DWF_Scene::SceneItem_Particles*   pExplosionItem = static_cast<DWF_Scene::SceneItem_Particles*>  (pScene->SearchItem(L"scene_explosion_particles"));
+
+    // get the explosion point and the particle system
+    const DWF_Math::Vector3F  explosionPoint = pModelItem->GetPos();
+    DWF_Particles::Particles* pParticles     = pExplosionItem->GetParticles();
+
+    // iterate through each explosion particles and set the start position
+    for (std::size_t i = 0; i < pParticles->GetCount(); ++i)
+    {
+        DWF_Particles::Particle* pParticle = pParticles->Get(i);
+        pParticle->m_StartPos              = explosionPoint;
+        pParticle->m_Matrix.m_Table[3][0]  = explosionPoint.m_X;
+        pParticle->m_Matrix.m_Table[3][1]  = explosionPoint.m_Y;
+    }
+
+    // hide the player spaceship
+    pModelItem->SetVisible(false);
+    pModelCollider->SetVisible(false);
+
+    // show the explosion
+    pExplosionItem->SetVisible(true);
+
+    // notify that the game is over
+    m_GameOver     = true;
+    m_GameOverTime = m_CurrentTime;
+}
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const RECT& clientRect)
 {
@@ -659,6 +708,16 @@ bool Main::LoadScene(const RECT& clientRect)
     m_pStarShader->Attach(starFS, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     m_pStarShader->Link(true);
 
+    // load explosion shader
+    m_pExplosionShader = std::make_shared<DWF_Renderer::Shader_OpenGL>();
+    m_pExplosionShader->CreateProgram();
+    m_pExplosionShader->Attach(explosionVS, DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    m_pExplosionShader->Attach(explosionFS, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    m_pExplosionShader->Link(true);
+
+    m_pExplosionShader->Use(true);
+    m_AlphaSlot = glGetUniformLocation((GLuint)m_pExplosionShader->GetProgramID(), "dwf_uAlpha");
+
     DWF_Math::Matrix4x4F projMatrix;
 
     // create the viewport
@@ -670,8 +729,9 @@ bool Main::LoadScene(const RECT& clientRect)
                               projMatrix);
 
     // connect the projection matrix to the other shaders
-    m_Renderer.ConnectProjectionMatrixToShader(m_pColShader.get(),  projMatrix);
-    m_Renderer.ConnectProjectionMatrixToShader(m_pStarShader.get(), projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(m_pColShader.get(),       projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(m_pStarShader.get(),      projMatrix);
+    m_Renderer.ConnectProjectionMatrixToShader(m_pExplosionShader.get(), projMatrix);
 
     // configure the background color
     DWF_Model::ColorF bgColor;
@@ -778,8 +838,8 @@ bool Main::LoadScene(const RECT& clientRect)
     pEnemySpawner.release();
 
     // create material
-    mat.m_Color.m_B = 0.95f;
-    mat.m_Color.m_G = 0.98f;
+    mat.m_Color.m_B = 1.0f;
+    mat.m_Color.m_G = 1.0f;
     mat.m_Color.m_R = 1.0f;
     mat.m_Color.m_A = 1.0f;
 
@@ -824,7 +884,7 @@ bool Main::LoadScene(const RECT& clientRect)
         pParticle->m_Matrix.m_Table[3][2] = pParticle->m_StartPos.m_Z;
     }
 
-    // create the capsule model item
+    // create the star particles model item
     std::unique_ptr<DWF_Scene::SceneItem_Particles> pParticles = std::make_unique<DWF_Scene::SceneItem_Particles>(L"scene_stars_particles");
     pParticles->SetStatic(true);
     pParticles->SetVisible(true);
@@ -834,6 +894,90 @@ bool Main::LoadScene(const RECT& clientRect)
     // set the particles system to the scene
     m_Scene.Add(pParticles.get(), false);
     pParticles.release();
+
+    // create material
+    mat.m_Color.m_B   = 0.99f;
+    mat.m_Color.m_G   = 1.0f;
+    mat.m_Color.m_R   = 0.93f;
+    mat.m_Color.m_A   = 1.0f;
+    mat.m_Transparent = true;
+
+    // create the explosion model
+    std::shared_ptr<DWF_Model::Model> pExplosionModel(DWF_Model::Factory::GetSphere(0.1f, 20, 20, vf, vc, mat));
+
+    // create the explosion particle system
+    std::shared_ptr<DWF_Particles::Particles> pExplosion = std::make_shared<DWF_Particles::Particles>();
+    pExplosion->SetModel(pExplosionModel);
+    pExplosion->Set_OnCalculateMotion(std::bind(&Main::OnCalculateExplosionMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+    // iterate through the particles to create
+    for (std::size_t i = 0; i < 50; ++i)
+    {
+        // add a new particle
+        DWF_Particles::Particle* pParticle = pExplosion->Add();
+
+        const float angle = float(std::rand()) / RAND_MAX * (float)(M_PI * 2.0);
+        const float speed = float(std::rand()) / RAND_MAX * 0.03f + 0.003f;
+
+        // calculate the particle start position
+        pParticle->m_StartPos.m_X =  0.0f;
+        pParticle->m_StartPos.m_Y =  0.0f;
+        pParticle->m_StartPos.m_Z = -40.0f;
+
+        // calculate the particle initial force
+        pParticle->m_Velocity.m_X = std::cosf(angle) * speed;
+        pParticle->m_Velocity.m_Y = std::sinf(angle) * speed * 0.95f;
+        pParticle->m_Velocity.m_Z = 0.0f;
+
+        pParticle->m_Gravity  = 0.15f;
+        pParticle->m_Lifetime = 2000.0f;
+
+        // configure the particle matrix (was set to identity while the particle was created)
+        pParticle->m_Matrix.m_Table[3][0] = pParticle->m_StartPos.m_X;
+        pParticle->m_Matrix.m_Table[3][1] = pParticle->m_StartPos.m_Y;
+        pParticle->m_Matrix.m_Table[3][2] = pParticle->m_StartPos.m_Z;
+    }
+
+    // create the explosion particles model item
+    pParticles = std::make_unique<DWF_Scene::SceneItem_Particles>(L"scene_explosion_particles");
+    pParticles->SetStatic(true);
+    pParticles->SetVisible(false);
+    pParticles->SetParticles(pExplosion);
+    pParticles->SetShader(m_pExplosionShader);
+
+    // set the particles system to the scene
+    m_Scene.Add(pParticles.get(), true);
+    pParticles.release();
+
+    // create vertex format
+    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
+                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
+
+    // create material
+    mat.m_Color.m_B = 1.0f;
+    mat.m_Color.m_G = 1.0f;
+    mat.m_Color.m_R = 1.0f;
+    mat.m_Color.m_A = 1.0f;
+
+    // create the game over surface model
+    std::shared_ptr<DWF_Model::Model> pGameOverSurface(DWF_Model::Factory::GetSurface(0.32f, 0.106f, vf, vc, mat));
+    pGameOverSurface->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTexture("..\\..\\Resources\\Texture\\GameOver.png", true);
+
+    // create the game over model item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_game_over");
+    pModel->SetStatic(false);
+    pModel->SetVisible(false);
+    pModel->SetModel(pGameOverSurface);
+    pModel->SetShader(m_pTexShader);
+    pModel->SetPos(DWF_Math::Vector3F(0.0f, 0.0f, -1.0f));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), true);
+    pModel.release();
 
     // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));
@@ -869,6 +1013,18 @@ bool Main::LoadScene(const RECT& clientRect)
     // add sound to scene
     m_Scene.Add(pSoundItem.get());
     pSoundItem.release();
+
+    // create events
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(250,  ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(300,  ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(350,  ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(400,  ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(450,  ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1250, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1300, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1350, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1400, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1450, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
 
     return true;
 }
