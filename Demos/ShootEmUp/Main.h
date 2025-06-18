@@ -115,7 +115,9 @@ class Main
             IE_CT_Follow
         };
 
-        typedef std::vector<std::string> IFilenames;
+        typedef std::vector<std::pair<int, ShootEmUp::Entity::IESequenceType>> IEvents;
+        typedef std::set<int>                                                  IRaisedEvents;
+        typedef std::vector<std::string>                                       IFilenames;
 
         static Main* m_This;
 
@@ -128,30 +130,20 @@ class Main
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pColShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pStarShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pExplosionShader;
+        ShootEmUp::Sequencer                         m_Sequencer;
+        ShootEmUp::Entities                          m_Entities;
+        IEvents                                      m_Events;
+        IRaisedEvents                                m_RaisedEvents;
+        GLint                                        m_AlphaSlot        = 0;
         float                                        m_xPos             = 0.0f;
         float                                        m_yPos             = 0.0f;
         float                                        m_Angle            = (float)(-M_PI / 2.0);
+        double                                       m_CurrentTime      = 0.0;
+        double                                       m_GameOverTime     = 0.0;
         bool                                         m_ShowColliders    = false;
         bool                                         m_OldShowColliders = false;
-
-        double m_CurrentTime = 0.0;
-        double m_GameOverTime = 0.0;
-        //REM std::size_t m_Index = 0;
-        //REM std::size_t m_LastIndex = 0;
-        //REM std::vector<std::size_t> m_Enemies;
-        ShootEmUp::Sequencer m_Sequencer;
-        ShootEmUp::Entities m_Entities;
-        //REM DWF_Math::Vector3F m_OldPos;
-        //REM float m_EnemyAngle = (float)(M_PI / 2.0);
-        typedef std::vector<std::pair<int, ShootEmUp::Entity::IESequenceType>> IEvents;
-        typedef std::set<int> IRaisedEvents;
-
-        IEvents       m_Events;
-        IRaisedEvents m_RaisedEvents;
-
-
-        GLint m_AlphaSlot = 0;
-        bool m_GameOver = false;
+        bool                                         m_GameOver         = false;
+        bool                                         m_CanRestart       = false;
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -263,6 +255,11 @@ class Main
         void RunGameOver(const DWF_Scene::Scene* pScene);
 
         /**
+        * Resets the game
+        */
+        void ResetGame();
+
+        /**
         * Loads the scene
         *@param clientRect - application client rectangle
         */
@@ -271,18 +268,6 @@ class Main
 
 //---------------------------------------------------------------------------
 // Main
-//---------------------------------------------------------------------------
-/*REM
-inline bool Main::GetShowSkeleton()
-{
-    return m_ShowSkeleton;
-}
-//---------------------------------------------------------------------------
-inline void Main::SetShowSkeleton(bool value)
-{
-    m_ShowSkeleton = value;
-}
-*/
 //---------------------------------------------------------------------------
 inline bool Main::GetShowColliders()
 {
@@ -294,23 +279,3 @@ inline void Main::SetShowColliders(bool value)
     m_ShowColliders = value;
 }
 //---------------------------------------------------------------------------
-/*REM
-inline void Main::ChangeCameraType()
-{
-    switch (m_CameraType)
-    {
-        case IECameraType::IE_CT_Static:
-            m_CameraType = IECameraType::IE_CT_Follow;
-            break;
-
-        case IECameraType::IE_CT_Rotate:
-            m_CameraType = IECameraType::IE_CT_Static;
-            break;
-
-        case IECameraType::IE_CT_Follow:
-            m_CameraType = IECameraType::IE_CT_Rotate;
-            break;
-    }
-}
-//---------------------------------------------------------------------------
-*/

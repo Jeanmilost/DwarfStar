@@ -93,12 +93,44 @@ namespace ShootEmUp
             Sequencer();
             virtual ~Sequencer();
 
+            /**
+            * Adds a sequence to the sequencer
+            *@param pSequence - sequence to add
+            *@return true on success, otherwise false
+            */
             virtual bool Add(ISequence* pSequence);
 
+            /**
+            * Deletes a sequence from the sequencer
+            *@param name - sequence name to delete
+            */
             virtual void Delete(const std::wstring& name);
 
+            /**
+            * Checks if a sequence exists
+            *@param name - sequence name to check
+            *@return true if the sequence exists, otherwise false
+            */
+            virtual bool Exists(const std::wstring& name) const;
+
+            /**
+            * Clears all the sequences
+            */
+            virtual void Clear();
+
+            /**
+            * Calculates and gets the next position in the sequence
+            *@param name - sequence name for which the next position should be calculated
+            *@param elapsedTime - elapsed time since the last calculation
+            *@return the next position
+            */
             virtual DWF_Math::Vector3F GetPosition(const std::wstring& name, double elapsedTime) const;
 
+            /**
+            * Checks if sequence end was reached
+            *@param name - sequence name to check
+            *@return true if the sequence end was reached, otherwise false
+            */
             virtual bool EndReached(const std::wstring& name) const;
 
             /**

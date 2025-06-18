@@ -115,6 +115,24 @@ void Sequencer::Delete(const std::wstring& name)
     m_Tasks.erase(it);
 }
 //---------------------------------------------------------------------------
+bool Sequencer::Exists(const std::wstring& name) const
+{
+    // get matching task
+    ITasks::const_iterator it = m_Tasks.find(name);
+
+    // task exists?
+    return (it != m_Tasks.end());
+}
+//---------------------------------------------------------------------------
+void Sequencer::Clear()
+{
+    // delete all running tasks
+    for (ITasks::iterator it = m_Tasks.begin(); it != m_Tasks.end(); ++it)
+        delete it->second;
+
+    m_Tasks.clear();
+}
+//---------------------------------------------------------------------------
 DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elapsedTime) const
 {
     // get matching task

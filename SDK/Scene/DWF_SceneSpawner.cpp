@@ -43,6 +43,21 @@ Spawner::~Spawner()
         delete m_Items[i];
 }
 //---------------------------------------------------------------------------
+void Spawner::Clear()
+{
+    for (std::size_t i = 0; i < m_Items.size(); ++i)
+    {
+        // notify that the item will be deleted
+        if (m_fOnDoDelete)
+            m_fOnDoDelete(this, m_Items[i]);
+
+        // delete the item at index
+        delete m_Items[i];
+    }
+
+    m_Items.clear();
+}
+//---------------------------------------------------------------------------
 void Spawner::Animate(double elapsedTime)
 {
     // do add a new item?

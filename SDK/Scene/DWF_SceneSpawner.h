@@ -96,6 +96,11 @@ namespace DWF_Scene
             virtual ~Spawner();
 
             /**
+            * Clears all spawned models
+            */
+            virtual void Clear();
+
+            /**
             * Gets the spawner name
             *@return spawner name
             */

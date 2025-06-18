@@ -374,7 +374,13 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
 
     // do nothing if game over
     if (m_GameOver)
+    {
+        // check if game should be restarted
+        if (m_CanRestart && ::GetKeyState(VK_SPACE) & 0x8000)
+            ResetGame();
+
         return;
+    }
 
     // get the objects of interest from scene
     DWF_Scene::SceneItem_StaticAsset* pModelItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(pScene->SearchItem(L"scene_spaceship"));
@@ -383,20 +389,9 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     const float spaceshipSpeed         = 0.25f;
     const float spaceshipRotationSpeed = 0.05f;
 
-    /*REM
     // fire
     if (::GetKeyState(VK_SPACE) & 0x8000)
-    {
-        AddEnemy(m_Index, (float)(-19 + (std::rand() % 38)), (float)(-15 + (std::rand() % 30)));
-        ++m_Index;
-    }
-    else
-    if (::GetKeyState(VK_DELETE) & 0x8000)
-    {
-        --m_Index;
-        DelEnemy(m_Index);
-    }
-    */
+    {}
 
     // move the spaceship left or right
     if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
@@ -436,12 +431,14 @@ void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
     m_CurrentTime += std::min(elapsedTime, 10.0);
 
     // if game over, show the game over notification after 2 seconds
-    if (m_GameOver && m_CurrentTime >= m_GameOverTime + 2000.0)
+    if (m_GameOver && !m_CanRestart && m_CurrentTime >= m_GameOverTime + 2000.0)
     {
         DWF_Scene::SceneItem_Model* pModelItem = static_cast<DWF_Scene::SceneItem_Model*>(pScene->SearchItem(L"scene_game_over"));
 
         if (pModelItem)
             pModelItem->SetVisible(true);
+
+        m_CanRestart = true;
     }
 }
 //------------------------------------------------------------------------------
@@ -547,9 +544,9 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
 bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
     // check if the sequence reached the end for the current item
-    if (m_Sequencer.EndReached(pItem->m_Name))
+    if (m_Sequencer.EndReached(pItem->m_Name) || !m_Sequencer.Exists(pItem->m_Name))
     {
-        // delete the sequence
+        // delete the sequence, if exists
         m_Sequencer.Delete(pItem->m_Name);
 
         // search for the entity to delete
@@ -667,6 +664,7 @@ void Main::RunGameOver(const DWF_Scene::Scene* pScene)
         pParticle->m_StartPos              = explosionPoint;
         pParticle->m_Matrix.m_Table[3][0]  = explosionPoint.m_X;
         pParticle->m_Matrix.m_Table[3][1]  = explosionPoint.m_Y;
+        pParticle->m_ElapsedTime           = 0.0;
     }
 
     // hide the player spaceship
@@ -676,9 +674,70 @@ void Main::RunGameOver(const DWF_Scene::Scene* pScene)
     // show the explosion
     pExplosionItem->SetVisible(true);
 
-    // notify that the game is over
+    // notify that the game is over and get game over timestamp
     m_GameOver     = true;
     m_GameOverTime = m_CurrentTime;
+}
+//------------------------------------------------------------------------------
+void Main::ResetGame()
+{
+    // clear all the running sequences
+    m_Sequencer.Clear();
+
+    // clear all the spawner
+    for (std::size_t i = 0; i < m_Scene.GetSpawnerCount(); ++i)
+    {
+        // get spawner
+        DWF_Scene::Spawner* pSpawner = m_Scene.GetSpawner(i);
+
+        // clear it
+        if (pSpawner)
+            pSpawner->Clear();
+    }
+
+    // delete all raised entities
+    for (ShootEmUp::Entities::iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
+        delete it->second;
+
+    m_Entities.clear();
+
+    // reset all raised events
+    m_RaisedEvents.clear();
+
+    // reset all other time and position values, and all flags
+    m_xPos         = 0.0f;
+    m_yPos         = 0.0f;
+    m_Angle        = (float)(-M_PI / 2.0);
+    m_CurrentTime  = 0.0;
+    m_GameOverTime = 0.0;
+    m_GameOver     = false;
+    m_CanRestart   = false;
+
+    // get the spaceship asset and its collider
+    DWF_Scene::SceneItem_StaticAsset* pSpaceshipItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_spaceship"));
+    DWF_Scene::SceneItem_Model*       pSpaceshipCollider = static_cast<DWF_Scene::SceneItem_Model*>      (m_Scene.SearchItem(L"scene_spaceship_collider"));
+
+    // show the player spaceship
+    if (pSpaceshipItem)
+        pSpaceshipItem->SetVisible(true);
+
+    // and its collider (if required)
+    if (pSpaceshipItem)
+        pSpaceshipCollider->SetVisible(m_ShowColliders);
+
+    // get the game over panel
+    DWF_Scene::SceneItem_Model* pModelItem = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_game_over"));
+
+    // hide it
+    if (pModelItem)
+        pModelItem->SetVisible(false);
+
+    // get the explosion particle system
+    DWF_Scene::SceneItem_Particles* pExplosionItem = static_cast<DWF_Scene::SceneItem_Particles*>(m_Scene.SearchItem(L"scene_explosion_particles"));
+
+    // hide it
+    if (pExplosionItem)
+        pExplosionItem->SetVisible(false);
 }
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const RECT& clientRect)
