@@ -126,6 +126,7 @@ class Main
         DWF_Renderer::Renderer_OpenGL                m_Renderer;
         std::shared_ptr<DWF_Model::MDL>              m_pEnemyMdl;
         std::shared_ptr<DWF_Model::Model>            m_pEnemyBox;
+        std::shared_ptr<DWF_Model::Model>            m_pBullet;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pTexShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pColShader;
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pStarShader;
@@ -247,6 +248,19 @@ class Main
         *@return true if event should be raised, otherwise false
         */
         bool DoRaiseEvent(std::size_t index) const;
+
+        /**
+        * Adds an entity to the scene
+        *@param pItem - spawned item
+        *@param evt - entity raising event
+        */
+        void AddEntity(DWF_Scene::Spawner::IItem* pItem, const std::pair<int, ShootEmUp::Entity::IESequenceType>& evt);
+
+        /**
+        * Deletes an entity from the scene
+        *@param pItem - spawned item belonging to the entity
+        */
+        void DeleteEntity(DWF_Scene::Spawner::IItem* pItem);
 
         /**
         * Runs the game over sequence

@@ -499,44 +499,8 @@ void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pI
     for (std::size_t i = 0; i < m_Events.size(); ++i)
         if (DoRaiseEvent(i))
         {
-            float x, y;
-
-            switch (m_Events[i].second)
-            {
-                case ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop:
-                    x = 20.0f;
-                    y = 14.0f;
-                    break;
-
-                case ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom:
-                    x =  20.0f;
-                    y = -14.0f;
-                    break;
-
-                default:
-                    x = 999.0f;
-                    y = 999.0f;
-            }
-
-            // create a name for the new entity/sequence/spawned item group
-            const std::wstring name = L"enemy_" + std::to_wstring(m_Events[i].first);
-
-            // set the spawned item name
-            pItem->m_Name = name;
-
-            // create a new entity, add the assets to use and sequence to follow
-            std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
-                                                                                             m_pEnemyMdl,
-                                                                                             m_pEnemyBox,
-                                                                                             m_pTexShader,
-                                                                                             m_pColShader);
-            pEntity->AddAsset(pItem, m_Scene, x, y, m_ShowColliders);
-            pEntity->AddSequence(&m_Sequencer, m_Events[i].second, DWF_Math::Vector3F(x, -y, -40.0f));
-            m_Entities[pItem] = pEntity.get();
-            pEntity.release();
-
-            // notify that the event was raised
-            m_RaisedEvents.insert(m_Events[i].first);
+            // add an entity to own the item in the scene
+            AddEntity(pItem, m_Events[i]);
             return;
         }
 }
@@ -546,26 +510,8 @@ bool Main::OnDoDelete(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* p
     // check if the sequence reached the end for the current item
     if (m_Sequencer.EndReached(pItem->m_Name) || !m_Sequencer.Exists(pItem->m_Name))
     {
-        // delete the sequence, if exists
-        m_Sequencer.Delete(pItem->m_Name);
-
-        // search for the entity to delete
-        ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
-
-        // delete it
-        if (it != m_Entities.end())
-        {
-            delete it->second;
-            m_Entities.erase(it);
-        }
-
-        // delete the collider item from the scene
-        if (pItem->m_pCollider)
-            m_Scene.Delete(pItem->m_pCollider);
-
-        // delete the model item from the scene
-        if (pItem->m_pModel)
-            m_Scene.Delete(pItem->m_pModel);
+        // delete the entity matching the item from scene
+        DeleteEntity(pItem);
 
         // returning true, the spawned item will be deleted by the spawner
         return true;
@@ -644,6 +590,73 @@ bool Main::DoRaiseEvent(std::size_t index) const
         return false;
 
     return ((std::size_t)(m_CurrentTime * 0.1) >= m_Events[index].first && m_RaisedEvents.find(m_Events[index].first) == m_RaisedEvents.end());
+}
+//------------------------------------------------------------------------------
+void Main::AddEntity(DWF_Scene::Spawner::IItem* pItem, const std::pair<int, ShootEmUp::Entity::IESequenceType>& evt)
+{
+    float x, y;
+
+    switch (evt.second)
+    {
+        case ShootEmUp::Entity::IESequenceType::IE_ST_BottomToTop:
+            x = 20.0f;
+            y = 14.0f;
+            break;
+
+        case ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom:
+            x =  20.0f;
+            y = -14.0f;
+            break;
+
+        default:
+            x = 999.0f;
+            y = 999.0f;
+            break;
+    }
+
+    // create a name for the new entity/sequence/spawned item group
+    const std::wstring name = L"enemy_" + std::to_wstring(evt.first);
+
+    // set the spawned item name
+    pItem->m_Name = name;
+
+    // create a new entity, add the assets to use and sequence to follow
+    std::unique_ptr<ShootEmUp::Entity> pEntity = std::make_unique<ShootEmUp::Entity>(name,
+                                                                                     m_pEnemyMdl,
+                                                                                     m_pEnemyBox,
+                                                                                     m_pTexShader,
+                                                                                     m_pColShader);
+    pEntity->AddAsset(pItem, m_Scene, x, y, m_ShowColliders);
+    pEntity->AddSequence(&m_Sequencer, evt.second, DWF_Math::Vector3F(x, -y, -40.0f));
+    m_Entities[pItem] = pEntity.get();
+    pEntity.release();
+
+    // notify that the event was raised
+    m_RaisedEvents.insert(evt.first);
+}
+//------------------------------------------------------------------------------
+void Main::DeleteEntity(DWF_Scene::Spawner::IItem* pItem)
+{
+    // delete the sequence, if exists
+    m_Sequencer.Delete(pItem->m_Name);
+
+    // search for the entity to delete
+    ShootEmUp::Entities::iterator it = m_Entities.find(pItem);
+
+    // delete it
+    if (it != m_Entities.end())
+    {
+        delete it->second;
+        m_Entities.erase(it);
+    }
+
+    // delete the collider item from the scene
+    if (pItem->m_pCollider)
+        m_Scene.Delete(pItem->m_pCollider);
+
+    // delete the model item from the scene
+    if (pItem->m_pModel)
+        m_Scene.Delete(pItem->m_pModel);
 }
 //------------------------------------------------------------------------------
 void Main::RunGameOver(const DWF_Scene::Scene* pScene)
@@ -839,7 +852,7 @@ bool Main::LoadScene(const RECT& clientRect)
     DWF_Model::Material      mat;
 
     // set vertex format for colored models
-    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
+    vf.m_Type   = DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
     vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
 
     // create material
@@ -851,7 +864,7 @@ bool Main::LoadScene(const RECT& clientRect)
     // create the spaceship box model
     std::shared_ptr<DWF_Model::Model> pSpaceshipBox(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
-    // create the capsule model item
+    // create the spaceship model item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_spaceship_collider");
     pModel->SetStatic(false);
     pModel->SetVisible(false);
@@ -876,6 +889,15 @@ bool Main::LoadScene(const RECT& clientRect)
     m_Scene.Add(pModel.get(), false);
     pModel.release();
 
+    // create material
+    mat.m_Color.m_B = 0.02f;
+    mat.m_Color.m_G = 0.8f;
+    mat.m_Color.m_R = 0.84f;
+    mat.m_Color.m_A = 1.0f;
+
+    // create the bullet model, keep it globally in order to allow new bullet to be spawned on runtime
+    m_pBullet.reset(DWF_Model::Factory::GetSphere(0.25f, 20, 20, vf, vc, mat));
+
     // load enemy spaceship, keep it globally in order to allow new spaceship to be spawned on runtime
     m_pEnemyMdl = std::make_shared<DWF_Model::MDL>();
     m_pEnemyMdl->Set_OnCreateTexture(std::bind(&Main::OnCreateTexture, this, std::placeholders::_1));
@@ -887,14 +909,14 @@ bool Main::LoadScene(const RECT& clientRect)
     // create the spaceship box model
     m_pEnemyBox.reset(DWF_Model::Factory::GetBox(4.0f, 2.0f, 1.5f, false, vf, vc, mat));
 
-    // create a spawner for the enemies and add it to scene
-    std::unique_ptr<DWF_Scene::Spawner> pEnemySpawner = std::make_unique<DWF_Scene::Spawner>(L"scene_enemy_spawner");
-    pEnemySpawner->Set_OnDoSpawn(std::bind(&Main::OnDoSpawn, this, std::placeholders::_1));
-    pEnemySpawner->Set_OnSpawned(std::bind(&Main::OnSpawned, this, std::placeholders::_1, std::placeholders::_2));
-    pEnemySpawner->Set_OnDoDelete(std::bind(&Main::OnDoDelete, this, std::placeholders::_1, std::placeholders::_2));
-    pEnemySpawner->Set_OnCalculateMotion(std::bind(&Main::OnCalculateMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-    m_Scene.AddSpawner(pEnemySpawner.get());
-    pEnemySpawner.release();
+    // create a spawner for the entities and add it to scene
+    std::unique_ptr<DWF_Scene::Spawner> pSpawner = std::make_unique<DWF_Scene::Spawner>(L"scene_entity_spawner");
+    pSpawner->Set_OnDoSpawn(std::bind(&Main::OnDoSpawn, this, std::placeholders::_1));
+    pSpawner->Set_OnSpawned(std::bind(&Main::OnSpawned, this, std::placeholders::_1, std::placeholders::_2));
+    pSpawner->Set_OnDoDelete(std::bind(&Main::OnDoDelete, this, std::placeholders::_1, std::placeholders::_2));
+    pSpawner->Set_OnCalculateMotion(std::bind(&Main::OnCalculateMotion, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    m_Scene.AddSpawner(pSpawner.get());
+    pSpawner.release();
 
     // create material
     mat.m_Color.m_B = 1.0f;
