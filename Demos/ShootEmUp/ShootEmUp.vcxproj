@@ -244,6 +244,7 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneSpawner.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneTimer.h" />
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Resource.h" />
@@ -319,6 +320,7 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneSpawner.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneTimer.cpp" />
     <ClCompile Include="..\..\SDK\String\DWF_StringHelper.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Sequencer.cpp" />

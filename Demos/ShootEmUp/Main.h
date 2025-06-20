@@ -46,6 +46,7 @@
 #include "DWF_MDL.h"
 
 // demo specific classes
+#include "Bullet.h"
 #include "Entity.h"
 #include "Sequencer.h"
 
@@ -133,6 +134,7 @@ class Main
         std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pExplosionShader;
         ShootEmUp::Sequencer                         m_Sequencer;
         ShootEmUp::Entities                          m_Entities;
+        ShootEmUp::Bullets                           m_Bullets;
         IEvents                                      m_Events;
         IRaisedEvents                                m_RaisedEvents;
         GLint                                        m_AlphaSlot        = 0;
@@ -145,6 +147,9 @@ class Main
         bool                                         m_OldShowColliders = false;
         bool                                         m_GameOver         = false;
         bool                                         m_CanRestart       = false;
+
+        std::size_t m_Index = 0;
+        double m_LastBulletTime = 0.0;
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -248,6 +253,10 @@ class Main
         *@return true if event should be raised, otherwise false
         */
         bool DoRaiseEvent(std::size_t index) const;
+
+        void AddBullet(bool fromPlayer);
+
+        void DeleteBullet(ShootEmUp::Bullet* pBullet);
 
         /**
         * Adds an entity to the scene

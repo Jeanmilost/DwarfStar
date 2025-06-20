@@ -140,11 +140,11 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
 
     // task not found?
     if (it == m_Tasks.end())
-        return DWF_Math::Vector3F();
+        return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
 
     // end reached?
     if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
-        return DWF_Math::Vector3F();
+        return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
 
     // get running command
     const ICommand* pRunningCmd = it->second->m_pSequence->m_Pattern[it->second->m_Index];
@@ -171,7 +171,7 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
                     if (m_fOnEndReached)
                         m_fOnEndReached(this, it->second->m_pSequence);
 
-                    return DWF_Math::Vector3F();
+                    return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
                 }
                 else
                 {
@@ -191,7 +191,7 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
         }
 
         default:
-            return DWF_Math::Vector3F();
+            return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
     }
 }
 //---------------------------------------------------------------------------

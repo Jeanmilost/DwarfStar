@@ -206,7 +206,34 @@ void Entity::Move(Sequencer* pSequencer, DWF_Scene::Spawner::IItem* pItem, doubl
         pItem->m_pCollider->SetRoll(m_Angle);
     }
 
-    // keep old position
-    m_OldPos = position;
+    // keep old position and elapsed time
+    m_OldPos          = position;
+    m_LastElapsedTime = elapsedTime;
+}
+//---------------------------------------------------------------------------
+void Entity::Break(Sequencer* pSequencer)
+{
+    // get the current known position
+    const DWF_Math::Vector3F position = pSequencer->GetPosition(m_Name, m_LastElapsedTime);
+
+    // delete the currently running sequence
+    pSequencer->Delete(m_Name);
+
+    // create the dying sequence
+    std::unique_ptr<ShootEmUp::Sequencer::ISequence> pSequence = std::make_unique<ShootEmUp::Sequencer::ISequence>();
+    pSequence->m_Name     = m_Name;
+    pSequence->m_Position = position;
+
+    // add the sequence command
+    std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+    pCmd->m_Direction = DWF_Math::Vector3F(0.0f, 0.0f, -1.0f);
+    pCmd->m_Length    = 50.0f;
+    pCmd->m_Time      = 500.0;
+    pSequence->m_Pattern.push_back(pCmd.get());
+    pCmd.release();
+
+    // add the sequence to the sequencer
+    pSequencer->Add(pSequence.get());
+    pSequence.release();
 }
 //---------------------------------------------------------------------------

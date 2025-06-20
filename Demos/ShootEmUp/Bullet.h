@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> Entity --------------------------------------------------------------*
+ * ==> Bullet --------------------------------------------------------------*
  ****************************************************************************
- * Description : Shoot-em-up entity                                         *
+ * Description : Shoot-em-up bullet                                         *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -29,14 +29,14 @@
 #pragma once
 
 // std
-#include <map>
+#include <vector>
+#include <set>
 #include <string>
 
 // classes
 #include "DWF_Vector3.h"
 #include "DWF_Model.h"
 #include "DWF_ModelFormat.h"
-#include "DWF_SceneSpawner.h"
 #include "DWF_Scene.h"
 #include "DWF_Shader_OpenGL.h"
 #include "Sequencer.h"
@@ -44,40 +44,27 @@
 namespace ShootEmUp
 {
     /**
-    * Shoot-em-up entity
+    * Shoot-em-up bullet
     *@author Jean-Milost Reymond
     */
-    class Entity
+    class Bullet
     {
         public:
             /**
-            * Available sequence type
-            */
-            enum class IESequenceType
-            {
-                IE_ST_BottomToTop,
-                IE_ST_TopToBottom
-            };
-
-            /**
             * Constructor
-            *@param name - entity name
-            *@param pModel - entity model
-            *@param pColliderModel - entity collider model
-            *@param pTexShader - texture shader
+            *@param name - bullet name
+            *@param pModel - bullet model
             *@param pColShader - color shader
             */
-            Entity(const std::wstring&                                 name,
-                   const std::shared_ptr<DWF_Model::ModelFormat>&      pModel,
-                   const std::shared_ptr<DWF_Model::Model>&            pColliderModel,
-                   const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pTexShader,
+            Bullet(const std::wstring&                                 name,
+                   const std::shared_ptr<DWF_Model::Model>&            pModel,
                    const std::shared_ptr<DWF_Renderer::Shader_OpenGL>& pColShader);
 
-            virtual ~Entity();
+            virtual ~Bullet();
 
             /**
-            * Gets entity name
-            *@return the entity name
+            * Gets bullet name
+            *@return the bullet name
             */
             inline std::wstring GetName() const;
 
@@ -88,73 +75,78 @@ namespace ShootEmUp
             inline std::wstring GetModelNameInScene() const;
 
             /**
-            * Gets the collider name, as existing in the scene
-            *@return the collider name, as existing in the scene
+            * Adds a collider name to ignore by the bullet
+            *@param name - collider name to ignore
             */
-            inline std::wstring GetColliderNameInScene() const;
+            void AddColliderToIgnore(const std::wstring& name);
 
             /**
-            * Adds an asset for the entity in the scene
-            *@param pItem - spawned item in the scene
+            * Checks if a collider should be ignored by the bullet
+            *@param name - collider name to check
+            *@returns true if the collider should be ignored by the bullet, otherwise false
+            */
+            bool DoIgnoreCollider(const std::wstring& name) const;
+
+            /**
+            * Adds an asset for the bullet in the scene
             *@param scene - scene in which the asset should be added
-            *@param x - entity start x position
-            *@param y - entity start y position
-            *@param showColliders - if true, colliders are shown
+            *@param x - bullet start x position
+            *@param y - bullet start y position
             */
-            void AddAsset(DWF_Scene::Spawner::IItem* pItem, DWF_Scene::Scene& scene, float x, float y, bool showColliders);
+            void AddAsset(DWF_Scene::Scene& scene, float x, float y);
 
             /**
-            * Adds a sequence which will be followed by the entity
+            * Adds a sequence which will be followed by the bullet
             *@param pSequencer - sequencer
             *@param sequenceType - sequence type
             *@param startPos - sequence start position
             */
-            void AddSequence(Sequencer* pSequencer, IESequenceType sequenceType, const DWF_Math::Vector3F& startPos) const;
+            void AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startPos) const;
 
             /**
-            * Moves the entity to a new position
+            * Removes the bullet asset from the scene
+            *@param scene - scene in which the asset should be deleted
+            */
+            void DeleteAsset(DWF_Scene::Scene& scene);
+
+            /**
+            * Moves the bullet to a new position
             *@param pSequencer - sequencer
-            *@param pItem - spawned item in the scene
             *@param elapsedTime - elapsed time since last move
             */
-            void Move(Sequencer* pSequencer, DWF_Scene::Spawner::IItem* pItem, double elapsedTime);
+            void Move(Sequencer* pSequencer, double elapsedTime);
 
             /**
-            * Breaks the move sequence and run the dying sequence
-            *@param pSequencer - running moving sequence
+            * Breaks the bullet sequence and remove it on next move
             */
-            void Break(Sequencer* pSequencer);
+            void Break();
 
         private:
-            std::shared_ptr<DWF_Model::ModelFormat>      m_pModel;
-            std::shared_ptr<DWF_Model::Model>            m_pColliderModel;
-            std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pTexShader;
+            typedef std::set<std::wstring> IColliderNames;
+
+            DWF_Scene::SceneItem_Model*                  m_pSceneItem = nullptr;
+            std::shared_ptr<DWF_Model::Model>            m_pModel;
             std::shared_ptr<DWF_Renderer::Shader_OpenGL> m_pColShader;
+            IColliderNames                               m_CollidersToIgnore;
             std::wstring                                 m_Name;
             DWF_Math::Vector3F                           m_OldPos;
-            double                                       m_LastElapsedTime = 0.0;
-            float                                        m_Angle           = (float)(M_PI / 2.0);
+            bool                                         m_Broken = false;
     };
 
     /**
-    * Entities dictionary
+    * Bullets dictionary
     */
-    typedef std::map<DWF_Scene::Spawner::IItem*, Entity*> Entities;
+    typedef std::vector<Bullet*> Bullets;
 
     //---------------------------------------------------------------------------
-    inline std::wstring Entity::GetName() const
+    inline std::wstring Bullet::GetName() const
     {
         return m_Name;
     }
     //---------------------------------------------------------------------------
-    inline std::wstring Entity::GetModelNameInScene() const
+    inline std::wstring Bullet::GetModelNameInScene() const
     {
         return m_Name + L"_model_" + std::to_wstring((std::size_t)this);
-    }
-    //---------------------------------------------------------------------------
-    inline std::wstring Entity::GetColliderNameInScene() const
-    {
-        return m_Name + L"_collider_" + std::to_wstring((std::size_t)this);
     }
     //---------------------------------------------------------------------------
 }
