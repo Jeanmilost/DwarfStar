@@ -642,22 +642,27 @@ void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Parti
 //------------------------------------------------------------------------------
 void Main::OnCalculateExplosionMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
 {
+    // particle lifetime reached?
     if (pParticle->m_ElapsedTime >= pParticle->m_Lifetime)
     {
+        // put it out of screen, this way it will not be removed from particle system
         pParticle->m_Matrix.m_Table[3][0] = 999.0f;
         pParticle->m_Matrix.m_Table[3][1] = 999.0f;
         return;
     }
 
-    pParticle->m_Matrix.m_Table[3][0] +=  pParticle->m_Velocity.m_X * (float)elapsedTime;
-    pParticle->m_Matrix.m_Table[3][1] += (pParticle->m_Velocity.m_Y * (float)elapsedTime) - pParticle->m_Gravity;
+    // calculate next particle position
+    pParticle->m_Matrix.m_Table[3][0] +=  pParticle->m_Velocity.m_X                         * (float)elapsedTime;
+    pParticle->m_Matrix.m_Table[3][1] += (pParticle->m_Velocity.m_Y - pParticle->m_Gravity) * (float)elapsedTime;
 
+    // set the particle transparency, stronger as time is elapsed
     if (m_AlphaSlot != -1)
     {
         m_pExplosionShader->Use(true);
         glUniform1f(m_AlphaSlot, 1.0f - (float)(pParticle->m_ElapsedTime / pParticle->m_Lifetime));
     }
 
+    // update particle elapsed time
     pParticle->m_ElapsedTime += elapsedTime;
 }
 //------------------------------------------------------------------------------
@@ -1144,7 +1149,7 @@ bool Main::LoadScene(const RECT& clientRect)
         pParticle->m_Velocity.m_Y = std::sinf(angle) * speed * 0.95f;
         pParticle->m_Velocity.m_Z = 0.0f;
 
-        pParticle->m_Gravity  = 0.15f;
+        pParticle->m_Gravity  = 0.015f;
         pParticle->m_Lifetime = 2000.0f;
 
         // configure the particle matrix (was set to identity while the particle was created)
