@@ -281,10 +281,10 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
             // do show or hide the colliders?
             if (m_ShowColliders != m_OldShowColliders)
             {
-                // get the space shift
+                // get the player spaceship collider
                 DWF_Scene::SceneItem_Model* pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>(m_Scene.SearchItem(L"scene_spaceship_collider"));
 
-                // Show or hide the space shift collider
+                // show or hide the spaceship collider
                 if (pModelCollider)
                     pModelCollider->SetVisible(m_ShowColliders);
 
@@ -414,7 +414,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     {
         if (m_CurrentTime >= m_LastBulletTime + 200.0)
         {
-            AddBullet(true);
+            AddBullet(pModelItem, pModelCollider, true);
             m_LastBulletTime = m_CurrentTime;
         }
     }
@@ -482,63 +482,29 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     // hit a bullet?
     if (pItem1->GetName().find(L"bullet_") == 0)
     {
-        // iterate through bullets
-        for (auto pBullet : m_Bullets)
-            // found the hitting bullet?
-            if (pItem1->GetName() == pBullet->GetModelNameInScene())
-                // do bullet ignore the other collider?
-                if (pBullet->DoIgnoreCollider(pItem2->GetName()))
-                    return;
-                else
-                {
-                    pBullet->Break();
-                    break;
-                }
-
-        // iterate through running entities
-        for (ShootEmUp::Entities::iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
-            // Found the hit entity?
-            if (it->first->m_pCollider == pItem2)
-            {
-                // breaks its sequence and run the dying one
-                it->second->Break(&m_Sequencer);
-                break;
-            }
+        if (CheckBulletIsIgnoredOrHitEnemy(pItem1, pItem2))
+            return;
     }
     else
     if (pItem2->GetName().find(L"bullet_") == 0)
-    {
-        // iterate through bullets
-        for (auto pBullet : m_Bullets)
-            // found the hitting bullet?
-            if (pItem2->GetName() == pBullet->GetModelNameInScene())
-                // do bullet ignore the other collider ?
-                if (pBullet->DoIgnoreCollider(pItem1->GetName()))
-                    return;
-                else
-                {
-                    pBullet->Break();
-                    break;
-                }
+        if (CheckBulletIsIgnoredOrHitEnemy(pItem2, pItem1))
+            return;
 
-        // iterate through running entities
-        for (ShootEmUp::Entities::iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
-            // Found the hit entity?
-            if (it->first->m_pCollider == pItem1)
-            {
-                // breaks its sequence and run the dying one
-                it->second->Break(&m_Sequencer);
-                break;
-            }
-    }
-
-    // one of the collider belongs to the player space shift?
+    // one of the collider belongs to the player spaceship?
     if (pItem1->GetName() != L"scene_spaceship_collider" && pItem2->GetName() != L"scene_spaceship_collider")
         return;
 
+    // player was hit by a bullet?
+    if (pItem1->GetName().find(L"bullet_") == 0 || pItem2->GetName().find(L"bullet_") == 0)
+    {
+        // run the game over sequence onto the player spaceship. Can do that from here because no item is removed from the scene, only hidden
+        RunGameOver(pScene);
+        return;
+    }
+
     std::wstring spawnedItemName;
 
-    // hit an enemy?
+    // player hit an enemy?
     if (pItem1->GetName().find(L"enemy_") == 0)
     {
         const std::size_t sepPos = pItem1->GetName().find(L"_", 6);
@@ -610,6 +576,10 @@ void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::I
 
     // move it
     it->second->Move(&m_Sequencer, pItem, elapsedTime);
+
+    // randomly fire a bullet against the player
+    if (std::rand() % 300 == 255 || std::rand() % 300 == 124)
+        AddBullet(static_cast<DWF_Scene::SceneItem_StaticAsset*>(pItem->m_pModel), static_cast<DWF_Scene::SceneItem_Model*>(pItem->m_pCollider), false);
 }
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
@@ -677,38 +647,51 @@ bool Main::DoRaiseEvent(std::size_t index) const
     return ((std::size_t)(m_CurrentTime * 0.1) >= m_Events[index].first && m_RaisedEvents.find(m_Events[index].first) == m_RaisedEvents.end());
 }
 //------------------------------------------------------------------------------
-void Main::AddBullet(bool fromPlayer)
+void Main::AddBullet(DWF_Scene::SceneItem_StaticAsset* pItem, DWF_Scene::SceneItem_Model* pCollider, bool fromPlayer)
 {
-    float        x, y;
-    std::wstring colliderName;
+    if (!pItem)
+        return;
 
-    if (fromPlayer)
-    {
-        DWF_Scene::SceneItem_StaticAsset* pModelItem = static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_spaceship"));
-
-        if (pModelItem)
-        {
-            const DWF_Math::Vector3F pos = pModelItem->GetPos();
-            x = pos.m_X;
-            y = pos.m_Y;
-        }
-
-        // bullet should ignore the spaceship collider
-        colliderName = L"scene_spaceship_collider";
-    }
-    else
-    {
-    }
+    if (!pCollider)
+        return;
 
     // create a name for the new entity/sequence/spawned item group
     const std::wstring name = L"bullet_" + std::to_wstring(m_Index);
     ++m_Index;
 
+    const DWF_Math::Vector3F pos = pItem->GetPos();
+    const float              x   = pos.m_X;
+    const float              y   = pos.m_Y;
+
+    DWF_Math::Vector3F dir;
+
+    // calculate the bullet direction
+    if (fromPlayer)
+        dir = DWF_Math::Vector3F(1.0f, 0.0f, 0.0f);
+    else
+    {
+        DWF_Scene::SceneItem_StaticAsset* pPlayerItem = static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_spaceship"));
+
+        if (!pPlayerItem)
+            return;
+
+        dir = (pPlayerItem->GetPos() - pItem->GetPos()).Normalize();
+    }
+
     // create a new entity, add the assets to use and sequence to follow
     std::unique_ptr<ShootEmUp::Bullet> pBullet = std::make_unique<ShootEmUp::Bullet>(name, m_pBullet, m_pColShader);
     pBullet->AddAsset(m_Scene, x, y);
-    pBullet->AddSequence(&m_Sequencer, DWF_Math::Vector3F(x, y, -40.0f));
-    pBullet->AddColliderToIgnore(colliderName);
+    pBullet->AddSequence(&m_Sequencer, DWF_Math::Vector3F(x, y, -40.0f), dir);
+    pBullet->AddColliderToIgnore(pCollider->GetName());
+
+    // if an enemy fired, add all the other enemies colliders to ignore
+    if (!fromPlayer)
+        // iterate through running entities
+        for (ShootEmUp::Entities::iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
+            // Found the hit entity?
+            if (it->first->m_pModel != pItem)
+                pBullet->AddColliderToIgnore(it->first->m_pCollider->GetName());
+
     m_Bullets.push_back(pBullet.get());
     pBullet.release();
 }
@@ -792,6 +775,34 @@ void Main::DeleteEntity(DWF_Scene::Spawner::IItem* pItem)
         m_Scene.Delete(pItem->m_pModel);
 }
 //------------------------------------------------------------------------------
+bool Main::CheckBulletIsIgnoredOrHitEnemy(const DWF_Scene::SceneItem* pItem1, const DWF_Scene::SceneItem* pItem2)
+{
+    // iterate through bullets
+    for (auto pBullet : m_Bullets)
+        // found the hitting bullet?
+        if (pItem1->GetName() == pBullet->GetModelNameInScene())
+            // do bullet ignore the other collider?
+            if (pBullet->DoIgnoreCollider(pItem2->GetName()))
+                return true;
+            else
+            {
+                pBullet->Break();
+                break;
+            }
+
+    // iterate through running entities
+    for (ShootEmUp::Entities::const_iterator it = m_Entities.begin(); it != m_Entities.end(); ++it)
+        // Found the hit entity?
+        if (it->first->m_pCollider == pItem2)
+        {
+            // breaks its sequence and run the dying one
+            it->second->Break(&m_Sequencer);
+            break;
+        }
+
+    return false;
+}
+//------------------------------------------------------------------------------
 void Main::RunGameOver(const DWF_Scene::Scene* pScene)
 {
     // get the objects of interest from scene
@@ -851,17 +862,15 @@ void Main::ResetGame()
     m_RaisedEvents.clear();
 
     // reset all other time and position values, and all flags
-    m_xPos         = 0.0f;
-    m_yPos         = 0.0f;
-    m_Angle        = (float)(-M_PI / 2.0);
-    m_CurrentTime  = 0.0;
-    m_GameOverTime = 0.0;
-    m_GameOver     = false;
-    m_CanRestart   = false;
-
-    // FIXME
-    m_Index = 0;
+    m_Index          = 0;
+    m_xPos           = 0.0f;
+    m_yPos           = 0.0f;
+    m_Angle          = (float)(-M_PI / 2.0);
+    m_CurrentTime    = 0.0;
+    m_GameOverTime   = 0.0;
     m_LastBulletTime = 0.0;
+    m_GameOver       = false;
+    m_CanRestart     = false;
 
     // get the spaceship asset and its collider
     DWF_Scene::SceneItem_StaticAsset* pSpaceshipItem     = static_cast<DWF_Scene::SceneItem_StaticAsset*>(m_Scene.SearchItem(L"scene_spaceship"));

@@ -90,7 +90,7 @@ void Bullet::AddAsset(DWF_Scene::Scene& scene, float x, float y)
     m_pSceneItem = pModel.release();
 }
 //---------------------------------------------------------------------------
-void Bullet::AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startPos) const
+void Bullet::AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startPos, const DWF_Math::Vector3F& dir) const
 {
     // create a sequence
     std::unique_ptr<ShootEmUp::Sequencer::ISequence> pSequence = std::make_unique<ShootEmUp::Sequencer::ISequence>();
@@ -99,7 +99,7 @@ void Bullet::AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startP
 
     // add the sequence command
     std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
-    pCmd->m_Direction                                    = DWF_Math::Vector3F(1.0f, 0.0f, 0.0f);
+    pCmd->m_Direction                                    = dir;
     pCmd->m_Length                                       = 40.0f;
     pCmd->m_Time                                         = 1000.0;
     pSequence->m_Pattern.push_back(pCmd.get());

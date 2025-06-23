@@ -98,10 +98,10 @@ namespace ShootEmUp
             /**
             * Adds a sequence which will be followed by the bullet
             *@param pSequencer - sequencer
-            *@param sequenceType - sequence type
-            *@param startPos - sequence start position
+            *@param startPos - bullet start position
+            *@param dir - bullet direction
             */
-            void AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startPos) const;
+            void AddSequence(Sequencer* pSequencer, const DWF_Math::Vector3F& startPos, const DWF_Math::Vector3F& dir) const;
 
             /**
             * Removes the bullet asset from the scene

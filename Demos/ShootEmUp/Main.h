@@ -138,18 +138,17 @@ class Main
         IEvents                                      m_Events;
         IRaisedEvents                                m_RaisedEvents;
         GLint                                        m_AlphaSlot        = 0;
+        std::size_t                                  m_Index            = 0;
         float                                        m_xPos             = 0.0f;
         float                                        m_yPos             = 0.0f;
         float                                        m_Angle            = (float)(-M_PI / 2.0);
         double                                       m_CurrentTime      = 0.0;
         double                                       m_GameOverTime     = 0.0;
+        double                                       m_LastBulletTime   = 0.0;
         bool                                         m_ShowColliders    = false;
         bool                                         m_OldShowColliders = false;
         bool                                         m_GameOver         = false;
         bool                                         m_CanRestart       = false;
-
-        std::size_t m_Index = 0;
-        double m_LastBulletTime = 0.0;
 
         /**
         * Called when a texture should be created for a .mdl model file
@@ -254,8 +253,18 @@ class Main
         */
         bool DoRaiseEvent(std::size_t index) const;
 
-        void AddBullet(bool fromPlayer);
+        /**
+        * Adds a bullet to the scene
+        *@param pItem - item from which the bullet should be fired
+        *@param pCollider -item collider
+        *@param fromPlayer - if true, the bullet was fired by the player
+        */
+        void AddBullet(DWF_Scene::SceneItem_StaticAsset* pItem, DWF_Scene::SceneItem_Model* pCollider, bool fromPlayer);
 
+        /**
+        * Deletes a bullet from the scene
+        *@param pBullet - bullet to delete
+        */
         void DeleteBullet(ShootEmUp::Bullet* pBullet);
 
         /**
@@ -270,6 +279,14 @@ class Main
         *@param pItem - spawned item belonging to the entity
         */
         void DeleteEntity(DWF_Scene::Spawner::IItem* pItem);
+
+        /**
+        * Checks if a bullet do ignore the collider and if an enemy was hit
+        *@param pItem1 - the item containing the bullet
+        *@param pItem2 - the hit spaceship, may be either the player or any enemy
+        *@return true if the collision should be ignored, otherwise false
+        */
+        bool CheckBulletIsIgnoredOrHitEnemy(const DWF_Scene::SceneItem* pItem1, const DWF_Scene::SceneItem* pItem2);
 
         /**
         * Runs the game over sequence
