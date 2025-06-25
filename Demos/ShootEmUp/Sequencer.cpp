@@ -231,7 +231,7 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
             return DWF_Math::BezierCurve::GetQuadraticBezierPoint(it->second->m_Position,
                                                                   endPos,
                                                                   pRunningCmd->m_Control1,
-                                                                  (it->second->m_ElapsedTime / pRunningCmd->m_Time));
+                                                                  (float)(it->second->m_ElapsedTime / pRunningCmd->m_Time));
         }
 
         case IECurve::IE_C_CubicBezierCurve:
@@ -273,7 +273,7 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
                                                               endPos,
                                                               pRunningCmd->m_Control1,
                                                               pRunningCmd->m_Control2,
-                                                              (it->second->m_ElapsedTime / pRunningCmd->m_Time));
+                                                              (float)(it->second->m_ElapsedTime / pRunningCmd->m_Time));
         }
 
         default:
