@@ -31,6 +31,9 @@
 // std
 #include <memory>
 
+// classes
+#include "DWF_BezierCurve.h"
+
 using namespace ShootEmUp;
 
 //---------------------------------------------------------------------------
@@ -188,6 +191,89 @@ DWF_Math::Vector3F Sequencer::GetPosition(const std::wstring& name, double elaps
 
             // calculate and return next position
             return it->second->m_Position + (pRunningCmd->m_Direction * (float)distance);
+        }
+
+        case IECurve::IE_C_QuadraticBezierCurve:
+        {
+            // increase elapsed time
+            it->second->m_ElapsedTime += elapsedTime;
+
+            // sequence end reached?
+            if (it->second->m_ElapsedTime >= pRunningCmd->m_Time)
+            {
+                // set time end and increase to next command
+                it->second->m_ElapsedTime = pRunningCmd->m_Time;
+                ++it->second->m_Index;
+
+                // sequence end reached?
+                if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
+                {
+                    // notify that sequence end was reached
+                    if (m_fOnEndReached)
+                        m_fOnEndReached(this, it->second->m_pSequence);
+
+                    return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
+                }
+                else
+                {
+                    // calculate next start position and reset time
+                    it->second->m_Position    = pRunningCmd->m_Direction * pRunningCmd->m_Length;
+                    it->second->m_ElapsedTime = 0.0;
+
+                    return it->second->m_Position;
+                }
+            }
+
+            // calculate end position
+            const DWF_Math::Vector3F endPos = it->second->m_Position + (pRunningCmd->m_Direction * pRunningCmd->m_Length);
+
+            // calculate and return next position
+            return DWF_Math::BezierCurve::GetQuadraticBezierPoint(it->second->m_Position,
+                                                                  endPos,
+                                                                  pRunningCmd->m_Control1,
+                                                                  (it->second->m_ElapsedTime / pRunningCmd->m_Time));
+        }
+
+        case IECurve::IE_C_CubicBezierCurve:
+        {
+            // increase elapsed time
+            it->second->m_ElapsedTime += elapsedTime;
+
+            // sequence end reached?
+            if (it->second->m_ElapsedTime >= pRunningCmd->m_Time)
+            {
+                // set time end and increase to next command
+                it->second->m_ElapsedTime = pRunningCmd->m_Time;
+                ++it->second->m_Index;
+
+                // sequence end reached?
+                if (it->second->m_Index >= it->second->m_pSequence->m_Pattern.size())
+                {
+                    // notify that sequence end was reached
+                    if (m_fOnEndReached)
+                        m_fOnEndReached(this, it->second->m_pSequence);
+
+                    return DWF_Math::Vector3F(999.0f, 999.0f, 999.0f);
+                }
+                else
+                {
+                    // calculate next start position and reset time
+                    it->second->m_Position    = pRunningCmd->m_Direction * pRunningCmd->m_Length;
+                    it->second->m_ElapsedTime = 0.0;
+
+                    return it->second->m_Position;
+                }
+            }
+
+            // calculate end position
+            const DWF_Math::Vector3F endPos = it->second->m_Position + (pRunningCmd->m_Direction * pRunningCmd->m_Length);
+
+            // calculate and return next position
+            return DWF_Math::BezierCurve::GetCubicBezierPoint(it->second->m_Position,
+                                                              endPos,
+                                                              pRunningCmd->m_Control1,
+                                                              pRunningCmd->m_Control2,
+                                                              (it->second->m_ElapsedTime / pRunningCmd->m_Time));
         }
 
         default:

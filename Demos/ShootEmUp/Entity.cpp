@@ -175,6 +175,45 @@ void Entity::AddSequence(Sequencer* pSequencer, IESequenceType sequenceType, con
             break;
         }
 
+        case IESequenceType::IE_ST_BezierCurve1:
+        {
+            // first command, move the entity from the screen right on the bottom
+            std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Curve     = ShootEmUp::Sequencer::IECurve::IE_C_CubicBezierCurve;
+            pCmd->m_Direction = DWF_Math::Vector3F(-1.0f,  0.0f,   0.0f);
+            pCmd->m_Control1  = DWF_Math::Vector3F( 9.0f,  15.0f, -40.0f);
+            pCmd->m_Control2  = DWF_Math::Vector3F(-9.0f, -15.0f, -40.0f);
+            pCmd->m_Length    = 45.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // add the sequence to the sequencer
+            pSequencer->Add(pSequence.get());
+            pSequence.release();
+
+            break;
+        }
+
+        case IESequenceType::IE_ST_BezierCurve2:
+        {
+            // first command, move the entity from the screen right on the bottom
+            std::unique_ptr<ShootEmUp::Sequencer::ICommand> pCmd = std::make_unique<ShootEmUp::Sequencer::ICommand>();
+            pCmd->m_Curve     = ShootEmUp::Sequencer::IECurve::IE_C_QuadraticBezierCurve;
+            pCmd->m_Direction = DWF_Math::Vector3F(-1.0f,   0.6f,   0.0f);
+            pCmd->m_Control1  = DWF_Math::Vector3F( 19.0f, 15.0f, -40.0f);
+            pCmd->m_Length    = 45.0f;
+            pCmd->m_Time      = 2000.0;
+            pSequence->m_Pattern.push_back(pCmd.get());
+            pCmd.release();
+
+            // add the sequence to the sequencer
+            pSequencer->Add(pSequence.get());
+            pSequence.release();
+
+            break;
+        }
+
         default:
             break;
     }

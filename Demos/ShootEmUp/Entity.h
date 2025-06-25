@@ -56,7 +56,10 @@ namespace ShootEmUp
             enum class IESequenceType
             {
                 IE_ST_BottomToTop,
-                IE_ST_TopToBottom
+                IE_ST_TopToBottom,
+                IE_ST_BezierCurve1,
+                IE_ST_BezierCurve2,
+                IE_ST_NextLevel
             };
 
             /**

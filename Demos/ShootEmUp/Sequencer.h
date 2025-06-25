@@ -51,7 +51,9 @@ namespace ShootEmUp
             */
             enum class IECurve
             {
-                IE_C_Linear
+                IE_C_Linear,
+                IE_C_QuadraticBezierCurve,
+                IE_C_CubicBezierCurve
             };
 
             /**
@@ -60,6 +62,8 @@ namespace ShootEmUp
             struct ICommand
             {
                 DWF_Math::Vector3F m_Direction;
+                DWF_Math::Vector3F m_Control1;
+                DWF_Math::Vector3F m_Control2;
                 IECurve            m_Curve  = IECurve::IE_C_Linear;
                 float              m_Length = 0.0f;
                 double             m_Time   = 0.0;

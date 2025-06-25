@@ -533,16 +533,35 @@ bool Main::OnDoSpawn(DWF_Scene::Spawner* pSpawner)
     if (m_GameOver)
         return false;
 
+    // iterate through events
     for (std::size_t i = 0; i < m_Events.size(); ++i)
+        // do raise an event?
         if (DoRaiseEvent(i))
+        {
+            // wave ended?
+            if (m_Events[i].second == ShootEmUp::Entity::IESequenceType::IE_ST_NextLevel)
+            {
+                // reset all raised events
+                m_RaisedEvents.clear();
+
+                // go to next level
+                m_CurrentTime    = 0.0;
+                m_LastBulletTime = 0.0;
+                ++m_Difficulty;
+                return false;
+            }
+
             return true;
+        }
 
     return false;
 }
 //------------------------------------------------------------------------------
 void Main::OnSpawned(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::IItem* pItem)
 {
+    // iterate through events
     for (std::size_t i = 0; i < m_Events.size(); ++i)
+        // event was raised?
         if (DoRaiseEvent(i))
         {
             // add an entity to own the item in the scene
@@ -577,9 +596,31 @@ void Main::OnCalculateMotion(DWF_Scene::Spawner* pSpawner, DWF_Scene::Spawner::I
     // move it
     it->second->Move(&m_Sequencer, pItem, elapsedTime);
 
-    // randomly fire a bullet against the player
-    if (std::rand() % 300 == 255 || std::rand() % 300 == 124)
-        AddBullet(static_cast<DWF_Scene::SceneItem_StaticAsset*>(pItem->m_pModel), static_cast<DWF_Scene::SceneItem_Model*>(pItem->m_pCollider), false);
+    // select the difficulty
+    switch (m_Difficulty)
+    {
+        case 0:
+            // randomly fire a bullet against the player
+            if (std::rand() % 2000 == 912)
+                AddBullet(static_cast<DWF_Scene::SceneItem_StaticAsset*>(pItem->m_pModel), static_cast<DWF_Scene::SceneItem_Model*>(pItem->m_pCollider), false);
+
+            break;
+
+        case 1:
+            // randomly fire a bullet against the player
+            if (std::rand() % 1000 == 525 || std::rand() % 1000 == 124)
+                AddBullet(static_cast<DWF_Scene::SceneItem_StaticAsset*>(pItem->m_pModel), static_cast<DWF_Scene::SceneItem_Model*>(pItem->m_pCollider), false);
+
+            break;
+
+        case 2:
+        default:
+            // randomly fire a bullet against the player
+            if (std::rand() % 300 == 255 || std::rand() % 300 == 124)
+                AddBullet(static_cast<DWF_Scene::SceneItem_StaticAsset*>(pItem->m_pModel), static_cast<DWF_Scene::SceneItem_Model*>(pItem->m_pCollider), false);
+
+            break;
+    }
 }
 //------------------------------------------------------------------------------
 void Main::OnCalculateStarMotion(DWF_Particles::Particles* pParticles, DWF_Particles::Particle* pParticle, double elapsedTime)
@@ -724,6 +765,16 @@ void Main::AddEntity(DWF_Scene::Spawner::IItem* pItem, const std::pair<int, Shoo
             y = -14.0f;
             break;
 
+        case ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1:
+            x = 20.0f;
+            y = 0.0f;
+            break;
+
+        case ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2:
+            x = 20.0f;
+            y = 15.0f;
+            break;
+
         default:
             x = 999.0f;
             y = 999.0f;
@@ -858,11 +909,18 @@ void Main::ResetGame()
 
     m_Entities.clear();
 
+    // delete all fired bullets
+    for (std::size_t i = 0; i < m_Bullets.size(); ++i)
+        DeleteBullet(m_Bullets[i]);
+
+    m_Bullets.clear();
+
     // reset all raised events
     m_RaisedEvents.clear();
 
     // reset all other time and position values, and all flags
     m_Index          = 0;
+    m_Difficulty     = 0;
     m_xPos           = 0.0f;
     m_yPos           = 0.0f;
     m_Angle          = (float)(-M_PI / 2.0);
@@ -1042,7 +1100,7 @@ bool Main::LoadScene(const RECT& clientRect)
     mat.m_Color.m_A = 1.0f;
 
     // create the bullet model, keep it globally in order to allow new bullet to be spawned on runtime
-    m_pBullet.reset(DWF_Model::Factory::GetSphere(0.25f, 20, 20, vf, vc, mat));
+    m_pBullet.reset(DWF_Model::Factory::GetSphere(0.25f, 5, 5, vf, vc, mat));
 
     // load enemy spaceship, keep it globally in order to allow new spaceship to be spawned on runtime
     m_pEnemyMdl = std::make_shared<DWF_Model::MDL>();
@@ -1073,7 +1131,7 @@ bool Main::LoadScene(const RECT& clientRect)
     mat.m_Color.m_A = 1.0f;
 
     // create the star model
-    std::shared_ptr<DWF_Model::Model> pStarModel(DWF_Model::Factory::GetSphere(0.1f, 20, 20, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pStarModel(DWF_Model::Factory::GetSphere(0.1f, 5, 5, vf, vc, mat));
 
     // create the stars particle system
     std::shared_ptr<DWF_Particles::Particles> pStars = std::make_shared<DWF_Particles::Particles>();
@@ -1132,7 +1190,7 @@ bool Main::LoadScene(const RECT& clientRect)
     mat.m_Transparent = true;
 
     // create the explosion model
-    std::shared_ptr<DWF_Model::Model> pExplosionModel(DWF_Model::Factory::GetSphere(0.1f, 20, 20, vf, vc, mat));
+    std::shared_ptr<DWF_Model::Model> pExplosionModel(DWF_Model::Factory::GetSphere(0.1f, 5, 5, vf, vc, mat));
 
     // create the explosion particle system
     std::shared_ptr<DWF_Particles::Particles> pExplosion = std::make_shared<DWF_Particles::Particles>();
@@ -1254,6 +1312,17 @@ bool Main::LoadScene(const RECT& clientRect)
     m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1350, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
     m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1400, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
     m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(1450, ShootEmUp::Entity::IESequenceType::IE_ST_TopToBottom));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(2250, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(2300, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(2350, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(2400, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(2450, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve1));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(3250, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(3300, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(3350, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(3400, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(3450, ShootEmUp::Entity::IESequenceType::IE_ST_BezierCurve2));
+    m_Events.push_back(std::pair<int, ShootEmUp::Entity::IESequenceType>(4000, ShootEmUp::Entity::IESequenceType::IE_ST_NextLevel));
 
     return true;
 }

@@ -204,6 +204,7 @@
     <ClInclude Include="..\..\SDK\Geometry\DWF_Ray.h" />
     <ClInclude Include="..\..\SDK\Geometry\DWF_Sphere.h" />
     <ClInclude Include="..\..\SDK\Logger\DWF_Logger.h" />
+    <ClInclude Include="..\..\SDK\Math\DWF_BezierCurve.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_MathHelper.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Quaternion.h" />
@@ -280,6 +281,7 @@
     <ClCompile Include="..\..\SDK\Geometry\DWF_Ray.cpp" />
     <ClCompile Include="..\..\SDK\Geometry\DWF_Sphere.cpp" />
     <ClCompile Include="..\..\SDK\Logger\DWF_Logger.cpp" />
+    <ClCompile Include="..\..\SDK\Math\DWF_BezierCurve.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_MathHelper.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Quaternion.cpp" />

@@ -70,18 +70,6 @@ class Main
         static Main* GetInstance();
 
         /**
-        * Gets if animated model skeleton should be shown
-        *@return true if animated model skeleton should be shown, otherwise false
-        */
-        //REM virtual inline bool GetShowSkeleton();
-
-        /**
-        * Sets if animated model skeleton should be shown
-        *@param @value - if true, animated model skeleton will be shown
-        */
-        //REM virtual inline void SetShowSkeleton(bool value);
-
-        /**
         * Gets if colliders should be shown
         *@return true if colliders should be shown, otherwise false
         */
@@ -92,11 +80,6 @@ class Main
         *@param value - if true, colliders should be shown
         */
         virtual inline void SetShowColliders(bool value);
-
-        /**
-        * Changes the camera type
-        */
-        //REM virtual inline void ChangeCameraType();
 
         /**
         * Runs the form
@@ -139,6 +122,7 @@ class Main
         IRaisedEvents                                m_RaisedEvents;
         GLint                                        m_AlphaSlot        = 0;
         std::size_t                                  m_Index            = 0;
+        std::size_t                                  m_Difficulty       = 0;
         float                                        m_xPos             = 0.0f;
         float                                        m_yPos             = 0.0f;
         float                                        m_Angle            = (float)(-M_PI / 2.0);
