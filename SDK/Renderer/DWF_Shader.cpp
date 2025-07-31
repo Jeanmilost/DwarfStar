@@ -79,7 +79,7 @@ void Shader::PopulateAttributeDict()
     m_AttributeDictionary[IEAttribute::IE_SA_Normal]           = "dwf_aNormal";
     m_AttributeDictionary[IEAttribute::IE_SA_Texture]          = "dwf_aTexCoord";
     m_AttributeDictionary[IEAttribute::IE_SA_Color]            = "dwf_aColor";
-    m_AttributeDictionary[IEAttribute::IE_SA_DirLight]         = "dwf_aDirLight";
+    m_AttributeDictionary[IEAttribute::IE_SA_DirLight]         = "dwf_uDirLight";
     m_AttributeDictionary[IEAttribute::IE_SA_ProjectionMatrix] = "dwf_uProjection";
     m_AttributeDictionary[IEAttribute::IE_SA_ViewMatrix]       = "dwf_uView";
     m_AttributeDictionary[IEAttribute::IE_SA_ModelMatrix]      = "dwf_uModel";
