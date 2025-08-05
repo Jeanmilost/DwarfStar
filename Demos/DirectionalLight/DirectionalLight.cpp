@@ -323,7 +323,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             modelMatrixC1.m_Table[3][2]        = g_Capsule1Pos.m_Z;
 
             // combine the invert rotation matrix
-            matrix = DWF_Math::Matrix4x4F::Identity();
+            matrix  = DWF_Math::Matrix4x4F::Identity();
             rotMatZ = matrix.Rotate(-angle, axis);
             rotMat  = rotMatZ.Multiply(rotMatY);
 

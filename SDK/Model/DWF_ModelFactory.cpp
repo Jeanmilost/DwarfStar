@@ -374,17 +374,17 @@ Model* Factory::GetSphere(float                             radius,
         // calculate next slice values
         const float a  = i * majorStep;
         const float b  = a + majorStep;
-        const float r0 = radius * sinf(a);
-        const float r1 = radius * sinf(b);
-        const float z0 = radius * cosf(a);
-        const float z1 = radius * cosf(b);
+        const float r0 = radius * std::sinf(a);
+        const float r1 = radius * std::sinf(b);
+        const float z0 = radius * std::cosf(a);
+        const float z1 = radius * std::cosf(b);
 
         // iterate through vertex stacks
         for (std::size_t j = 0; j <= stacks; ++j)
         {
             const float c = j * minorStep;
-            const float x = cosf(c);
-            const float y = sinf(c);
+            const float x = std::cosf(c);
+            const float y = std::sinf(c);
 
             DWF_Math::Vector3F vertex;
 
@@ -479,6 +479,12 @@ Model* Factory::GetCylinder(float                             minRadius,
     // calculate step to apply between faces
     const float step = (float)(2.0 * M_PI) / (float)faces;
 
+    // calculate normal components for truncated cone. In this case, the normal is perpendicular to the slanted surface
+    const float radiusDiff   =  maxRadius - minRadius;
+    const float normalLength =  std::sqrtf(height * height + radiusDiff * radiusDiff);
+    const float normalY      = -radiusDiff / normalLength;
+    const float normalRadial =  height     / normalLength;
+
     // iterate through vertices to create
     for (std::size_t i = 0; i < faces + 1; ++i)
     {
@@ -488,19 +494,22 @@ Model* Factory::GetCylinder(float                             minRadius,
         DWF_Math::Vector3F vertex;
 
         // set vertex data
-        vertex.m_X = minRadius * cosf(angle);
+        vertex.m_X = minRadius * std::cosf(angle);
         vertex.m_Y = -(height / 2.0f);
-        vertex.m_Z = minRadius * sinf(angle);
+        vertex.m_Z = minRadius * std::sinf(angle);
 
         DWF_Math::Vector3F normal;
 
         // vertex has normals?
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
         {
-            // set normals
-            normal.m_X = cosf(angle);
-            normal.m_Y = 0.0f;
-            normal.m_Z = sinf(angle);
+            // calculate proper normal for truncated cone surface
+            normal.m_X = normalRadial * std::cosf(angle);
+            normal.m_Y = normalY;
+            normal.m_Z = normalRadial * std::sinf(angle);
+
+            // normalize the normal vector (should already be normalized, but ensure it)
+            normal = normal.Normalize();
         }
 
         DWF_Math::Vector2F uv;
@@ -527,17 +536,20 @@ Model* Factory::GetCylinder(float                             minRadius,
         pVB->Add(&vertex, &normal, &uv, (size_t)i * 2, fOnGetVertexColor);
 
         // set vertex data
-        vertex.m_X = maxRadius * cosf(angle);
+        vertex.m_X = maxRadius * std::cosf(angle);
         vertex.m_Y = (height / 2.0f);
-        vertex.m_Z = maxRadius * sinf(angle);
+        vertex.m_Z = maxRadius * std::sinf(angle);
 
         // vertex has normals?
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
         {
-            // set normals
-            normal.m_X = cosf(angle);
-            normal.m_Y = 0.0f;
-            normal.m_Z = sinf(angle);
+            // use the same normal as bottom vertex for smooth surface (normal is the same across the slanted surface of the truncated cone)
+            normal.m_X = normalRadial * std::cosf(angle);
+            normal.m_Y = normalY;
+            normal.m_Z = normalRadial * std::sinf(angle);
+
+            // normalize the normal vector (should already be normalized, but ensure it)
+            normal = normal.Normalize();
         }
 
         // vertex has UV texture coordinates?
@@ -591,7 +603,7 @@ Model* Factory::GetCapsule(float                             height,
     const float twoThirds = 2.0f / 3.0f;
 
     const DWF_Math::Vector3F capsuleTop   (0.0f, height, 0.0f);
-    const DWF_Math::Vector3F capsuleBottom(0.0f, 0.0f, 0.0f);
+    const DWF_Math::Vector3F capsuleBottom(0.0f, 0.0f,   0.0f);
 
     // this capsule
     const DWF_Math::Vector3F lineDir       = (capsuleTop    - capsuleBottom).Normalize();
@@ -640,11 +652,17 @@ Model* Factory::GetCapsule(float                             height,
             // vertex has normals?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
             {
-                // calculate the vertex normals
-                normal0 = p0 / radius;
-                normal1 = p1 / radius;
-                normal2 = p2 / radius;
-                normal3 = p3 / radius;
+                // calculate the vertex normals for cylinder (radial direction only). Remove the axial component by subtracting
+                // the center line position
+                DWF_Math::Vector3F center0 = top + localZ * (v  * length);
+                DWF_Math::Vector3F center1 = top + localZ * (vn * length);
+                DWF_Math::Vector3F center2 = top + localZ * (v  * length);
+                DWF_Math::Vector3F center3 = top + localZ * (vn * length);
+
+                normal0 = (p0 - center0).Normalize();
+                normal1 = (p1 - center1).Normalize();
+                normal2 = (p2 - center2).Normalize();
+                normal3 = (p3 - center3).Normalize();
             }
 
             // vertex has UV texture coordinates?
@@ -674,14 +692,14 @@ Model* Factory::GetCapsule(float                             height,
             p2 = GetSphereStartVertex(top, localX, localY, localZ, radius, un, v);
             p3 = GetSphereStartVertex(top, localX, localY, localZ, radius, un, vn);
 
-            // vertex has UV texture coordinates?
+            // vertex has normal coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
             {
-                // calculate the vertex normals
-                normal0 = p0 / radius;
-                normal1 = p1 / radius;
-                normal2 = p2 / radius;
-                normal3 = p3 / radius;
+                // calculate the vertex normals for sphere (direction from sphere center)
+                normal0 = (p0 - top).Normalize();
+                normal1 = (p1 - top).Normalize();
+                normal2 = (p2 - top).Normalize();
+                normal3 = (p3 - top).Normalize();
             }
 
             // vertex has UV texture coordinates?
@@ -714,11 +732,11 @@ Model* Factory::GetCapsule(float                             height,
             // vertex has normal coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
             {
-                // calculate the vertex normals
-                normal0 = p0 / radius;
-                normal1 = p1 / radius;
-                normal2 = p2 / radius;
-                normal3 = p3 / radius;
+                // calculate the vertex normals for sphere (direction from sphere center)
+                normal0 = (p0 - bottom).Normalize();
+                normal1 = (p1 - bottom).Normalize();
+                normal2 = (p2 - bottom).Normalize();
+                normal3 = (p3 - bottom).Normalize();
             }
 
             // vertex has UV texture coordinates?
@@ -801,8 +819,8 @@ Model* Factory::GetDisk(float                             centerX,
             angle = step * (float)(i - 1);
 
             // calculate the slice point
-            x = centerX + radius * cosf(angle);
-            y = centerY + radius * sinf(angle);
+            x = centerX + radius * std::cosf(angle);
+            y = centerY + radius * std::sinf(angle);
         }
 
         DWF_Math::Vector3F vertex;
@@ -835,8 +853,8 @@ Model* Factory::GetDisk(float                             centerX,
             }
             else
             {
-                uv.m_X = 0.5f + (cosf(angle) * 0.5f);
-                uv.m_Y = 0.5f + (sinf(angle) * 0.5f);
+                uv.m_X = 0.5f + (std::cosf(angle) * 0.5f);
+                uv.m_Y = 0.5f + (std::sinf(angle) * 0.5f);
             }
 
         // add the vertex to the buffer
@@ -889,12 +907,12 @@ Model* Factory::GetRing(float                             centerX,
         const float angle = step * (float)i;
 
         // calculate the slice min point
-        const float xA = centerX + minRadius * cosf(angle);
-        const float yA = centerY - minRadius * sinf(angle);
+        const float xA = centerX + minRadius * std::cosf(angle);
+        const float yA = centerY - minRadius * std::sinf(angle);
 
         // calculate the slice max point
-        const float xB = centerX + maxRadius * cosf(angle);
-        const float yB = centerY - maxRadius * sinf(angle);
+        const float xB = centerX + maxRadius * std::cosf(angle);
+        const float yB = centerY - maxRadius * std::sinf(angle);
 
         float texU;
 
@@ -1023,7 +1041,7 @@ Model* Factory::GetTorus(float                             centerX,
         const float nextTheta = ((u + 1) * uStep);
 
         // iterate through faces to create
-        for (std::size_t v = 0; v < facesPerSlices; ++v)
+        for (std::size_t v = 0; v <= facesPerSlices; ++v)
         {
             const float phi = (v * vStep);
 
@@ -1039,10 +1057,22 @@ Model* Factory::GetTorus(float                             centerX,
             // vertex has normal coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
             {
-                // calculate normal
-                normal.m_X = std::cos(theta) * std::cos(phi);
-                normal.m_Y = std::sin(theta) * std::cos(phi);
-                normal.m_Z =                   std::sin(phi);
+                // calculate direction from tube center to theta position
+                DWF_Math::Vector3F tubeCenter;
+                tubeCenter.m_X = std::cos(theta) * outerRadius.m_X;
+                tubeCenter.m_Y = std::sin(theta) * outerRadius.m_Y;
+                tubeCenter.m_Z = 0.0f;
+
+                // calculate direction from tube center to vertex
+                DWF_Math::Vector3F toVertex = vertex - tubeCenter;
+
+                // for elliptical cross-section, take in account the scaling. Normalize considering the elliptical shape
+                normal.m_X = toVertex.m_X / (innerRadius.m_X * innerRadius.m_X);
+                normal.m_Y = toVertex.m_Y / (innerRadius.m_X * innerRadius.m_X);
+                normal.m_Z = toVertex.m_Z / (innerRadius.m_Y * innerRadius.m_Y);
+
+                // normalize the vector
+                normal = normal.Normalize();
             }
 
             DWF_Math::Vector2F texCoord;
@@ -1065,10 +1095,22 @@ Model* Factory::GetTorus(float                             centerX,
             // vertex has normal coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_Normals) != 0)
             {
-                // calculate next normal
-                normal.m_X = std::cos(nextTheta) * std::cos(phi);
-                normal.m_Y = std::sin(nextTheta) * std::cos(phi);
-                normal.m_Z =                       std::sin(phi);
+                // calculate direction from tube center to nextTheta position
+                DWF_Math::Vector3F tubeCenter;
+                tubeCenter.m_X = std::cos(nextTheta) * outerRadius.m_X;
+                tubeCenter.m_Y = std::sin(nextTheta) * outerRadius.m_Y;
+                tubeCenter.m_Z = 0.0f;
+
+                // calculate direction from tube center to vertex
+                DWF_Math::Vector3F toVertex = vertex - tubeCenter;
+
+                // for elliptical cross-section, take in account the scaling. Normalize considering the elliptical shape
+                normal.m_X = toVertex.m_X / (innerRadius.m_X * innerRadius.m_X);
+                normal.m_Y = toVertex.m_Y / (innerRadius.m_X * innerRadius.m_X);
+                normal.m_Z = toVertex.m_Z / (innerRadius.m_Y * innerRadius.m_Y);
+
+                // normalize the vector
+                normal = normal.Normalize();
             }
 
             // vertex has UV texture coordinates?
@@ -1137,12 +1179,12 @@ Model* Factory::GetSpiral(float                             centerX,
             const float angle = step * (float)j;
 
             // calculate the slice min point
-            const float xA = centerX + minRadius * cosf(angle);
-            const float yA = centerY + minRadius * sinf(angle);
+            const float xA = centerX + minRadius * std::cosf(angle);
+            const float yA = centerY + minRadius * std::sinf(angle);
 
             // calculate the slice max point
-            const float xB = centerX + maxRadius * cosf(angle);
-            const float yB = centerY + maxRadius * sinf(angle);
+            const float xB = centerX + maxRadius * std::cosf(angle);
+            const float yB = centerY + maxRadius * std::sinf(angle);
 
             // calculate the spiral curve
             minRadius += deltaMin;
@@ -1307,9 +1349,9 @@ DWF_Math::Vector3F Factory::GetSphereEndVertex(const DWF_Math::Vector3F& bottom,
     const float latitude = (float)(M_PI / 2.0) * v;
 
     return bottom                                                                  +
-           localX * std::cos(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
-           localY * std::sin(2.0f * (float)M_PI * u) * std::cos(latitude) * radius +
-           localZ * std::sin(latitude) * radius;
+           localX * std::cosf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
+           localY * std::sinf(2.0f * (float)M_PI * u) * std::cosf(latitude) * radius +
+           localZ * std::sinf(latitude) * radius;
 }
 //---------------------------------------------------------------------------
 DWF_Math::Vector3F Factory::GetAnyPerpendicularUnitVector(const DWF_Math::Vector3F& vec)
