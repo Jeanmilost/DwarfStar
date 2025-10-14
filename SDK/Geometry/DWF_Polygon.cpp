@@ -130,6 +130,45 @@ bool Polygon::Inside(const DWF_Math::Vector3F& point) const
     return (angleResult >= (float)(M_PI * 2.0));
 }
 //---------------------------------------------------------------------------
+bool Polygon::Inside(const DWF_Math::Vector3F& point, float& w0, float& w1, float& w2) const
+{
+    const DWF_Math::Vector3F v0v1 = m_Vertex[1] - m_Vertex[0];
+    const DWF_Math::Vector3F v0v2 = m_Vertex[2] - m_Vertex[0];
+    const DWF_Math::Vector3F v0p  = point       - m_Vertex[0];
+
+    // calculate dot products
+    const float d00 = v0v1.Dot(v0v1);
+    const float d01 = v0v1.Dot(v0v2);
+    const float d11 = v0v2.Dot(v0v2);
+    const float d20 =  v0p.Dot(v0v1);
+    const float d21 =  v0p.Dot(v0v2);
+
+    // calculate determinant
+    const float denom = d00 * d11 - d01 * d01;
+
+    // check for degenerate triangle (i.e. triangles without surface, where all
+    // the vertices are aligned on a line)
+    if (std::abs(denom) < 1e-6f)
+        return false;
+
+    // calculate barycentric coordinates, which are a way to express any point
+    // inside (or outside) a triangle as a weighted combination of the triangle
+    // three vertices. For a triangle with vertices A, B, and C, any point P
+    // can be expressed as:
+    // P = w0 · A + w1 · B + w2 · C
+    // Where:
+    // - w0,  w1,  w2 are the barycentric coordinates (weights)
+    // - w0 + w1 + w2 = 1 (the weights always sum to 1)
+    w1 = (d11 * d20 - d01 * d21) / denom;
+    w2 = (d00 * d21 - d01 * d20) / denom;
+    w0 = 1.0f - w1 - w2;
+
+    const float epsilon = -1e-6f;
+
+    // inside test
+    return (w0 >= epsilon && w1 >= epsilon && w2 >= epsilon);
+}
+//---------------------------------------------------------------------------
 bool Polygon::Intersect(const Polygon& other) const
 {
     const float tolerance = (float)M_Epsilon;

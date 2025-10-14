@@ -122,6 +122,16 @@ namespace DWF_Geometry
             virtual bool Inside(const DWF_Math::Vector3F& point) const;
 
             /**
+            * Checks if a point is inside polygon, barycentric approach
+            *@param point - point coordinate
+            *@param[out] w0 - if point is inside polygon, resulting weight for first vertex
+            *@param[out] w1 - if point is inside polygon, resulting weight for second vertex
+            *@param[out] w2 - if point is inside polygon, resulting weight for third vertex
+            *@return true if point is inside polygon, otherwise false
+            */
+            virtual bool Inside(const DWF_Math::Vector3F& point, float& w0, float& w1, float& w2) const;
+
+            /**
             * Checks if polygon intersects with another polygon
             *@param other - other polygon to check
             *@return true if polygons are in collision, otherwise false
