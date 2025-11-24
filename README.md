@@ -4,7 +4,7 @@ DrawfStar is a (constantly) work in progress game engine, written in C++ and bas
 
 Initially DwarfStar was targetted to be a retro game engine, to create 3D games with fixed camera like **Resident Evil** or **Alone In The Dark**. But with the time, this project become my playground where I tested several new techniques who caught my attention.
 
-<b>Here are the actual supported features</b>
+## <b>Here are the actual supported features</b>
 - Simple shapes creation (surface, box, sphere, cylinder, disk, ring, spiral and capsule)
 - Inter-Quake Model (.iqm) and Filmbox (.fbx, experimental) models
 - Animations for Inter-Quake Model (.iqm) and Filmbox (.fbx) models
@@ -14,19 +14,39 @@ Initially DwarfStar was targetted to be a retro game engine, to create 3D games 
 - Sound and music
 - Cross-platform SDK written in C++
 
-<b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
+##<b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
 
-![Screenshot](Common/Screenshots/ThridPersonDemo.png?raw=true "Screenshot")
-
-*A **third-person** demo with **Inter-Quake Model** animation and **GJK** based collision detection.*
-
-![Screenshot](Common/Screenshots/FBXModelDemo.png?raw=true "Screenshot")
-
-*A **Filmbox** animated model.*
+*A **collision detection** test between 2 geometrical capsules.*
 
 ![Screenshot](Common/Screenshots/CollisionsTest.png?raw=true "Screenshot")
 
-*A **collision detection** test between 2 geometrical capsules.*
+*A **directional light** applied to 2 geometrical capsules.*
+
+![Screenshot](Common/Screenshots/DirectionalLight.png?raw=true "Screenshot")
+
+*A **Filmbox** animated model.*
+
+![Screenshot](Common/Screenshots/FBXModelDemo.png?raw=true "Screenshot")
+
+*An **IQM** animated model.*
+
+![Screenshot](Common/Screenshots/IQMModelDemo.png?raw=true "Screenshot")
+
+*A **MDL (Quake model)** animated model.*
+
+![Screenshot](Common/Screenshots/MDLModelDemo.png?raw=true "Screenshot")
+
+*A **small platformer** demo with **Inter-Quake Model** animation and **GJK** based collision detection.*
+
+![Screenshot](Common/Screenshots/Platformer.png?raw=true "Screenshot")
+
+*A **shoot'em'up** demo.*
+
+![Screenshot](Common/Screenshots/ShootEmUp.png?raw=true "Screenshot")
+
+*A **third-person** demo with **Inter-Quake Model** animation and **GJK** based collision detection.*
+
+![Screenshot](Common/Screenshots/ThridPersonDemo.png?raw=true "Screenshot")
 
 ## Third-party
 This project depends on several third-party libraries, which are:
@@ -40,7 +60,7 @@ This project depends on several third-party libraries, which are:
 These third-party libraries depend on which OS is targetted, but are cross-platform, and are normally available on any OS. Please refer to the original website for the documentation, updates, and licenses.
 
 Several [Blender](https://www.blender.org/) plugins were also used to export Inter-Quake (.iqm) model formats. You may find them on the following websites:
-- Inter-Quake Model (.iqm) for Blender 2.49 to 2.93: https://github.com/lsalzman/iqm
+- Inter-Quake Model (.iqm) for Blender: https://github.com/lsalzman/iqm
 
 ## How to easily create animated characters
 Below is a very simple method to create high quality animated characters which may be loaded with the provided reader.

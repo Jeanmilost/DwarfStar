@@ -346,10 +346,11 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     bgColor.m_B = 0.17f;
     bgColor.m_A = 1.0f;
 
-    float  angle    = 0.0f;
-    double lastTime = 0.0f;
-
-    int frame = 0;
+    float  angle         = 0.0f;
+    double lastTime      = (double)::GetTickCount64();
+    double modelLastTime = 0.0;
+    double fps           = 25.0f;
+    int    frame         = 0;
 
     // program main loop
     while (!bQuit)
@@ -403,14 +404,21 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             double elapsedTime = (double)::GetTickCount64() - lastTime;
                    lastTime    = (double)::GetTickCount64();
 
-            // process the missing frames in case elapsed time is higher than a frame duration
-            while (elapsedTime > 75.0)
-            {
-                ++frame;
-                elapsedTime -= 75.0;
-            }
+            // apply the elapsed time
+            modelLastTime += elapsedTime * 0.001;
 
-            frame = (frame + 1) % 30;
+            // calculate the frame interval
+            const double interval = 1.0 / fps;
+
+            // do get the next model?
+            while (modelLastTime >= interval)
+            {
+                // decrease the counted time
+                modelLastTime -= interval;
+
+                // go to next frame
+                frame = (frame + 1) % 30;
+            }
 
             // draw the scene
             renderer.BeginScene(bgColor, (DWF_Renderer::Renderer::IESceneFlags)((std::uint32_t)DWF_Renderer::Renderer::IESceneFlags::IE_SF_ClearColor |
