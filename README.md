@@ -14,7 +14,7 @@ Initially DwarfStar was targetted to be a retro game engine, to create 3D games 
 - Sound and music
 - Cross-platform SDK written in C++
 
-##<b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
+## <b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
 
 *A **collision detection** test between 2 geometrical capsules.*
 
