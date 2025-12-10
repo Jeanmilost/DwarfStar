@@ -623,8 +623,8 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
             // select the correct pixel type to use
             switch (pPixelBuffer->m_BytePerPixel)
             {
-                case 24:  pixelType = GL_RGB;  break;
-                case 32:  pixelType = GL_RGBA; break;
+                case 3:  pixelType = GL_RGB;  break;
+                case 4:  pixelType = GL_RGBA; break;
                 default: return -1;
             }
 
@@ -632,7 +632,7 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
             if (convertPixels)
             {
                 // calculate image stride
-                const std::size_t stride = ((((std::size_t)pPixelBuffer->m_Width) * 3 + 3) / 4) * 4 - (((std::size_t)pPixelBuffer->m_Width) * 3 % 4);
+                const std::size_t stride = pPixelBuffer->m_Stride;
 
                 // reorder the pixels
                 unsigned char* pPixels = new unsigned char[(std::size_t)pPixelBuffer->m_Width * (std::size_t)pPixelBuffer->m_Height * 3];

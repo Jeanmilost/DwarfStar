@@ -109,7 +109,7 @@ DWF_Model::Texture* OnLoadTexture(const std::string& textureName, bool is32bit)
     std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
     pTexture->m_Width     = (std::int32_t)pPixelBuffer->m_Width;
     pTexture->m_Height    = (std::int32_t)pPixelBuffer->m_Height;
-    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 24 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
+    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
     pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
     pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
     pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;

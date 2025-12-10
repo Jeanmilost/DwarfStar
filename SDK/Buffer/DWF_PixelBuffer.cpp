@@ -135,10 +135,10 @@ bool PixelBuffer::FromBitmap(Buffer& buffer)
             if (bpp != 24)
                 return false;
 
-            std::uint16_t compressed = 0;
+            std::uint32_t compressed = 0;
 
             // read bitmap compressed flag
-            buffer.Read(&compressed, sizeof(std::uint16_t));
+            buffer.Read(&compressed, sizeof(std::uint32_t));
 
             // is compressed?
             if (compressed)
@@ -178,23 +178,12 @@ bool PixelBuffer::FromBitmap(Buffer& buffer)
         // Windows V4
         case 108:
         {
-            std::uint16_t width  = 0;
-            std::uint16_t height = 0;
-
-            // read bitmap width
-            buffer.Read(&width, sizeof(std::uint16_t));
-
-            // skip next 2 bytes
-            buffer.Seek(buffer.GetOffset(), 2);
-
-            // read bitmap height
-            buffer.Read(&height, sizeof(std::uint16_t));
-
-            m_Width  = width;
-            m_Height = height;
+            // read bitmap width and height
+            buffer.Read(&m_Width, sizeof(std::uint32_t));
+            buffer.Read(&m_Height, sizeof(std::uint32_t));
 
             // skip next 4 bytes
-            buffer.Seek(buffer.GetOffset(), 4);
+            buffer.Seek(buffer.GetOffset(), 2);
 
             // read bitmap bit per pixels
             buffer.Read(&bpp, sizeof(std::uint16_t));
@@ -219,7 +208,7 @@ bool PixelBuffer::FromBitmap(Buffer& buffer)
     m_ImageType    = PixelBuffer::IEImageType::IE_IT_Bitmap;
     m_PixelType    = PixelBuffer::IEPixelType::IE_PT_BGR;
     m_BytePerPixel = bpp / 8;
-    m_Stride       = (((m_Width) * 3 + 3) / 4) * 4 - ((m_Width) * 3 % 4);
+    m_Stride       = ((m_Width * 3 + 3) / 4) * 4;
     m_DataLength   = (std::size_t)m_Stride * (std::size_t)m_Height;
     m_pData        = new std::uint8_t[m_DataLength];
 
@@ -288,7 +277,7 @@ bool PixelBuffer::FromTga(Buffer& buffer)
     m_Height = header.m_Height[0] + ((std::size_t)header.m_Height[1] << 8);
 
     // calculate the stride
-    m_Stride = (((m_Width) * 3 + 3) / 4) * 4 - ((m_Width) * 3 % 4);
+    m_Stride = m_Width * (header.m_PixelSize / 8);
 
     switch (header.m_ImageType)
     {
@@ -661,8 +650,8 @@ bool PixelBuffer::FromTga(Buffer& buffer)
                     m_PixelType    = is32bit ? PixelBuffer::IEPixelType::IE_PT_RGBA : PixelBuffer::IEPixelType::IE_PT_RGB;
                     m_Width        = (std::uint32_t)width;
                     m_Height       = (std::uint32_t)height;
-                    m_BytePerPixel = (std::uint32_t)format;
-                    m_Stride       = (((m_Width) * 3 + 3) / 4) * 4 - ((m_Width) * 3 % 4);
+                    m_BytePerPixel = (std::uint32_t)(format / 8);
+                    m_Stride       = ((m_Width * (is32bit ? 4 : 3) + 3) / 4) * 4;
                 }
             }
         }
