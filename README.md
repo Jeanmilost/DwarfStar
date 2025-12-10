@@ -6,15 +6,16 @@ Initially DwarfStar was targetted to be a retro game engine, to create 3D games 
 
 ## <b>Here are the actual supported features</b>
 - Simple shapes creation (surface, box, sphere, cylinder, disk, ring, spiral and capsule)
-- Inter-Quake Model (.iqm) and Filmbox (.fbx, experimental) models
-- Animations for Inter-Quake Model (.iqm) and Filmbox (.fbx) models
+- WaveFront model
+- Quake models (.mdl), Inter-Quake Model (.iqm) and Filmbox (.fbx, experimental) models
+- Animations for Quake models (.mdl), Inter-Quake Model (.iqm) and Filmbox (.fbx) models
 - Skybox
 - Transparency
 - Collision detection (GJK, geometry based, and models)
 - Sound and music
 - Cross-platform SDK written in C++
 
-##<b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
+## <b>Here are some screenshots of several projects I realized with this engine (all are available as demo)</b>
 
 *A **collision detection** test between 2 geometrical capsules.*
 
