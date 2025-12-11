@@ -31,13 +31,16 @@
     <Filter Include="SDK\Renderer\OpenGL">
       <UniqueIdentifier>{bbb14234-f7af-49b4-aefb-422b2e17d2d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK\Voxel">
+      <UniqueIdentifier>{7cda0c90-b3ed-4e32-b13e-29bf22399bb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Buffer">
+      <UniqueIdentifier>{99e47208-7c7e-4924-b5be-7fa46aab4ec1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SDK\Geometry\DWF_Capsule.h">
-      <Filter>SDK\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h">
       <Filter>SDK\Math</Filter>
@@ -72,16 +75,43 @@
     <ClInclude Include="..\..\SDK\Model\DWF_Model.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Voxel\DWF_Voxel.h">
+      <Filter>SDK\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Voxel\DWF_VoxelAsset.h">
+      <Filter>SDK\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Voxel\DWF_Voxels.h">
+      <Filter>SDK\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Geometry\DWF_Box.h">
+      <Filter>SDK\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_Buffer.h">
+      <Filter>SDK\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_FileBuffer.h">
+      <Filter>SDK\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_MemoryBuffer.h">
+      <Filter>SDK\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_PixelBuffer.h">
+      <Filter>SDK\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SDK\Buffer\DWF_StdFileBuffer.h">
+      <Filter>SDK\Buffer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h">
       <Filter>SDK\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h">
+      <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CollisionsTest.cpp">
+    <ClCompile Include="Voxelizer.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SDK\Geometry\DWF_Capsule.cpp">
-      <Filter>SDK\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp">
       <Filter>SDK\Math</Filter>
@@ -116,12 +146,42 @@
     <ClCompile Include="..\..\SDK\Model\DWF_Model.cpp">
       <Filter>SDK\Model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Voxel\DWF_Voxel.cpp">
+      <Filter>SDK\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Voxel\DWF_VoxelAsset.cpp">
+      <Filter>SDK\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Voxel\DWF_Voxels.cpp">
+      <Filter>SDK\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Geometry\DWF_Box.cpp">
+      <Filter>SDK\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_Buffer.cpp">
+      <Filter>SDK\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_FileBuffer.cpp">
+      <Filter>SDK\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_MemoryBuffer.cpp">
+      <Filter>SDK\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_PixelBuffer.cpp">
+      <Filter>SDK\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDK\Buffer\DWF_StdFileBuffer.cpp">
+      <Filter>SDK\Buffer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp">
       <Filter>SDK\Model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp">
+      <Filter>SDK\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CollisionsTest.rc">
+    <ResourceCompile Include="Voxelizer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

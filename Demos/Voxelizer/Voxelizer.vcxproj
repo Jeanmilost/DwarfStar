@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e39bd813-e0b5-4fbf-a85d-c86f0d6b4e39}</ProjectGuid>
-    <RootNamespace>CollisionsTest</RootNamespace>
+    <ProjectGuid>{7274D822-8806-4281-89C0-9F13545AFB22}</ProjectGuid>
+    <RootNamespace>Voxelizer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,28 +72,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\SDK\Voxel\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\libpng\lib\x86;..\..\Third-party\glew\lib\Release\Win32\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\SDK\Voxel\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\libpng\lib\x86;..\..\Third-party\glew\lib\Release\Win32\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\SDK\Voxel\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\libpng\lib\x64\;..\..\Third-party\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\SDK\;..\..\SDK\Audio\;..\..\SDK\Audio\OpenAL\;..\..\SDK\Audio\MiniAudio\;..\..\SDK\String\;..\..\SDK\Logger\;..\..\SDK\Buffer\;..\..\SDK\Math\;..\..\SDK\Geometry\;..\..\SDK\Colliders\;..\..\SDK\Model\;..\..\SDK\Renderer\;..\..\SDK\Renderer\OpenGL\;..\..\SDK\Scene\;..\..\SDK\Scene\Windows\;..\..\SDK\Voxel\;..\..\Third-Party\libpng\include\;..\..\Third-Party\glew\include\;..\..\Third-Party\miniaudio\include\;..\..\Third-Party\openal\include\;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\Third-party\libpng\lib\x64\;..\..\Third-party\glew\lib\Release\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -123,7 +123,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -144,7 +144,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -165,7 +165,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -183,7 +183,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\SDK\Geometry\DWF_Capsule.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_Buffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_FileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_MemoryBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_PixelBuffer.h" />
+    <ClInclude Include="..\..\SDK\Buffer\DWF_StdFileBuffer.h" />
+    <ClInclude Include="..\..\SDK\Geometry\DWF_Box.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Matrix4x4.h" />
     <ClInclude Include="..\..\SDK\Math\DWF_Vector3.h" />
     <ClInclude Include="..\..\SDK\Model\DWF_Color.h" />
@@ -194,12 +199,21 @@
     <ClInclude Include="..\..\SDK\Renderer\DWF_Renderer.h" />
     <ClInclude Include="..\..\SDK\Renderer\DWF_Shader.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.h" />
     <ClInclude Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.h" />
+    <ClInclude Include="..\..\SDK\Voxel\DWF_Voxel.h" />
+    <ClInclude Include="..\..\SDK\Voxel\DWF_VoxelAsset.h" />
+    <ClInclude Include="..\..\SDK\Voxel\DWF_Voxels.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SDK\Geometry\DWF_Capsule.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_Buffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_FileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_PixelBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Buffer\DWF_StdFileBuffer.cpp" />
+    <ClCompile Include="..\..\SDK\Geometry\DWF_Box.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Matrix4x4.cpp" />
     <ClCompile Include="..\..\SDK\Math\DWF_Vector3.cpp" />
     <ClCompile Include="..\..\SDK\Model\DWF_Color.cpp" />
@@ -210,12 +224,16 @@
     <ClCompile Include="..\..\SDK\Renderer\DWF_Renderer.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\DWF_Shader.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Renderer_OpenGL.cpp" />
+    <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_Collection_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Shader_OpenGL.cpp" />
     <ClCompile Include="..\..\SDK\Renderer\OpenGL\DWF_Texture_OpenGL.cpp" />
-    <ClCompile Include="CollisionsTest.cpp" />
+    <ClCompile Include="..\..\SDK\Voxel\DWF_Voxel.cpp" />
+    <ClCompile Include="..\..\SDK\Voxel\DWF_VoxelAsset.cpp" />
+    <ClCompile Include="..\..\SDK\Voxel\DWF_Voxels.cpp" />
+    <ClCompile Include="Voxelizer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CollisionsTest.rc" />
+    <ResourceCompile Include="Voxelizer.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\Common\Icons\Windows\DwarfStar.ico" />
