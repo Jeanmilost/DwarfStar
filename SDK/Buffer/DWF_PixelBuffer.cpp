@@ -119,10 +119,8 @@ bool PixelBuffer::FromBitmap(Buffer& buffer)
         // V3
         case 40:
         {
-            // read bitmap width
-            buffer.Read(&m_Width, sizeof(std::uint32_t));
-
-            // read bitmap height
+            // read bitmap width and height
+            buffer.Read(&m_Width,  sizeof(std::uint32_t));
             buffer.Read(&m_Height, sizeof(std::uint32_t));
 
             // skip next 2 bytes
@@ -179,10 +177,10 @@ bool PixelBuffer::FromBitmap(Buffer& buffer)
         case 108:
         {
             // read bitmap width and height
-            buffer.Read(&m_Width, sizeof(std::uint32_t));
+            buffer.Read(&m_Width,  sizeof(std::uint32_t));
             buffer.Read(&m_Height, sizeof(std::uint32_t));
 
-            // skip next 4 bytes
+            // skip next 2 bytes
             buffer.Seek(buffer.GetOffset(), 2);
 
             // read bitmap bit per pixels
