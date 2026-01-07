@@ -65,18 +65,18 @@ const char* waterVertexShader = R"(
 attribute vec3 dwf_aVertices;
 attribute vec2 dwf_aTexCoord;
 
-varying vec2  dwf_vTexCoord;
-varying vec3  dwf_vFragPos;
-varying vec3  dwf_vNormal;
-varying vec4  dwf_vClipSpace;
-varying float dwf_vWaveHeight;
-varying vec3  dwf_vWorldPos;
+varying vec2   dwf_vTexCoord;
+varying vec3   dwf_vFragPos;
+varying vec3   dwf_vNormal;
+varying vec4   dwf_vClipSpace;
+varying float  dwf_vWaveHeight;
+varying vec3   dwf_vWorldPos;
 
-uniform mat4 dwf_uModel;
-uniform mat4 dwf_uView;
-uniform mat4 dwf_uProjection;
-uniform float dwf_uTime;
-uniform float waveStrength;
+uniform mat4   dwf_uModel;
+uniform mat4   dwf_uView;
+uniform mat4   dwf_uProjection;
+uniform float  dwf_uTime;
+uniform float  dwf_uWaveStrength;
 
 void main()
 {
@@ -101,12 +101,12 @@ void main()
 
     // Combine all wave layers with proper weighting
     float finalWave = (swell1 * 1.2 + swell2 + wind1 + wind2 +
-                       ripple1 + ripple2 + chop1 + chop2) * waveStrength;
+                       ripple1 + ripple2 + chop1 + chop2) * dwf_uWaveStrength;
     pos.y += finalWave;
     dwf_vWaveHeight = finalWave;
     dwf_vWorldPos = pos;
 
-    // More accurate normal calculation with finer sampling
+    // more accurate normal calculation with finer sampling
     float offset = 0.08;
 
     // Sample heights around current position
@@ -118,28 +118,28 @@ void main()
               + sin((pos.x - offset) * 0.5 + pos.z * 0.4 + dwf_uTime * 0.9) * 0.5
               + sin((pos.x - offset) * 0.7 - pos.z * 0.6 + dwf_uTime * 1.1) * 0.4
               + sin((pos.x - offset) * 2.0 + pos.z * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.x - offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * waveStrength;
+              + sin((pos.x - offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * dwf_uWaveStrength;
 
     float hR = (sin((pos.x + offset) * 0.15 + dwf_uTime * 0.3) * cos(pos.z * 0.12 + dwf_uTime * 0.25) * 1.2
               + sin((pos.x + offset) * 0.18 - pos.z * 0.15 + dwf_uTime * 0.35) * 0.8
               + sin((pos.x + offset) * 0.5 + pos.z * 0.4 + dwf_uTime * 0.9) * 0.5
               + sin((pos.x + offset) * 0.7 - pos.z * 0.6 + dwf_uTime * 1.1) * 0.4
               + sin((pos.x + offset) * 2.0 + pos.z * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.x + offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * waveStrength;
+              + sin((pos.x + offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * dwf_uWaveStrength;
 
     float hD = (sin(pos.x * 0.15 + dwf_uTime * 0.3) * cos((pos.z - offset) * 0.12 + dwf_uTime * 0.25) * 1.2
               + sin(pos.x * 0.18 - (pos.z - offset) * 0.15 + dwf_uTime * 0.35) * 0.8
               + sin(pos.x * 0.5 + (pos.z - offset) * 0.4 + dwf_uTime * 0.9) * 0.5
               + sin(pos.x * 0.7 - (pos.z - offset) * 0.6 + dwf_uTime * 1.1) * 0.4
               + sin(pos.x * 2.0 + (pos.z - offset) * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.z - offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * waveStrength;
+              + sin((pos.z - offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * dwf_uWaveStrength;
 
     float hU = (sin(pos.x * 0.15 + dwf_uTime * 0.3) * cos((pos.z + offset) * 0.12 + dwf_uTime * 0.25) * 1.2
               + sin(pos.x * 0.18 - (pos.z + offset) * 0.15 + dwf_uTime * 0.35) * 0.8
               + sin(pos.x * 0.5 + (pos.z + offset) * 0.4 + dwf_uTime * 0.9) * 0.5
               + sin(pos.x * 0.7 - (pos.z + offset) * 0.6 + dwf_uTime * 1.1) * 0.4
               + sin(pos.x * 2.0 + (pos.z + offset) * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.z + offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * waveStrength;
+              + sin((pos.z + offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * dwf_uWaveStrength;
 
     vec3 tangentX = normalize(vec3(1.0, (hR - hL) / (2.0 * offset), 0.0));
     vec3 tangentZ = normalize(vec3(0.0, (hU - hD) / (2.0 * offset), 1.0));
@@ -155,17 +155,17 @@ void main()
 const char* waterFragmentShader = R"(
 #version 120
 
-varying vec2 dwf_vTexCoord;
-varying vec3 dwf_vFragPos;
-varying vec3 dwf_vNormal;
+varying vec2  dwf_vTexCoord;
+varying vec3  dwf_vFragPos;
+varying vec3  dwf_vNormal;
 varying float dwf_vWaveHeight;
-varying vec3 dwf_vWorldPos;
+varying vec3  dwf_vWorldPos;
 
 uniform float dwf_uTime;
-uniform vec3 cameraPos;
-uniform vec3 lightDir;
-uniform vec3 waterColor;
-uniform vec3 deepWaterColor;
+uniform vec3  cameraPos;
+uniform vec3  lightDir;
+uniform vec3  waterColor;
+uniform vec3  deepWaterColor;
 uniform float waterClearness;
 
 // Improved hash for better noise quality
@@ -1161,7 +1161,7 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     shaders[3]->Use(true);
 
     // configure water
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waveStrength"),   0.1f);
+    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_uWaveStrength"),   0.1f);
     glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "lightDir"),      -0.3f, -1.0f, -0.3f);
     glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterColor"),     0.1f,  0.3f,  0.4f);
     glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "deepWaterColor"), 0.0f,  0.1f,  0.2f);
