@@ -108,13 +108,13 @@ Model* Factory::GetSurface(float                             width,
         {
             // calculate texture u coordinate
             if (bufferTemplate[index])
-                uv.m_X = 1.0f;
+                uv.m_X = material.m_uScale;
             else
                 uv.m_X = 0.0f;
 
             // calculate texture v coordinate
             if (bufferTemplate[index + 1])
-                uv.m_Y = 1.0f;
+                uv.m_Y = material.m_vScale;
             else
                 uv.m_Y = 0.0f;
         }
@@ -128,6 +128,91 @@ Model* Factory::GetSurface(float                             width,
     pVB.release();
 
     // create a model and add the newly created mesh to it
+    std::unique_ptr<Model> pModel = std::make_unique<Model>();
+    pModel->m_Mesh.push_back(pMesh.get());
+    pMesh.release();
+
+    return pModel.release();
+}
+//---------------------------------------------------------------------------
+Model* Factory::GetWaterSurface(float                                   width,
+                                float                                   height,
+                                std::size_t                             gridSize,
+                                const VertexFormat&                     format,
+                                const VertexCulling&                    culling,
+                                const Material&                         material,
+                                const VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor)
+{
+    // create a mesh to contain the shape
+    std::unique_ptr<Mesh> pMesh = std::make_unique<Mesh>();
+
+    // create a new vertex buffer
+    std::unique_ptr<VertexBuffer> pVB = std::make_unique<VertexBuffer>();
+    pVB->m_Material                   = material;
+    pVB->m_Culling                    = culling;
+    pVB->m_Format                     = format;
+
+    // use triangles (each triangle = 3 vertices)
+    pVB->m_Format.m_Type = DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
+
+    pVB->m_Format.CalculateStride();
+
+    const float stepX = width  / (float)gridSize;
+    const float stepY = height / (float)gridSize;
+
+    // generate grid as triangles
+    for (std::size_t y = 0; y < gridSize; ++y)
+        for (std::size_t x = 0; x < gridSize; ++x)
+        {
+            // calculate the 4 corners of this grid cell
+            float x0 =  (x      * stepX) - (width  / 2.0f);
+            float x1 = ((x + 1) * stepX) - (width  / 2.0f);
+            float y0 =  (y      * stepY) - (height / 2.0f);
+            float y1 = ((y + 1) * stepY) - (height / 2.0f);
+
+            // calculate UV coordinates for the 4 corners
+            float u0 = ((float) x      / (float)gridSize) * material.m_uScale;
+            float u1 = ((float)(x + 1) / (float)gridSize) * material.m_uScale;
+            float v0 = ((float) y      / (float)gridSize) * material.m_vScale;
+            float v1 = ((float)(y + 1) / (float)gridSize) * material.m_vScale;
+
+            // normal for flat surface (will be recalculated in shader)
+            DWF_Math::Vector3F normal(0.0f, 0.0f, 1.0f);
+
+            // first triangle, vertex 1 (top-left)
+            DWF_Math::Vector3F vertex1(x0, 0.0f, y0);
+            DWF_Math::Vector2F uv1(u0, v0);
+            pVB->Add(&vertex1, &normal, &uv1, 0, fOnGetVertexColor);
+
+            // first triangle, vertex 2 (bottom-left)
+            DWF_Math::Vector3F vertex2(x0, 0.0f, y1);
+            DWF_Math::Vector2F uv2(u0, v1);
+            pVB->Add(&vertex2, &normal, &uv2, 0, fOnGetVertexColor);
+
+            // first triangle, vertex 3 (top-right)
+            DWF_Math::Vector3F vertex3(x1, 0.0f, y0);
+            DWF_Math::Vector2F uv3(u1, v0);
+            pVB->Add(&vertex3, &normal, &uv3, 0, fOnGetVertexColor);
+
+            // second triangle, vertex 1 (top-right)
+            DWF_Math::Vector3F vertex4(x1, 0.0f, y0);
+            DWF_Math::Vector2F uv4(u1, v0);
+            pVB->Add(&vertex4, &normal, &uv4, 0, fOnGetVertexColor);
+
+            // second triangle, vertex 2 (bottom-left)
+            DWF_Math::Vector3F vertex5(x0, 0.0f, y1);
+            DWF_Math::Vector2F uv5(u0, v1);
+            pVB->Add(&vertex5, &normal, &uv5, 0, fOnGetVertexColor);
+
+            // second triangle, vertex 3 (bottom-right)
+            DWF_Math::Vector3F vertex6(x1, 0.0f, y1);
+            DWF_Math::Vector2F uv6(u1, v1);
+            pVB->Add(&vertex6, &normal, &uv6, 0, fOnGetVertexColor);
+        }
+
+    pMesh->m_VB.push_back(pVB.get());
+    pVB.release();
+
     std::unique_ptr<Model> pModel = std::make_unique<Model>();
     pModel->m_Mesh.push_back(pMesh.get());
     pMesh.release();
@@ -227,30 +312,30 @@ Model* Factory::GetBox(float                             width,
         if (repeatTexOnEachFace)
         {
             // calculate texture positions
-            texCoords[0].m_X  = 0.0; texCoords[0].m_Y  = 0.0;
-            texCoords[1].m_X  = 0.0; texCoords[1].m_Y  = 1.0;
-            texCoords[2].m_X  = 1.0; texCoords[2].m_Y  = 0.0;
-            texCoords[3].m_X  = 1.0; texCoords[3].m_Y  = 1.0;
-            texCoords[4].m_X  = 0.0; texCoords[4].m_Y  = 0.0;
-            texCoords[5].m_X  = 0.0; texCoords[5].m_Y  = 1.0;
-            texCoords[6].m_X  = 1.0; texCoords[6].m_Y  = 0.0;
-            texCoords[7].m_X  = 1.0; texCoords[7].m_Y  = 1.0;
-            texCoords[8].m_X  = 0.0; texCoords[8].m_Y  = 0.0;
-            texCoords[9].m_X  = 0.0; texCoords[9].m_Y  = 1.0;
-            texCoords[10].m_X = 1.0; texCoords[10].m_Y = 0.0;
-            texCoords[11].m_X = 1.0; texCoords[11].m_Y = 1.0;
-            texCoords[12].m_X = 0.0; texCoords[12].m_Y = 0.0;
-            texCoords[13].m_X = 0.0; texCoords[13].m_Y = 1.0;
-            texCoords[14].m_X = 1.0; texCoords[14].m_Y = 0.0;
-            texCoords[15].m_X = 1.0; texCoords[15].m_Y = 1.0;
-            texCoords[16].m_X = 0.0; texCoords[16].m_Y = 0.0;
-            texCoords[17].m_X = 0.0; texCoords[17].m_Y = 1.0;
-            texCoords[18].m_X = 1.0; texCoords[18].m_Y = 0.0;
-            texCoords[19].m_X = 1.0; texCoords[19].m_Y = 1.0;
-            texCoords[20].m_X = 0.0; texCoords[20].m_Y = 0.0;
-            texCoords[21].m_X = 0.0; texCoords[21].m_Y = 1.0;
-            texCoords[22].m_X = 1.0; texCoords[22].m_Y = 0.0;
-            texCoords[23].m_X = 1.0; texCoords[23].m_Y = 1.0;
+            texCoords[0].m_X  = 0.0f;              texCoords[0].m_Y  = 0.0f;
+            texCoords[1].m_X  = 0.0f;              texCoords[1].m_Y  = material.m_vScale;
+            texCoords[2].m_X  = material.m_uScale; texCoords[2].m_Y  = 0.0f;
+            texCoords[3].m_X  = material.m_uScale; texCoords[3].m_Y  = material.m_vScale;
+            texCoords[4].m_X  = 0.0f;              texCoords[4].m_Y  = 0.0f;
+            texCoords[5].m_X  = 0.0f;              texCoords[5].m_Y  = material.m_vScale;
+            texCoords[6].m_X  = material.m_uScale; texCoords[6].m_Y  = 0.0f;
+            texCoords[7].m_X  = material.m_uScale; texCoords[7].m_Y  = material.m_vScale;
+            texCoords[8].m_X  = 0.0f;              texCoords[8].m_Y  = 0.0f;
+            texCoords[9].m_X  = 0.0f;              texCoords[9].m_Y  = material.m_vScale;
+            texCoords[10].m_X = material.m_uScale; texCoords[10].m_Y = 0.0f;
+            texCoords[11].m_X = material.m_uScale; texCoords[11].m_Y = material.m_vScale;
+            texCoords[12].m_X = 0.0f;              texCoords[12].m_Y = 0.0f;
+            texCoords[13].m_X = 0.0f;              texCoords[13].m_Y = material.m_vScale;
+            texCoords[14].m_X = material.m_uScale; texCoords[14].m_Y = 0.0f;
+            texCoords[15].m_X = material.m_uScale; texCoords[15].m_Y = material.m_vScale;
+            texCoords[16].m_X = 0.0f;              texCoords[16].m_Y = 0.0f;
+            texCoords[17].m_X = 0.0f;              texCoords[17].m_Y = material.m_vScale;
+            texCoords[18].m_X = material.m_uScale; texCoords[18].m_Y = 0.0f;
+            texCoords[19].m_X = material.m_uScale; texCoords[19].m_Y = material.m_vScale;
+            texCoords[20].m_X = 0.0f;              texCoords[20].m_Y = 0.0f;
+            texCoords[21].m_X = 0.0f;              texCoords[21].m_Y = material.m_vScale;
+            texCoords[22].m_X = material.m_uScale; texCoords[22].m_Y = 0.0f;
+            texCoords[23].m_X = material.m_uScale; texCoords[23].m_Y = material.m_vScale;
         }
         else
         {
@@ -408,8 +493,8 @@ Model* Factory::GetSphere(float                             radius,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv.m_X = ((float)j / (float)stacks);
-                uv.m_Y = ((float)i / (float)slices);
+                uv.m_X = ((float)j / (float)stacks) * material.m_uScale;
+                uv.m_Y = ((float)i / (float)slices) * material.m_vScale;
             }
 
             // add the vertex to the buffer
@@ -431,8 +516,8 @@ Model* Factory::GetSphere(float                             radius,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv.m_X =  ((float)j         / (float)stacks);
-                uv.m_Y = (((float)i + 1.0f) / (float)slices);
+                uv.m_X =  ((float)j         / (float)stacks) * material.m_uScale;
+                uv.m_Y = (((float)i + 1.0f) / (float)slices) * material.m_vScale;
             }
 
             // add the vertex to the buffer
@@ -517,19 +602,9 @@ Model* Factory::GetCylinder(float                             minRadius,
         // vertex has UV texture coordinates?
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
         {
-            // is the first point to calculate?
-            if (!i)
-            {
-                // add texture coordinates data to buffer
-                uv.m_X = 0.0f;
-                uv.m_Y = 0.0f;
-            }
-            else
-            {
-                // add texture coordinates data to buffer
-                uv.m_X = 1.0f / (float)i;
-                uv.m_Y = 0.0f;
-            }
+            // add texture coordinates data to buffer
+            uv.m_X = ((float)i / (float)faces) * material.m_uScale;
+            uv.m_Y = 0.0f;
         }
 
         // add the vertex to the buffer
@@ -555,19 +630,9 @@ Model* Factory::GetCylinder(float                             minRadius,
         // vertex has UV texture coordinates?
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
         {
-            // is the first point to calculate?
-            if (!i)
-            {
-                // add texture coordinates data to buffer
-                uv.m_X = 0.0f;
-                uv.m_Y = 1.0f;
-            }
-            else
-            {
-                // add texture coordinates data to buffer
-                uv.m_X = 1.0f / (float)i;
-                uv.m_Y = 1.0f;
-            }
+            // add texture coordinates data to buffer
+            uv.m_X = ((float)i / (float)faces) * material.m_uScale;
+            uv.m_Y =                             material.m_vScale;
         }
 
         // add the vertex to the buffer
@@ -668,14 +733,14 @@ Model* Factory::GetCapsule(float                             height,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv0.m_X =           (i      / resolution);
-                uv0.m_Y = third +  ((j      / resolution) * third);
-                uv1.m_X =           (i      / resolution);
-                uv1.m_Y = third + (((j + 1) / resolution) * third);
-                uv2.m_X =          ((i + 1) / resolution);
-                uv2.m_Y = third +  ((j      / resolution) * third);
-                uv3.m_X =          ((i + 1) / resolution);
-                uv3.m_Y = third + (((j + 1) / resolution) * third);
+                uv0.m_X =            (i      / resolution)           * material.m_uScale;
+                uv0.m_Y = (third +  ((j      / resolution) * third)) * material.m_vScale;
+                uv1.m_X =            (i      / resolution)           * material.m_uScale;
+                uv1.m_Y = (third + (((j + 1) / resolution) * third)) * material.m_vScale;
+                uv2.m_X =           ((i + 1) / resolution)           * material.m_uScale;
+                uv2.m_Y = (third +  ((j      / resolution) * third)) * material.m_vScale;
+                uv3.m_X =           ((i + 1) / resolution)           * material.m_uScale;
+                uv3.m_Y = (third + (((j + 1) / resolution) * third)) * material.m_vScale;
             }
 
             // add face to vertex buffer
@@ -705,14 +770,14 @@ Model* Factory::GetCapsule(float                             height,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv0.m_X =   (i      / resolution);
-                uv0.m_Y =  ((j      / resolution) * third);
-                uv1.m_X =   (i      / resolution);
-                uv1.m_Y = (((j + 1) / resolution) * third);
-                uv2.m_X =  ((i + 1) / resolution);
-                uv2.m_Y =  ((j      / resolution) * third);
-                uv3.m_X =  ((i + 1) / resolution);
-                uv3.m_Y = (((j + 1) / resolution) * third);
+                uv0.m_X =   (i      / resolution)          * material.m_uScale;
+                uv0.m_Y =  ((j      / resolution) * third) * material.m_vScale;
+                uv1.m_X =   (i      / resolution)          * material.m_uScale;
+                uv1.m_Y = (((j + 1) / resolution) * third) * material.m_vScale;
+                uv2.m_X =  ((i + 1) / resolution)          * material.m_uScale;
+                uv2.m_Y =  ((j      / resolution) * third) * material.m_vScale;
+                uv3.m_X =  ((i + 1) / resolution)          * material.m_uScale;
+                uv3.m_Y = (((j + 1) / resolution) * third) * material.m_vScale;
             }
 
             // add face to vertex buffer
@@ -742,14 +807,14 @@ Model* Factory::GetCapsule(float                             height,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                uv0.m_X =               (i      / resolution);
-                uv0.m_Y = twoThirds +  ((j      / resolution) * third);
-                uv1.m_X =               (i      / resolution);
-                uv1.m_Y = twoThirds + (((j + 1) / resolution) * third);
-                uv2.m_X =              ((i + 1) / resolution);
-                uv2.m_Y = twoThirds +  ((j      / resolution) * third);
-                uv3.m_X =              ((i + 1) / resolution);
-                uv3.m_Y = twoThirds + (((j + 1) / resolution) * third);
+                uv0.m_X =                (i      / resolution)           * material.m_uScale;
+                uv0.m_Y = (twoThirds +  ((j      / resolution)) * third) * material.m_vScale;
+                uv1.m_X =                (i      / resolution)           * material.m_uScale;
+                uv1.m_Y = (twoThirds + (((j + 1) / resolution)) * third) * material.m_vScale;
+                uv2.m_X =               ((i + 1) / resolution)           * material.m_uScale;
+                uv2.m_Y = (twoThirds +  ((j      / resolution)) * third) * material.m_vScale;
+                uv3.m_X =               ((i + 1) / resolution)           * material.m_uScale;
+                uv3.m_Y = (twoThirds + (((j + 1) / resolution)) * third) * material.m_vScale;
             }
 
             // add face to vertex buffer
@@ -848,13 +913,13 @@ Model* Factory::GetDisk(float                             centerX,
             // set texture data
             if (!i)
             {
-                uv.m_X = 0.5f;
-                uv.m_Y = 0.5f;
+                uv.m_X = 0.5f * material.m_uScale;
+                uv.m_Y = 0.5f * material.m_vScale;
             }
             else
             {
-                uv.m_X = 0.5f + (std::cosf(angle) * 0.5f);
-                uv.m_Y = 0.5f + (std::sinf(angle) * 0.5f);
+                uv.m_X = (0.5f + (std::cosf(angle) * 0.5f)) * material.m_uScale;
+                uv.m_Y = (0.5f + (std::sinf(angle) * 0.5f)) * material.m_vScale;
             }
 
         // add the vertex to the buffer
@@ -949,7 +1014,7 @@ Model* Factory::GetRing(float                             centerX,
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
         {
             // set texture data
-            uv.m_X = texU;
+            uv.m_X = texU * material.m_uScale;
             uv.m_Y = 0.0f;
         }
 
@@ -974,8 +1039,8 @@ Model* Factory::GetRing(float                             centerX,
         if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
         {
             // set texture data
-            uv.m_X = texU;
-            uv.m_Y = 1.0f;
+            uv.m_X = texU * material.m_uScale;
+            uv.m_Y =        material.m_vScale;
         }
 
         // add the vertex to the buffer
@@ -1080,8 +1145,8 @@ Model* Factory::GetTorus(float                             centerX,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                texCoord.m_X = v * vTexStep;
-                texCoord.m_Y = u * uTexStep;
+                texCoord.m_X = v * vTexStep * material.m_vScale;
+                texCoord.m_Y = u * uTexStep * material.m_uScale;
             }
 
             // build slice start vertices
@@ -1116,8 +1181,8 @@ Model* Factory::GetTorus(float                             centerX,
             // vertex has UV texture coordinates?
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
-                texCoord.m_X =  v      * vTexStep;
-                texCoord.m_Y = (u + 1) * uTexStep;
+                texCoord.m_X =  v      * vTexStep * material.m_vScale;
+                texCoord.m_Y = (u + 1) * uTexStep * material.m_uScale;
             }
 
             // build slice end vertices
@@ -1228,7 +1293,7 @@ Model* Factory::GetSpiral(float                             centerX,
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
                 // set texture data
-                uv.m_X = texU;
+                uv.m_X = texU * material.m_uScale;
                 uv.m_Y = 0.0f;
             }
 
@@ -1253,8 +1318,8 @@ Model* Factory::GetSpiral(float                             centerX,
             if (((std::uint32_t)pVB->m_Format.m_Format & (std::uint32_t)VertexFormat::IEFormat::IE_VF_TexCoords) != 0)
             {
                 // set texture data
-                uv.m_X = texU;
-                uv.m_Y = 1.0f;
+                uv.m_X = texU * material.m_uScale;
+                uv.m_Y =        material.m_vScale;
             }
 
             // add the vertex to the buffer

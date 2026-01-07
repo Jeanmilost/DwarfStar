@@ -36,6 +36,8 @@ using namespace DWF_Model;
 Material::Material() :
     m_pTexture(nullptr),
     m_Color(ColorF(1.0f, 1.0f, 1.0f, 1.0f)),
+    m_uScale(1.0f),
+    m_vScale(1.0f),
     m_Transparent(false),
     m_Wireframe(false)
 {}
