@@ -143,7 +143,7 @@ class Main
         *@param textureName - texture file name, without path
         *@param is32bit - if true, the texture is a 32 bit texture
         */
-        //REM DWF_Model::Texture* OnLoadCharTexture(const std::string& textureName, bool is32bit);
+        DWF_Model::Texture* OnLoadCharTexture(const std::string& textureName, bool is32bit);
 
         /**
         * Called when a texture should be loaded for the tower

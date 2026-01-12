@@ -605,11 +605,10 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     return (int)msg.wParam;
 }
 //------------------------------------------------------------------------------
-/*REM
 DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool is32bit)
 {
     // search for an existing texture
-    Textures::iterator it = m_TextureItems.find(textureName);
+    ITextures::iterator it = m_TextureItems.find(textureName);
 
     // is texture already loaded?
     if (it == m_TextureItems.end())
@@ -617,7 +616,7 @@ DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool
         std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
 
         // load the texture
-        if (!pPixelBuffer->FromPng("..\\..\\Resources\\Model\\Platformer\\Player\\Textures\\" + textureName, true))
+        if (!pPixelBuffer->FromPng("..\\..\\Resources\\Model\\Robot\\Textures\\" + textureName, true))
             return nullptr;
 
         if (!pPixelBuffer->m_pData)
@@ -629,8 +628,8 @@ DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool
         pTexture->m_Height    = (int)pPixelBuffer->m_Height;
         pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
         pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
-        pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
-        pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
+        pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Nearest;
+        pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Nearest;
         pTexture->Create(pPixelBuffer->m_pData);
 
         m_TextureItems[textureName] = pTexture.get();
@@ -643,7 +642,6 @@ DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool
 
     return pTexture.release();
 }
-*/
 //------------------------------------------------------------------------------
 DWF_Model::Texture* Main::OnLoadTowerTexture(const std::string& textureName, bool is32bit)
 {
@@ -705,11 +703,11 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
         return;
 
     // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
-    DWF_Scene::SceneItem_Model*       pWaterModel   = static_cast<DWF_Scene::SceneItem_Model*>     (pScene->SearchItem(L"scene_water"));
-    /*REM
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
+    DWF_Scene::SceneItem_Model*       pWaterModel    = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_water"));
     DWF_Scene::SceneItem_AnimAsset*   pModelItem     = static_cast<DWF_Scene::SceneItem_AnimAsset*>  (pScene->SearchItem (L"scene_player_model"));
     DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
+    /*REM
     DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
 
     if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
@@ -841,6 +839,15 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     // reset the grounded state, in order to test it on the next collision detection
     m_Grounded = false;
     */
+
+    pModelItem->SetPos(DWF_Math::Vector3F(m_xPos - (1.5f * std::sinf(m_Angle)), m_yPos - 0.25f, m_zPos + (1.5f * std::cosf(m_Angle))));
+    pModelItem->SetPitch(-m_Angle - ((float)M_PI / 2.0f));
+
+    if (pModelItem->GetSelectedAnim() != 1)
+        pModelItem->SelectAnim(1);
+
+    pModelCollider->SetPos(DWF_Math::Vector3F(m_xPos - (1.5f * std::sinf(m_Angle)), m_yPos - 0.25f, m_zPos + (1.5f * std::cosf(m_Angle))));
+    pModelCollider->SetPitch(-m_Angle - ((float)M_PI / 2.0f));
 
     pArcballItem->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
     pArcballItem->SetY(m_Angle);
@@ -1047,27 +1054,23 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     m_Scene.Add(pPOV.get());
     pPOV.release();
 
-
-    /*REM
     // load player IQM model
     std::shared_ptr<DWF_Model::IQM> pIqm = std::make_shared<DWF_Model::IQM>();
     pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadCharTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pIqm->Open("..\\..\\Resources\\Model\\Platformer\\Player\\player.iqm");
+    pIqm->Open("..\\..\\Resources\\Model\\Robot\\Robot.iqm");
 
     // create the background model item
     std::unique_ptr<DWF_Scene::SceneItem_AnimAsset> pAnim = std::make_unique<DWF_Scene::SceneItem_AnimAsset>(L"scene_player_model");
     pAnim->SetStatic(true);
-    pAnim->SetShader(pTexShader);
-    pAnim->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
+    pAnim->SetShader(shaders[0]);
+    pAnim->SetPos(DWF_Math::Vector3F(m_xPos - 1.5f, m_yPos - 0.25f, m_zPos));
     pAnim->SetRoll(-(float)M_PI / 2.0f);
-    pAnim->SetPitch(0.0f);
+    pAnim->SetPitch((float)M_PI);
     pAnim->SetYaw(0.0f);
-    pAnim->SetScale(DWF_Math::Vector3F(0.05f, 0.05f, 0.05f));
+    pAnim->SetScale(DWF_Math::Vector3F(0.1f, 0.1f, 0.1f));
     pAnim->SetModel(pIqm);
-    pAnim->AddAnim((std::size_t)0, 0,   60, 0.025, true);  // idle
-    pAnim->AddAnim((std::size_t)0, 60,  70, 0.025, false); // idle jump
-    pAnim->AddAnim((std::size_t)0, 130, 19, 0.025, true);  // run
-    pAnim->AddAnim((std::size_t)0, 149, 26, 0.025, false); // run jump
+    pAnim->AddAnim((std::size_t)0, 0, 0,  0.0,  false); // idle
+    pAnim->AddAnim((std::size_t)0, 0, 60, 0.01, true);  // walk
     pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
     pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -1076,11 +1079,49 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     // set the model to the scene
     m_Scene.Add(pAnim.get(), false);
     pAnim.release();
-    */
 
     DWF_Model::VertexFormat  vf;
     DWF_Model::VertexCulling vc;
     DWF_Model::Material      mat;
+
+    // set vertex format for textured models
+    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
+    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
+                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
+
+    // set vertex format for colored models
+    vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
+
+    // create material
+    mat.m_Color.m_B = 1.0f;
+    mat.m_Color.m_G = 0.0f;
+    mat.m_Color.m_R = 0.0f;
+    mat.m_Color.m_A = 1.0f;
+
+    // create the player capsule
+    std::shared_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.15f, 0.15f, 15.0f, vf, vc, mat));
+
+    // create the capsule model item
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
+    pModel->SetStatic(false);
+    pModel->SetVisible(false);
+    pModel->SetModel(pPlayerCapsule);
+    pModel->SetShader(shaders[1]);
+    pModel->SetPos(DWF_Math::Vector3F(m_xPos - 1.5f, m_yPos - 0.25f, m_zPos));
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // create the player collider
+    std::unique_ptr<DWF_Collider::Capsule_Collider> pPlayerCollider = std::make_unique<DWF_Collider::Capsule_Collider>();
+    pPlayerCollider->SetCapsule(0.15f, 0.15f, 0.0f, true);
+    pModel->AddCollider(pPlayerCollider.get());
+    pPlayerCollider.release();
+
+    // set the model to the scene
+    m_Scene.Add(pModel.get(), false);
+    pModel.release();
 
     // set vertex format for textured models
     vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
@@ -1102,7 +1143,7 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     pTower->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTowerTexture("NebulusTowerBlue.png", true);
 
     // create the tower model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
     pModel->SetStatic(true);
     pModel->SetVisible(true);
     pModel->SetModel(pTower);
@@ -1161,11 +1202,11 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     shaders[3]->Use(true);
 
     // configure water
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_uWaveStrength"),   0.1f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "lightDir"),      -0.3f, -1.0f, -0.3f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterColor"),     0.1f,  0.3f,  0.4f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "deepWaterColor"), 0.0f,  0.1f,  0.2f);
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterClearness"), 0.15f);
+    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_uWaveStrength"),  0.1f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "lightDir"),          -0.3f, -1.0f, -0.3f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterColor"),         0.1f,  0.3f,  0.4f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "deepWaterColor"),     0.0f,  0.1f,  0.2f);
+    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterClearness"),     0.15f);
 
     shaders[3]->Use(false);
 
