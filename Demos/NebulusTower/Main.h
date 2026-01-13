@@ -125,6 +125,7 @@ class Main
         float                         m_xPos             =  0.0f;
         float                         m_yPos             =  0.0f;
         float                         m_zPos             =  0.0f;
+        float                         m_Distance         =  1.4f;
         float                         m_Angle            =  0.0f;
         float                         m_Time             =  0.0f;
         float                         m_Velocity         =  0.00125f;
