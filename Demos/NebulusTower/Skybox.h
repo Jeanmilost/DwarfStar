@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Shader_Collection_OpenGL ----------------------------------------*
+ * ==> Skybox --------------------------------------------------------------*
  ****************************************************************************
- * Description: OpenGL ready-to-use shader collection                       *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Nebulus skybox                                             *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -29,46 +29,58 @@
 #pragma once
 
 // std
-#include <string>
+#include <string.h>
 
-namespace DWF_Renderer
+// classes
+#include "DWF_Texture_OpenGL.h"
+#include "DWF_Scene.h"
+
+// demo
+#include "Item.h"
+
+namespace Nebulus
 {
     /**
-    * OpenGL ready-to-use shader collection
+    * Skybox
     *@author Jean-Milost Reymond
     */
-    class Shader_Collection_OpenGL
+    class Skybox : public Item
     {
         public:
             /**
-            * Shader type
+            * Constructor
+            *@param pScene - the current scene with which this item is linked
             */
-            enum class IEShaderType
-            {
-                IE_ST_Color,
-                IE_ST_Texture,
-                IE_ST_Texture_Normal,
-                IE_ST_Texture_Alpha_Cut,
-                IE_ST_Skybox,
-                IE_ST_Line,
-                IE_ST_Water
-            };
+            Skybox(DWF_Scene::Scene* pScene);
 
-            Shader_Collection_OpenGL();
-            virtual ~Shader_Collection_OpenGL();
+            virtual ~Skybox();
 
             /**
-            * Gets a vertex shader
-            *@param type - shader type to get
-            *@return the vertex shader
+            * Loads the item texture
+            *@param fileName - texture file name
+            *@param is32bit - if true, the texture is a 32 bit texture
             */
-            static std::string GetVertexShader(IEShaderType type);
+            virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
 
             /**
-            * Gets a fragment shader
-            *@param type - shader type to get
-            *@return the fragment shader
+            * Loads the skybox and adds it to the scene
+            *@param folder - folder containing the skybox images
+            *@param pShader - shader to use to draw the skybox
+            *@returns true on success, otherwise false
             */
-            static std::string GetFragmentShader(IEShaderType type);
+            virtual bool Load(const std::string& folder, const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+        private:
+            typedef std::vector<std::string> IFilenames;
+
+            GLuint m_SkyboxTexId = -1;
+
+            /**
+            * Loads the cubemap textures
+            *@param fileNames - texture file names
+            *@param convertPixels - if true, image pixels will be converted from BGR(A) to RGB(A)
+            *@return texture identifier
+            */
+            GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels) const;
     };
 }

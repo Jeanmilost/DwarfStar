@@ -58,273 +58,6 @@
 #include "Resource.h"
 
 //------------------------------------------------------------------------------
-// enhanced Water Vertex Shader OpenGL 2.0 (water.vert)
-const char* waterVertexShader = R"(
-#version 120
-
-attribute vec3 dwf_aVertices;
-attribute vec2 dwf_aTexCoord;
-
-varying vec2   dwf_vTexCoord;
-varying vec3   dwf_vFragPos;
-varying vec3   dwf_vNormal;
-varying vec4   dwf_vClipSpace;
-varying float  dwf_vWaveHeight;
-varying vec3   dwf_vWorldPos;
-
-uniform mat4   dwf_uModel;
-uniform mat4   dwf_uView;
-uniform mat4   dwf_uProjection;
-uniform float  dwf_uTime;
-uniform float  dwf_uWaveStrength;
-
-void main()
-{
-    dwf_vTexCoord = dwf_aTexCoord;
-    vec3 pos      = dwf_aVertices;
-
-    // Large ocean swells (slow, rolling waves)
-    float swell1 = sin(pos.x * 0.15 + dwf_uTime * 0.3) * cos(pos.z * 0.12 + dwf_uTime * 0.25);
-    float swell2 = sin(pos.x * 0.18 - pos.z * 0.15 + dwf_uTime * 0.35) * 0.8;
-
-    // Medium waves (wind waves)
-    float wind1 = sin(pos.x * 0.5 + pos.z * 0.4 + dwf_uTime * 0.9) * 0.5;
-    float wind2 = sin(pos.x * 0.7 - pos.z * 0.6 + dwf_uTime * 1.1) * 0.4;
-
-    // Small surface ripples
-    float ripple1 = sin(pos.x * 2.0 + pos.z * 1.8 + dwf_uTime * 1.8) * 0.2;
-    float ripple2 = sin(pos.x * 2.8 - pos.z * 2.3 - dwf_uTime * 2.1) * 0.15;
-
-    // Choppy detail
-    float chop1 = sin(pos.x * 4.5 + dwf_uTime * 2.8) * 0.1;
-    float chop2 = sin(pos.z * 5.2 - dwf_uTime * 3.2) * 0.08;
-
-    // Combine all wave layers with proper weighting
-    float finalWave = (swell1 * 1.2 + swell2 + wind1 + wind2 +
-                       ripple1 + ripple2 + chop1 + chop2) * dwf_uWaveStrength;
-    pos.y += finalWave;
-    dwf_vWaveHeight = finalWave;
-    dwf_vWorldPos = pos;
-
-    // more accurate normal calculation with finer sampling
-    float offset = 0.08;
-
-    // Sample heights around current position
-    vec2 offX = vec2(offset, 0.0);
-    vec2 offZ = vec2(0.0, offset);
-
-    float hL = (sin((pos.x - offset) * 0.15 + dwf_uTime * 0.3) * cos(pos.z * 0.12 + dwf_uTime * 0.25) * 1.2
-              + sin((pos.x - offset) * 0.18 - pos.z * 0.15 + dwf_uTime * 0.35) * 0.8
-              + sin((pos.x - offset) * 0.5 + pos.z * 0.4 + dwf_uTime * 0.9) * 0.5
-              + sin((pos.x - offset) * 0.7 - pos.z * 0.6 + dwf_uTime * 1.1) * 0.4
-              + sin((pos.x - offset) * 2.0 + pos.z * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.x - offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * dwf_uWaveStrength;
-
-    float hR = (sin((pos.x + offset) * 0.15 + dwf_uTime * 0.3) * cos(pos.z * 0.12 + dwf_uTime * 0.25) * 1.2
-              + sin((pos.x + offset) * 0.18 - pos.z * 0.15 + dwf_uTime * 0.35) * 0.8
-              + sin((pos.x + offset) * 0.5 + pos.z * 0.4 + dwf_uTime * 0.9) * 0.5
-              + sin((pos.x + offset) * 0.7 - pos.z * 0.6 + dwf_uTime * 1.1) * 0.4
-              + sin((pos.x + offset) * 2.0 + pos.z * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.x + offset) * 4.5 + dwf_uTime * 2.8) * 0.1) * dwf_uWaveStrength;
-
-    float hD = (sin(pos.x * 0.15 + dwf_uTime * 0.3) * cos((pos.z - offset) * 0.12 + dwf_uTime * 0.25) * 1.2
-              + sin(pos.x * 0.18 - (pos.z - offset) * 0.15 + dwf_uTime * 0.35) * 0.8
-              + sin(pos.x * 0.5 + (pos.z - offset) * 0.4 + dwf_uTime * 0.9) * 0.5
-              + sin(pos.x * 0.7 - (pos.z - offset) * 0.6 + dwf_uTime * 1.1) * 0.4
-              + sin(pos.x * 2.0 + (pos.z - offset) * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.z - offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * dwf_uWaveStrength;
-
-    float hU = (sin(pos.x * 0.15 + dwf_uTime * 0.3) * cos((pos.z + offset) * 0.12 + dwf_uTime * 0.25) * 1.2
-              + sin(pos.x * 0.18 - (pos.z + offset) * 0.15 + dwf_uTime * 0.35) * 0.8
-              + sin(pos.x * 0.5 + (pos.z + offset) * 0.4 + dwf_uTime * 0.9) * 0.5
-              + sin(pos.x * 0.7 - (pos.z + offset) * 0.6 + dwf_uTime * 1.1) * 0.4
-              + sin(pos.x * 2.0 + (pos.z + offset) * 1.8 + dwf_uTime * 1.8) * 0.2
-              + sin((pos.z + offset) * 5.2 - dwf_uTime * 3.2) * 0.08) * dwf_uWaveStrength;
-
-    vec3 tangentX = normalize(vec3(1.0, (hR - hL) / (2.0 * offset), 0.0));
-    vec3 tangentZ = normalize(vec3(0.0, (hU - hD) / (2.0 * offset), 1.0));
-    dwf_vNormal   = normalize(cross(tangentZ, tangentX));
-
-    dwf_vFragPos = vec3(dwf_uModel * vec4(pos, 1.0));
-    dwf_vClipSpace = dwf_uProjection * dwf_uView * vec4(dwf_vFragPos, 1.0);
-    gl_Position = dwf_vClipSpace;
-}
-)";
-//------------------------------------------------------------------------------
-// enhanced Water Fragment Shader OpenGL 2.0 (water.frag)
-const char* waterFragmentShader = R"(
-#version 120
-
-varying vec2  dwf_vTexCoord;
-varying vec3  dwf_vFragPos;
-varying vec3  dwf_vNormal;
-varying float dwf_vWaveHeight;
-varying vec3  dwf_vWorldPos;
-
-uniform float dwf_uTime;
-uniform vec3  cameraPos;
-uniform vec3  lightDir;
-uniform vec3  waterColor;
-uniform vec3  deepWaterColor;
-uniform float waterClearness;
-
-// Improved hash for better noise quality
-float hash(vec2 p)
-{
-    p = fract(p * vec2(443.897, 441.423));
-    p += dot(p, p.yx + 19.19);
-    return fract(p.x * p.y);
-}
-
-// Improved noise with smoother interpolation
-float noise(vec2 p)
-{
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-
-    // Quintic interpolation for smoother results
-    f = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-}
-
-// High quality FBM with 5 octaves
-float fbm(vec2 p)
-{
-    float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-
-    for(int i = 0; i < 5; i++)
-    {
-        value += amplitude * noise(p * frequency);
-        frequency *= 2.1;
-        amplitude *= 0.48;
-    }
-    return value;
-}
-
-// Improved caustics simulation
-float caustics(vec2 uv, float dwf_uTime)
-{
-    vec2 p = uv * 4.0;
-
-    float c1 = fbm(p + dwf_uTime * 0.08);
-    float c2 = fbm(p * 1.3 - dwf_uTime * 0.1 + vec2(100.0, 100.0));
-    float c3 = fbm(p * 1.7 + dwf_uTime * 0.06);
-
-    float caustic = c1 * c2 + c3 * 0.5;
-    caustic = pow(max(caustic, 0.0), 3.0);
-
-    return caustic * 2.5;
-}
-
-void main()
-{
-    vec3 norm = normalize(dwf_vNormal);
-    vec3 viewDir = normalize(cameraPos - dwf_vFragPos);
-
-    // Physically accurate Fresnel (Schlick's approximation)
-    float F0 = 0.02; // Water's reflectance at normal incidence
-    float NdotV = max(dot(norm, viewDir), 0.0);
-    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
-
-    // Enhanced surface distortion for realism
-    vec2 distortion1 = vec2(
-        fbm(dwf_vTexCoord * 2.5 + dwf_uTime * 0.03),
-        fbm(dwf_vTexCoord * 2.5 + dwf_uTime * 0.03 + 100.0)
-    ) * 0.04;
-
-    vec2 distortion2 = vec2(
-        noise(dwf_vTexCoord * 5.0 - dwf_uTime * 0.05 + 50.0),
-        noise(dwf_vTexCoord * 5.0 - dwf_uTime * 0.05 + 150.0)
-    ) * 0.02;
-
-    vec2 distortedCoord = dwf_vTexCoord + distortion1 + distortion2;
-
-    // Improved caustics
-    float causticsEffect = caustics(distortedCoord, dwf_uTime);
-
-    // Realistic foam on wave crests
-    float foamThreshold = 0.35;
-    float foamAmount = smoothstep(foamThreshold, foamThreshold + 0.3, dwf_vWaveHeight);
-    float foamPattern = fbm(dwf_vWorldPos.xz * 3.0 + dwf_uTime * 0.5) * 0.5 + 0.5;
-    float foam = foamAmount * foamPattern * 0.6;
-
-    // Sun lighting
-    vec3 lightDirection = normalize(-lightDir);
-    float diffuse = max(dot(norm, lightDirection), 0.0);
-
-    // Enhanced specular with sun color
-    vec3 halfDir = normalize(lightDirection + viewDir);
-    float specAngle = max(dot(norm, halfDir), 0.0);
-    float specular = pow(specAngle, 256.0); // Sharper highlights
-
-    // Stronger specular on peaks
-    specular *= (1.0 + dwf_vWaveHeight * 2.0);
-
-    // Subsurface scattering (light through wave peaks)
-    vec3 H = normalize(lightDirection + norm * 0.4);
-    float subsurface = pow(clamp(dot(viewDir, -H), 0.0, 1.0), 4.0) * 0.6;
-    subsurface *= max(0.0, dwf_vWaveHeight); // Only on elevated waves
-
-    // Depth-based color with more realistic variation
-    float depthFactor = mix(0.2, 1.0, fresnel);
-
-    // Darker, more realistic water colors
-    vec3 shallowColor = waterColor * vec3(0.8, 1.0, 1.1); // Slight cyan tint
-    vec3 deepColor = deepWaterColor * vec3(0.7, 0.85, 0.95); // Deep blue-green
-
-    // Mix based on depth and viewing angle
-    vec3 baseColor = mix(shallowColor, deepColor, depthFactor);
-
-    // Darken water in troughs, brighten on peaks
-    baseColor *= mix(0.7, 1.3, smoothstep(-0.5, 0.5, dwf_vWaveHeight));
-
-    // Sun color (warm yellow-white)
-    vec3 sunColor = vec3(1.0, 0.95, 0.85);
-
-    // Ambient light (darker for more realistic look)
-    vec3 ambient = baseColor * 0.3;
-
-    // Diffuse lighting
-    vec3 diffuseLight = baseColor * sunColor * diffuse * 0.6;
-
-    // Specular highlights (sun reflections)
-    vec3 specularLight = sunColor * specular * 2.5 * fresnel;
-
-    // Subsurface scattering (light through waves)
-    vec3 subsurfaceLight = vec3(0.1, 0.4, 0.5) * subsurface;
-
-    // Caustics (underwater light patterns) - only visible at certain angles
-    vec3 causticsLight = vec3(0.5, 0.7, 0.9) * causticsEffect * 0.15 * (1.0 - fresnel);
-
-    // Foam (white caps)
-    vec3 foamColor = vec3(1.0, 1.0, 1.0) * foam;
-
-    // Combine all lighting
-    vec3 color = ambient + diffuseLight + specularLight + subsurfaceLight + causticsLight + foamColor;
-
-    // Add slight color variation based on viewing angle (atmospheric perspective)
-    vec3 skyTint = vec3(0.7, 0.85, 1.0);
-    color = mix(color, color * skyTint, fresnel * 0.2);
-
-    // Enhanced edge darkening (water appears darker at grazing angles in real life)
-    color *= mix(0.8, 1.0, NdotV * 0.5 + 0.5);
-
-    // Dynamic alpha for realistic transparency
-    float alpha = mix(waterClearness * 0.7, 0.98, fresnel);
-    alpha = mix(alpha, 1.0, foam); // Foam is opaque
-
-    gl_FragColor = vec4(color, alpha);
-}
-)";
-//------------------------------------------------------------------------------
 // Global functions
 //------------------------------------------------------------------------------
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -380,12 +113,26 @@ Main* Main::m_This = nullptr;
 Main::Main()
 {
     m_This = this;
+
+    m_pSkybox   = new Nebulus::Skybox  (&m_Scene);
+    m_pTower    = new Nebulus::Tower   (&m_Scene);
+    m_pPlatform = new Nebulus::Platform(&m_Scene);
+    m_pPlayer   = new Nebulus::Player  (&m_Scene);
 }
 //---------------------------------------------------------------------------
 Main::~Main()
 {
-    if (m_SkyboxTexId != -1)
-        glDeleteTextures(1, &m_SkyboxTexId);
+    if (m_pSkybox)
+        delete m_pSkybox;
+
+    if (m_pTower)
+        delete m_pTower;
+
+    if (m_pPlatform)
+        delete m_pPlatform;
+
+    if (m_pPlayer)
+        delete m_pPlayer;
 }
 //---------------------------------------------------------------------------
 Main* Main::GetInstance()
@@ -501,8 +248,10 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     // load water shader
     std::shared_ptr<DWF_Renderer::Shader_OpenGL> pWaterShader = std::make_unique<DWF_Renderer::Shader_OpenGL>();
     pWaterShader->CreateProgram();
-    pWaterShader->Attach(waterVertexShader,   DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    pWaterShader->Attach(waterFragmentShader, DWF_Renderer::Shader::IEType::IE_ST_Fragment);
+    pWaterShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Water),
+            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
+    pWaterShader->Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Water),
+            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     pWaterShader->Link(true);
 
     DWF_Math::Matrix4x4F projMatrix;
@@ -605,7 +354,7 @@ int Main::Run(HINSTANCE hInstance, int nCmdShow)
     return (int)msg.wParam;
 }
 //------------------------------------------------------------------------------
-DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool is32bit)
+DWF_Model::Texture* Main::LoadTexture(const Nebulus::Item& item, const std::string& texturePath, const std::string& textureName, bool is32bit)
 {
     // search for an existing texture
     ITextures::iterator it = m_TextureItems.find(textureName);
@@ -613,24 +362,7 @@ DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool
     // is texture already loaded?
     if (it == m_TextureItems.end())
     {
-        std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
-
-        // load the texture
-        if (!pPixelBuffer->FromPng("..\\..\\Resources\\Model\\Robot\\Textures\\" + textureName, true))
-            return nullptr;
-
-        if (!pPixelBuffer->m_pData)
-            return nullptr;
-
-        // create the texture
-        std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
-        pTexture->m_Width     = (int)pPixelBuffer->m_Width;
-        pTexture->m_Height    = (int)pPixelBuffer->m_Height;
-        pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
-        pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Clamp;
-        pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Nearest;
-        pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Nearest;
-        pTexture->Create(pPixelBuffer->m_pData);
+        std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(item.LoadTexture(texturePath + textureName, is32bit));
 
         m_TextureItems[textureName] = pTexture.get();
 
@@ -643,59 +375,15 @@ DWF_Model::Texture* Main::OnLoadCharTexture(const std::string& textureName, bool
     return pTexture.release();
 }
 //------------------------------------------------------------------------------
+DWF_Model::Texture* Main::OnLoadPlayerTexture(const std::string& textureName, bool is32bit)
+{
+    return LoadTexture(*m_pPlayer, "..\\..\\Resources\\Model\\Robot\\Textures\\", textureName, is32bit);
+}
+//------------------------------------------------------------------------------
 DWF_Model::Texture* Main::OnLoadTowerTexture(const std::string& textureName, bool is32bit)
 {
-    // search for an existing texture
-    ITextures::iterator it = m_TextureItems.find(textureName);
-
-    // is texture already loaded?
-    if (it == m_TextureItems.end())
-    {
-        std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
-
-        // load the texture
-        if (!pPixelBuffer->FromPng("..\\..\\Resources\\Texture\\" + textureName, true))
-            return nullptr;
-
-        if (!pPixelBuffer->m_pData)
-            return nullptr;
-
-        // create the texture
-        std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
-        pTexture->m_Width     = (int)pPixelBuffer->m_Width;
-        pTexture->m_Height    = (int)pPixelBuffer->m_Height;
-        pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
-        pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Repeat;
-        pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
-        pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
-        pTexture->Create(pPixelBuffer->m_pData);
-
-        m_TextureItems[textureName] = pTexture.get();
-
-        return pTexture.release();
-    }
-
-    // clone the texture, thus it will point on the same already loaded one
-    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(static_cast<DWF_Model::Texture_OpenGL*>(it->second->Clone()));
-
-    return pTexture.release();
+    return LoadTexture(*m_pTower, "..\\..\\Resources\\Texture\\", textureName, is32bit);
 }
-//---------------------------------------------------------------------------
-bool Main::OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& pFileBuffer)
-{
-    std::unique_ptr<DWF_Buffer::StdFileBuffer> pBuffer = std::make_unique<DWF_Buffer::StdFileBuffer>();
-    pBuffer->Open("..\\..\\Resources\\Model\\Platformer\\Platform\\" + fileName, DWF_Buffer::StdFileBuffer::IEMode::IE_M_Read);
-
-    pFileBuffer = pBuffer.release();
-
-    return true;
-}
-//---------------------------------------------------------------------------
-void Main::OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
-{}
-//---------------------------------------------------------------------------
-void Main::OnEndReached(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)
-{}
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTime)
 {
@@ -866,7 +554,7 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     float camY = pArcballItem->GetPos().m_Y + pArcballItem->GetRadius() * sin(pArcballItem->GetX());
     float camZ = pArcballItem->GetPos().m_Z + pArcballItem->GetRadius() * cos(pArcballItem->GetY()) * cos(pArcballItem->GetX());
 
-    glUniform3f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "cameraPos"), camX, camY, camZ);
+    glUniform3f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "dwf_CameraPos"), camX, camY, camZ);
 
     pWaterShader->Use(false);
 }
@@ -913,6 +601,7 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     */
 }
 //---------------------------------------------------------------------------
+/*REM
 GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
 {
     try
@@ -1007,6 +696,7 @@ GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
         return -1;
     }
 }
+*/
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
 {
@@ -1020,108 +710,21 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     m_Scene.SetRenderer(m_Renderer);
     m_Scene.SetColor(bgColor);
 
-    IFilenames cubemapFilenames;
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\right.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\left.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\top.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\bottom.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\front.png");
-    cubemapFilenames.push_back("..\\..\\Resources\\Skybox\\Starfield\\back.png");
+    // load the skybox and add it to the scene
+    if (!m_pSkybox->Load("..\\..\\Resources\\Skybox\\Starfield\\", shaders[2]))
+        return false;
 
-    // load the skybox textures
-    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture = std::make_unique<DWF_Model::Texture_OpenGL>();
-    pTexture->m_Target = DWF_Model::Texture::IETarget::IE_TT_Cubemap;
-    m_SkyboxTexId = LoadCubemap(cubemapFilenames, false);
-    pTexture->SetID(m_SkyboxTexId);
-
-    // set the skybox in scene
-    m_Scene.SetSkybox(pTexture.get(), shaders[2]);
-    pTexture.release();
-
-    // create the player arcball
-    std::unique_ptr<DWF_Scene::Arcball> pArcball = std::make_unique<DWF_Scene::Arcball>();
-    pArcball->m_Position = DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos);
-    pArcball->m_AngleX   = 0.0f;
-    pArcball->m_AngleY   = (float)(M_PI / 2.0);
-    pArcball->m_Radius   = 4.0f;
-
-    // create an arcball point of view
-    std::unique_ptr<DWF_Scene::SceneItem_PointOfView> pPOV = std::make_unique<DWF_Scene::SceneItem_PointOfView>(L"scene_arcball");
-    pPOV->Set(pArcball.get());
-    pArcball.release();
-
-    // set the point of view to the scene
-    m_Scene.Add(pPOV.get());
-    pPOV.release();
-
-    // load player IQM model
+    // create an IQM model to contain the player
     std::shared_ptr<DWF_Model::IQM> pIqm = std::make_shared<DWF_Model::IQM>();
-    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadCharTexture, this, std::placeholders::_1, std::placeholders::_2));
-    pIqm->Open("..\\..\\Resources\\Model\\Robot\\Robot.iqm");
+    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadPlayerTexture, this, std::placeholders::_1, std::placeholders::_2));
 
-    // create the player model item
-    std::unique_ptr<DWF_Scene::SceneItem_AnimAsset> pAnim = std::make_unique<DWF_Scene::SceneItem_AnimAsset>(L"scene_player_model");
-    pAnim->SetStatic(true);
-    pAnim->SetShader(shaders[0]);
-    pAnim->SetPos(DWF_Math::Vector3F(m_xPos - m_Distance, m_yPos - 0.25f, m_zPos));
-    pAnim->SetRoll(-(float)M_PI / 2.0f);
-    pAnim->SetPitch((float)M_PI);
-    pAnim->SetYaw(0.0f);
-    pAnim->SetScale(DWF_Math::Vector3F(0.1f, 0.1f, 0.1f));
-    pAnim->SetModel(pIqm);
-    pAnim->AddAnim((std::size_t)0, 0, 0,  0.0,   false); // idle
-    pAnim->AddAnim((std::size_t)0, 0, 60, 0.0125, true);  // walk
-    pAnim->Set_OnFrame(std::bind(&Main::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
-    pAnim->Set_OnEndReached(std::bind(&Main::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
-
-    pAnim->SelectAnim(0);
-
-    // set the model to the scene
-    m_Scene.Add(pAnim.get(), false);
-    pAnim.release();
+    // load the player model and add it to the scene
+    if (!m_pPlayer->Load(pIqm, shaders[0], shaders[1]))
+        return false;
 
     DWF_Model::VertexFormat  vf;
     DWF_Model::VertexCulling vc;
     DWF_Model::Material      mat;
-
-    // set vertex format for textured models
-    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
-    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
-                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
-
-    // set vertex format for colored models
-    vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
-
-    // create material
-    mat.m_Color.m_B = 1.0f;
-    mat.m_Color.m_G = 0.0f;
-    mat.m_Color.m_R = 0.0f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the player capsule
-    std::shared_ptr<DWF_Model::Model> pPlayerCapsule(DWF_Model::Factory::GetCapsule(0.15f, 0.15f, 15.0f, vf, vc, mat));
-
-    // create the capsule model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_player_collider");
-    pModel->SetStatic(false);
-    pModel->SetVisible(false);
-    pModel->SetModel(pPlayerCapsule);
-    pModel->SetShader(shaders[1]);
-    pModel->SetPos(DWF_Math::Vector3F(m_xPos - m_Distance, m_yPos - 0.25f, m_zPos));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-    // create the player collider
-    std::unique_ptr<DWF_Collider::Capsule_Collider> pPlayerCollider = std::make_unique<DWF_Collider::Capsule_Collider>();
-    pPlayerCollider->SetCapsule(0.15f, 0.15f, 0.0f, true);
-    pModel->AddCollider(pPlayerCollider.get());
-    pPlayerCollider.release();
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
 
     // set vertex format for textured models
     vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
@@ -1143,7 +746,7 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     pTower->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTowerTexture("NebulusTowerBlue.png", true);
 
     // create the tower model item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
     pModel->SetStatic(true);
     pModel->SetVisible(true);
     pModel->SetModel(pTower);
@@ -1187,10 +790,10 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
 
     // configure water
     glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_uWaveStrength"),  0.1f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "lightDir"),          -0.3f, -1.0f, -0.3f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterColor"),         0.1f,  0.3f,  0.4f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "deepWaterColor"),     0.0f,  0.1f,  0.2f);
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "waterClearness"),     0.15f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_LightDir"),      -0.3f, -1.0f, -0.3f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_WaterColor"),     0.1f,  0.3f,  0.4f);
+    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_DeepWaterColor"), 0.0f,  0.1f,  0.2f);
+    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_WaterClearness"), 0.15f);
 
     shaders[3]->Use(false);
 
@@ -1239,7 +842,7 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
 
         // create the platform collider
         std::unique_ptr<DWF_Collider::Cylinder_Collider> pPlatformCollider = std::make_unique<DWF_Collider::Cylinder_Collider>();
-        pPlatformCollider->SetCylinder(0.2f, 0.1f, 0.0f);
+        pPlatformCollider->SetCylinder(0.2f, 0.05f, -0.05f);
         pModel->AddCollider(pPlatformCollider.get());
         pPlatformCollider.release();
 

@@ -44,6 +44,12 @@
 #include "DWF_SceneItemAnimAsset.h"
 #include "DWF_Force.h"
 
+// demo
+#include "Skybox.h"
+#include "Tower.h"
+#include "Platform.h"
+#include "Player.h"
+
 // libraries
 #include <windows.h>
 
@@ -112,16 +118,20 @@ class Main
 
         typedef std::map<std::string, DWF_Model::Texture*>                ITextures;
         typedef std::vector<std::shared_ptr<DWF_Renderer::Shader_OpenGL>> IShaders;
-        typedef std::vector<std::string>                                  IFilenames;
+        //REM typedef std::vector<std::string>                                  IFilenames;
 
         static Main* m_This;
 
         DWF_Scene::Scene              m_Scene;
         DWF_Renderer::Renderer_OpenGL m_Renderer;
         ITextures                     m_TextureItems;
+        Nebulus::Skybox*              m_pSkybox          = nullptr;
+        Nebulus::Tower*               m_pTower           = nullptr;
+        Nebulus::Platform*            m_pPlatform        = nullptr;
+        Nebulus::Player*              m_pPlayer          = nullptr;
         DWF_Physics::Force            m_Force;
         IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
-        GLuint                        m_SkyboxTexId      = -1;
+        //REM GLuint                        m_SkyboxTexId      = -1;
         float                         m_xPos             =  0.0f;
         float                         m_yPos             =  0.0f;
         float                         m_zPos             =  0.0f;
@@ -140,11 +150,19 @@ class Main
         bool                          m_OldShowColliders =  false;
 
         /**
-        * Called when a texture should be loaded for the character
+        * Loads a texture for an item
+        *@param texturePath - texture path
         *@param textureName - texture file name, without path
         *@param is32bit - if true, the texture is a 32 bit texture
         */
-        DWF_Model::Texture* OnLoadCharTexture(const std::string& textureName, bool is32bit);
+        DWF_Model::Texture* LoadTexture(const Nebulus::Item& item, const std::string& texturePath, const std::string& textureName, bool is32bit);
+
+        /**
+        * Called when a texture should be loaded for the player model
+        *@param textureName - texture file name, without path
+        *@param is32bit - if true, the texture is a 32 bit texture
+        */
+        DWF_Model::Texture* OnLoadPlayerTexture(const std::string& textureName, bool is32bit);
 
         /**
         * Called when a texture should be loaded for the tower
@@ -154,25 +172,18 @@ class Main
         DWF_Model::Texture* OnLoadTowerTexture(const std::string& textureName, bool is32bit);
 
         /**
-        * Called when attached Wavefront material file should be opened
-        *@param fileName - material file name
-        *@param[out] pFileBuffer - file buffer to open with the Wavefront material content
-        */
-        bool OnOpenMaterialFile(const std::string& fileName, DWF_Buffer::Buffer*& pFileBuffer);
-
-        /**
         * Called when a new frame is calculated in an animation
         *@param pAnim - the animation for which the frame is calculated
         *@param pAnimDesc - animation description
         */
-        void OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc);
+        //REM void OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc);
 
         /**
         * Called when an animation end is reached
         *@param pAnim - the animation for which the end was reached
         *@param pAnimDesc - animation description
         */
-        void OnEndReached(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc);
+        //REM void OnEndReached(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc);
 
         /**
         * Called when a scene physics should be updated
@@ -208,7 +219,7 @@ class Main
         *@param convertPixels - if true, image pixels will be converted from BGR(A) to RGB(A)
         *@return texture identifier
         */
-        GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
+        //REM GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
 
         /**
         * Loads the scene

@@ -241,8 +241,13 @@
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneSpawner.h" />
     <ClInclude Include="..\..\SDK\Scene\DWF_SceneTimer.h" />
     <ClInclude Include="..\..\SDK\String\DWF_StringHelper.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Platform.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Tower.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Audio\DWF_Sound.cpp" />
@@ -311,8 +316,13 @@
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneSpawner.cpp" />
     <ClCompile Include="..\..\SDK\Scene\DWF_SceneTimer.cpp" />
     <ClCompile Include="..\..\SDK\String\DWF_StringHelper.cpp" />
+    <ClCompile Include="Item.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NebulusTower.cpp" />
+    <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="Tower.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NebulusTower.rc" />
