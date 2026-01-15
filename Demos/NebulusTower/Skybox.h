@@ -64,11 +64,10 @@ namespace Nebulus
 
             /**
             * Loads the skybox and adds it to the scene
-            *@param folder - folder containing the skybox images
             *@param pShader - shader to use to draw the skybox
             *@returns true on success, otherwise false
             */
-            virtual bool Load(const std::string& folder, const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+            virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
 
         private:
             typedef std::vector<std::string> IFilenames;

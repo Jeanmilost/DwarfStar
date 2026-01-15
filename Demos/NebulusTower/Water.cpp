@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> Tower ---------------------------------------------------------------*
+ * ==> Water ---------------------------------------------------------------*
  ****************************************************************************
- * Description : Nebulus tower                                              *
+ * Description : Nebulus water effect                                       *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -26,54 +26,29 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#include "Tower.h"
-
-// std
-#include <memory>
+#include "Water.h"
 
 // classes
-#include "DWF_Buffer.h"
-#include "DWF_PixelBuffer.h"
-#include "DWF_Texture.h"
 #include "DWF_ModelFactory.h"
 
 using namespace Nebulus;
 
 //---------------------------------------------------------------------------
-// Tower
+// Water
 //---------------------------------------------------------------------------
-Tower::Tower(DWF_Scene::Scene* pScene) :
+Water::Water(DWF_Scene::Scene* pScene) :
     Item(pScene)
 {}
 //---------------------------------------------------------------------------
-Tower::~Tower()
+Water::~Water()
 {}
 //------------------------------------------------------------------------------
-DWF_Model::Texture_OpenGL* Tower::LoadTexture(const std::string& fileName, bool is32bit) const
+DWF_Model::Texture_OpenGL* Water::LoadTexture(const std::string& fileName, bool is32bit) const
 {
-    std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
-
-    // load the texture
-    if (!pPixelBuffer->FromPng(fileName, true))
-        return nullptr;
-
-    if (!pPixelBuffer->m_pData)
-        return nullptr;
-
-    // create the texture
-    std::unique_ptr<DWF_Model::Texture_OpenGL> pTexture(new DWF_Model::Texture_OpenGL());
-    pTexture->m_Width     = (int)pPixelBuffer->m_Width;
-    pTexture->m_Height    = (int)pPixelBuffer->m_Height;
-    pTexture->m_Format    = pPixelBuffer->m_BytePerPixel == 3 ? DWF_Model::Texture::IEFormat::IE_FT_24bit : DWF_Model::Texture::IEFormat::IE_FT_32bit;
-    pTexture->m_WrapMode  = DWF_Model::Texture::IEWrapMode::IE_WM_Repeat;
-    pTexture->m_MinFilter = DWF_Model::Texture::IEMinFilter::IE_MI_Linear;
-    pTexture->m_MagFilter = DWF_Model::Texture::IEMagFilter::IE_MA_Linear;
-    pTexture->Create(pPixelBuffer->m_pData);
-
-    return pTexture.release();
+    return nullptr;
 }
-//---------------------------------------------------------------------------
-bool Tower::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
+//------------------------------------------------------------------------------
+bool Water::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
 {
     // get the scene
     DWF_Scene::Scene* pScene = GetScene();
@@ -85,35 +60,25 @@ bool Tower::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
     DWF_Model::VertexCulling vc;
     DWF_Model::Material      mat;
 
-    // set vertex format for textured models
-    vf.m_Type   = DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
-    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
-                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
-
-    vc.m_Type = DWF_Model::VertexCulling::IECullingType::IE_CT_Front;
+    // set vertex format for colored models
+    vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords;
 
     // create material
     mat.m_Color.m_B = 1.0f;
     mat.m_Color.m_G = 1.0f;
     mat.m_Color.m_R = 1.0f;
     mat.m_Color.m_A = 1.0f;
-    mat.m_uScale    = 10.0f;
-    mat.m_vScale    = 10.0f;
 
-    // create the tower
-    std::shared_ptr<DWF_Model::Model> pTower(DWF_Model::Factory::GetCylinder(1.2f, 1.2f, 10.0f, 50, vf, vc, mat));
+    // create the water plan
+    std::shared_ptr<DWF_Model::Model> pWater(DWF_Model::Factory::GetWaterSurface(100.0f, 100.0f, 750, vf, vc, mat));
 
-    // attach a function to the model to load the texture
-    if (m_fOnAttachTextureFunction)
-        m_fOnAttachTextureFunction(pTower);
-
-    // create the tower model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
+    // create the water item
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_water");
     pModel->SetStatic(true);
     pModel->SetVisible(true);
-    pModel->SetModel(pTower);
+    pModel->SetModel(pWater);
     pModel->SetShader(pShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 4.0f, 0.0f));
+    pModel->SetPos(DWF_Math::Vector3F(0.0f, -1.0f, 0.0f));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);
@@ -123,11 +88,17 @@ bool Tower::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
     pScene->Add(pModel.get(), false);
     pModel.release();
 
+    pShader->Use(true);
+
+    // configure water
+    glUniform1f(glGetUniformLocation((GLuint)pShader->GetProgramID(), "dwf_uWaveStrength"),  0.1f);
+    glUniform3f(glGetUniformLocation((GLuint)pShader->GetProgramID(), "dwf_LightDir"),      -0.3f, -1.0f, -0.3f);
+    glUniform3f(glGetUniformLocation((GLuint)pShader->GetProgramID(), "dwf_WaterColor"),     0.1f,  0.3f,  0.4f);
+    glUniform3f(glGetUniformLocation((GLuint)pShader->GetProgramID(), "dwf_DeepWaterColor"), 0.0f,  0.1f,  0.2f);
+    glUniform1f(glGetUniformLocation((GLuint)pShader->GetProgramID(), "dwf_WaterClearness"), 0.15f);
+
+    pShader->Use(false);
+
     return true;
 }
-//---------------------------------------------------------------------------
-void Tower::Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler)
-{
-    m_fOnAttachTextureFunction = fHandler;
-}
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------

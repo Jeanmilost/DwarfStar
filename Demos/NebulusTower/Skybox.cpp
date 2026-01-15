@@ -51,13 +51,15 @@ DWF_Model::Texture_OpenGL* Skybox::LoadTexture(const std::string& fileName, bool
     return nullptr;
 }
 //---------------------------------------------------------------------------
-bool Skybox::Load(const std::string& folder, const std::shared_ptr<DWF_Renderer::Shader>& pShader)
+bool Skybox::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
 {
     // get the scene
     DWF_Scene::Scene* pScene = GetScene();
 
     if (!pScene)
         return false;
+
+    const std::string folder = "..\\..\\Resources\\Skybox\\Starfield\\";
 
     IFilenames cubemapFilenames;
     cubemapFilenames.push_back(folder + "right.png");

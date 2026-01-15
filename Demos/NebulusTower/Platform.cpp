@@ -28,13 +28,18 @@
 
 #include "Platform.h"
 
+// classes
+#include "DWF_CylinderCollider.h"
+#include "DWF_ModelFactory.h"
+
 using namespace Nebulus;
 
 //---------------------------------------------------------------------------
 // Platform
 //---------------------------------------------------------------------------
-Platform::Platform(DWF_Scene::Scene* pScene) :
-    Item(pScene)
+Platform::Platform(DWF_Scene::Scene* pScene, const DWF_Math::Vector3F& pos) :
+    Item(pScene),
+    m_Pos(pos)
 {}
 //---------------------------------------------------------------------------
 Platform::~Platform()
@@ -43,5 +48,73 @@ Platform::~Platform()
 DWF_Model::Texture_OpenGL* Platform::LoadTexture(const std::string& fileName, bool is32bit) const
 {
     return nullptr;
+}
+//---------------------------------------------------------------------------
+bool Platform::Load(std::size_t                            i,
+                    std::shared_ptr<DWF_Model::Model>&     pPlatform,
+                    std::shared_ptr<DWF_Model::Model>&     pPlatformClosure,
+              const std::shared_ptr<DWF_Renderer::Shader>& pShader)
+{
+    // get the scene
+    DWF_Scene::Scene* pScene = GetScene();
+
+    if (!pScene)
+        return false;
+
+    // create the platform item
+    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_" + std::to_wstring(i));
+    pModel->SetStatic(false);
+    pModel->SetVisible(true);
+    pModel->SetModel(pPlatform);
+    pModel->SetShader(pShader);
+    pModel->SetPos(m_Pos);
+    pModel->SetRoll(0.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // create the platform collider
+    std::unique_ptr<DWF_Collider::Cylinder_Collider> pPlatformCollider = std::make_unique<DWF_Collider::Cylinder_Collider>();
+    pPlatformCollider->SetCylinder(0.2f, 0.05f, -0.05f);
+    pModel->AddCollider(pPlatformCollider.get());
+    pPlatformCollider.release();
+
+    // set the model to the scene
+    pScene->Add(pModel.get(), false);
+    pModel.release();
+
+    // create the platform top item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_top_" + std::to_wstring(i));
+    pModel->SetStatic(false);
+    pModel->SetVisible(true);
+    pModel->SetModel(pPlatformClosure);
+    pModel->SetShader(pShader);
+    pModel->SetPos(DWF_Math::Vector3F(m_Pos.m_X, m_Pos.m_Y + 0.05f, m_Pos.m_Z));
+    pModel->SetRoll(-(float)M_PI / 2.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // set the model to the scene
+    pScene->Add(pModel.get(), false);
+    pModel.release();
+
+    // create the platform bottom item
+    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_bottom_" + std::to_wstring(i));
+    pModel->SetStatic(false);
+    pModel->SetVisible(true);
+    pModel->SetModel(pPlatformClosure);
+    pModel->SetShader(pShader);
+    pModel->SetPos(DWF_Math::Vector3F(m_Pos.m_X, m_Pos.m_Y - 0.05f, m_Pos.m_Z));
+    pModel->SetRoll((float)M_PI / 2.0f);
+    pModel->SetPitch(0.0f);
+    pModel->SetYaw(0.0f);
+    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
+
+    // set the model to the scene
+    pScene->Add(pModel.get(), false);
+    pModel.release();
+
+    return true;
 }
 //---------------------------------------------------------------------------

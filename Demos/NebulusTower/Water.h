@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> Tower ---------------------------------------------------------------*
+ * ==> Water ---------------------------------------------------------------*
  ****************************************************************************
- * Description : Nebulus tower                                              *
+ * Description : Nebulus water effect                                       *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -33,6 +33,7 @@
 
 // classes
 #include "DWF_Texture_OpenGL.h"
+#include "DWF_Scene.h"
 
 // demo
 #include "Item.h"
@@ -40,47 +41,32 @@
 namespace Nebulus
 {
     /**
-    * Tower
+    * Water
     *@author Jean-Milost Reymond
     */
-    class Tower : public Item
+    class Water : public Item
     {
         public:
-            /**
-            * Called when a texture loader function should be attached to the tower model
-            *@param arg1 - the model for which the texture function should be attached
-            */
-            typedef std::function<void(std::shared_ptr<DWF_Model::Model>&)> ITfOnAttachTextureFunction;
-
             /**
             * Constructor
             *@param pScene - the current scene with which this item is linked
             */
-            Tower(DWF_Scene::Scene* pScene);
+            Water(DWF_Scene::Scene* pScene);
 
-            virtual ~Tower();
+            virtual ~Water();
 
             /**
-            * Loads the tower texture
+            * Loads the item texture
             *@param fileName - texture file name
             *@param is32bit - if true, the texture is a 32 bit texture
             */
             virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
 
             /**
-            * Loads the tower and adds it to the scene
-            *@param pShader - shader to use to draw the tower
+            * Loads the water and adds it to the scene
+            *@param pShader - shader to use to draw the water
             *@returns true on success, otherwise false
             */
             virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
-
-            /**
-            * Set OnAttachTextureFunction function
-            *@param fHandler - function handler
-            */
-            virtual void Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler);
-
-        private:
-            ITfOnAttachTextureFunction m_fOnAttachTextureFunction = nullptr;
     };
 }

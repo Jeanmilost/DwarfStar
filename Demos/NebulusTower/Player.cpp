@@ -78,13 +78,9 @@ DWF_Model::Texture_OpenGL* Player::LoadTexture(const std::string& fileName, bool
     return pTexture.release();
 }
 //---------------------------------------------------------------------------
-bool Player::Load(      std::shared_ptr<DWF_Model::IQM>&       pIqm,
-                  const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
+bool Player::Load(const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
                   const std::shared_ptr<DWF_Renderer::Shader>& pColliderShader)
 {
-    if (!pIqm)
-        return false;
-
     // get the scene
     DWF_Scene::Scene* pScene = GetScene();
 
@@ -106,6 +102,12 @@ bool Player::Load(      std::shared_ptr<DWF_Model::IQM>&       pIqm,
     // set the point of view to the scene
     pScene->Add(pPOV.get());
     pPOV.release();
+
+    std::shared_ptr<DWF_Model::IQM> pIqm = std::make_shared<DWF_Model::IQM>();
+
+    // attach a function to the model to load the texture
+    if (m_fOnAttachTextureFunction)
+        m_fOnAttachTextureFunction(pIqm);
 
     // load player IQM model
     if (!pIqm->Open("..\\..\\Resources\\Model\\Robot\\Robot.iqm"))
@@ -176,6 +178,11 @@ bool Player::Load(      std::shared_ptr<DWF_Model::IQM>&       pIqm,
     pModel.release();
 
     return true;
+}
+//---------------------------------------------------------------------------
+void Player::Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler)
+{
+    m_fOnAttachTextureFunction = fHandler;
 }
 //---------------------------------------------------------------------------
 void Player::OnFrame(const DWF_Scene::SceneItem_AnimAsset* pAnim, const DWF_Scene::SceneItem_AnimAsset::IAnimDesc* pAnimDesc)

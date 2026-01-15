@@ -244,10 +244,12 @@
     <ClInclude Include="Item.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="Platforms.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Tower.h" />
+    <ClInclude Include="Water.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\SDK\Audio\DWF_Sound.cpp" />
@@ -320,9 +322,11 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NebulusTower.cpp" />
     <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="Platforms.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Tower.cpp" />
+    <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NebulusTower.rc" />

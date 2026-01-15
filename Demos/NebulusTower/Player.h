@@ -42,9 +42,19 @@
 
 namespace Nebulus
 {
+    /**
+    * Player character
+    *@author Jean-Milost Reymond
+    */
     class Player : public Item
     {
         public:
+            /**
+            * Called when a texture loader function should be attached to the player model
+            *@param arg1 - the model for which the texture function should be attached
+            */
+            typedef std::function<void(std::shared_ptr<DWF_Model::IQM>&)> ITfOnAttachTextureFunction;
+
             /**
             * Constructor
             *@param pScene - the current scene with which this item is linked
@@ -62,20 +72,25 @@ namespace Nebulus
 
             /**
             * Loads the player and adds it to the scene
-            *@param pIqm - IQM model which will contain the player model
             *@param pModelShader - shader to use to draw the model
             *@param pColliderShader - shader to use to draw the model collider
             *@returns true on success, otherwise false
             */
-            virtual bool Load(      std::shared_ptr<DWF_Model::IQM>&       pIqm,
-                              const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
+            virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
                               const std::shared_ptr<DWF_Renderer::Shader>& pColliderShader);
 
+            /**
+            * Set OnAttachTextureFunction function
+            *@param fHandler - function handler
+            */
+            virtual void Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler);
+
         private:
-            float m_xPos     = 0.0f;
-            float m_yPos     = 0.0f;
-            float m_zPos     = 0.0f;
-            float m_Distance = 1.4f;
+            float                      m_xPos                     = 0.0f;
+            float                      m_yPos                     = 0.0f;
+            float                      m_zPos                     = 0.0f;
+            float                      m_Distance                 = 1.4f;
+            ITfOnAttachTextureFunction m_fOnAttachTextureFunction = nullptr;
 
             /**
             * Called when a new frame is calculated in an animation

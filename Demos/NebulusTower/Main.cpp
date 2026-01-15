@@ -114,10 +114,11 @@ Main::Main()
 {
     m_This = this;
 
-    m_pSkybox   = new Nebulus::Skybox  (&m_Scene);
-    m_pTower    = new Nebulus::Tower   (&m_Scene);
-    m_pPlatform = new Nebulus::Platform(&m_Scene);
-    m_pPlayer   = new Nebulus::Player  (&m_Scene);
+    m_pSkybox    = new Nebulus::Skybox   (&m_Scene);
+    m_pTower     = new Nebulus::Tower    (&m_Scene);
+    m_pPlatforms = new Nebulus::Platforms(&m_Scene);
+    m_pWater     = new Nebulus::Water    (&m_Scene);
+    m_pPlayer    = new Nebulus::Player   (&m_Scene);
 }
 //---------------------------------------------------------------------------
 Main::~Main()
@@ -128,8 +129,11 @@ Main::~Main()
     if (m_pTower)
         delete m_pTower;
 
-    if (m_pPlatform)
-        delete m_pPlatform;
+    if (m_pPlatforms)
+        delete m_pPlatforms;
+
+    if (m_pWater)
+        delete m_pWater;
 
     if (m_pPlayer)
         delete m_pPlayer;
@@ -600,103 +604,16 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
     pCollider1->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
     */
 }
-//---------------------------------------------------------------------------
-/*REM
-GLuint Main::LoadCubemap(const IFilenames fileNames, bool convertPixels)
+//------------------------------------------------------------------------------
+void Main::OnAttachTowerTextureFn(std::shared_ptr<DWF_Model::Model>& pModel)
 {
-    try
-    {
-        GLuint textureID = -1;
-
-        // create new OpenGL texture
-        glGenTextures(1, &textureID);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-        const std::size_t fileNameCount = fileNames.size();
-
-        // iterate through the cubemap texture files to load
-        for (std::size_t i = 0; i < fileNameCount; ++i)
-        {
-            std::unique_ptr<DWF_Buffer::PixelBuffer> pPixelBuffer = std::make_unique<DWF_Buffer::PixelBuffer>();
-
-            // load the texture
-            if (!pPixelBuffer->FromPng(fileNames[i], false))
-                return -1;
-
-            GLint pixelType;
-
-            // select the correct pixel type to use
-            switch (pPixelBuffer->m_BytePerPixel)
-            {
-                case 3:  pixelType = GL_RGB;  break;
-                case 4:  pixelType = GL_RGBA; break;
-                default: return -1;
-            }
-
-            // do convert pixels?
-            if (convertPixels)
-            {
-                // calculate image stride
-                const std::size_t stride = pPixelBuffer->m_Stride;
-
-                // reorder the pixels
-                unsigned char* pPixels = new unsigned char[(std::size_t)pPixelBuffer->m_Width * (std::size_t)pPixelBuffer->m_Height * 3];
-
-                try
-                {
-                    // get bitmap data into right format
-                    for (unsigned y = 0; y < pPixelBuffer->m_Height; ++y)
-                        for (unsigned x = 0; x < pPixelBuffer->m_Width; ++x)
-                            for (unsigned char c = 0; c < 3; ++c)
-                                pPixels[3 * (pPixelBuffer->m_Width * y + x) + c] =
-                                        ((unsigned char*)pPixelBuffer->m_pData)[stride * y + 3 * ((std::size_t)pPixelBuffer->m_Width - x - 1) + (2 - c)];
-
-                    // load the texture on the GPU
-                    glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
-                                 0,
-                                 pixelType,
-                                 (GLsizei)pPixelBuffer->m_Width,
-                                 (GLsizei)pPixelBuffer->m_Height,
-                                 0,
-                                 pixelType,
-                                 GL_UNSIGNED_BYTE,
-                                 pPixels);
-                }
-                catch (...)
-                {
-                    delete[] pPixels;
-                    throw;
-                }
-
-                delete[] pPixels;
-            }
-            else
-                // load the texture on the GPU
-                glTexImage2D((GLenum)(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
-                             0,
-                             pixelType,
-                             (GLsizei)pPixelBuffer->m_Width,
-                             (GLsizei)pPixelBuffer->m_Height,
-                             0,
-                             pixelType,
-                             GL_UNSIGNED_BYTE,
-                             (unsigned char*)pPixelBuffer->m_pData);
-        }
-
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,     GL_CLAMP_TO_EDGE);
-
-        return textureID;
-    }
-    catch (...)
-    {
-        return -1;
-    }
+    pModel->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTowerTexture("NebulusTowerBlue.png", true);
 }
-*/
+//------------------------------------------------------------------------------
+void Main::OnAttachPlayerTextureFn(std::shared_ptr<DWF_Model::IQM>& pIqm)
+{
+    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadPlayerTexture, this, std::placeholders::_1, std::placeholders::_2));
+}
 //------------------------------------------------------------------------------
 bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
 {
@@ -711,177 +628,30 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
     m_Scene.SetColor(bgColor);
 
     // load the skybox and add it to the scene
-    if (!m_pSkybox->Load("..\\..\\Resources\\Skybox\\Starfield\\", shaders[2]))
+    if (!m_pSkybox->Load(shaders[2]))
         return false;
 
-    // create an IQM model to contain the player
-    std::shared_ptr<DWF_Model::IQM> pIqm = std::make_shared<DWF_Model::IQM>();
-    pIqm->Set_OnLoadTexture(std::bind(&Main::OnLoadPlayerTexture, this, std::placeholders::_1, std::placeholders::_2));
+    // attach the player texture loader
+    m_pPlayer->Set_OnAttachTextureFunction(std::bind(&Main::OnAttachPlayerTextureFn, this, std::placeholders::_1));
 
     // load the player model and add it to the scene
-    if (!m_pPlayer->Load(pIqm, shaders[0], shaders[1]))
+    if (!m_pPlayer->Load(shaders[0], shaders[1]))
         return false;
 
-    DWF_Model::VertexFormat  vf;
-    DWF_Model::VertexCulling vc;
-    DWF_Model::Material      mat;
+    // attach the tower texture loader
+    m_pTower->Set_OnAttachTextureFunction(std::bind(&Main::OnAttachTowerTextureFn, this, std::placeholders::_1));
 
-    // set vertex format for textured models
-    vf.m_Type   =  DWF_Model::VertexFormat::IEType::IE_VT_Triangles;
-    vf.m_Format = (DWF_Model::VertexFormat::IEFormat)((int)DWF_Model::VertexFormat::IEFormat::IE_VF_Colors |
-                                                      (int)DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords);
+    // load the tower model and add it to the scene
+    if (!m_pTower->Load(shaders[0]))
+        return false;
 
-    vc.m_Type = DWF_Model::VertexCulling::IECullingType::IE_CT_Front;
+    // create platforms and add them to scene
+    if (!m_pPlatforms->Load(shaders[1]))
+        return false;
 
-    // create material
-    mat.m_Color.m_B = 1.0f;
-    mat.m_Color.m_G = 1.0f;
-    mat.m_Color.m_R = 1.0f;
-    mat.m_Color.m_A = 1.0f;
-    mat.m_uScale    = 10.0f;
-    mat.m_vScale    = 10.0f;
-
-    // create the tower
-    std::shared_ptr<DWF_Model::Model> pTower(DWF_Model::Factory::GetCylinder(1.2f, 1.2f, 10.0f, 50, vf, vc, mat));
-    pTower->m_Mesh[0]->m_VB[0]->m_Material.m_pTexture = OnLoadTowerTexture("NebulusTowerBlue.png", true);
-
-    // create the tower model item
-    std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_tower");
-    pModel->SetStatic(true);
-    pModel->SetVisible(true);
-    pModel->SetModel(pTower);
-    pModel->SetShader(shaders[0]);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 4.0f, 0.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    // set vertex format for colored models
-    vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords;
-
-    mat.m_uScale = 1.0f;
-    mat.m_vScale = 1.0f;
-
-    // create the water plan
-    std::shared_ptr<DWF_Model::Model> pWater(DWF_Model::Factory::GetWaterSurface(100.0f, 100.0f, 750, vf, vc, mat));
-
-    // create the water item
-    pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_water");
-    pModel->SetStatic(true);
-    pModel->SetVisible(true);
-    pModel->SetModel(pWater);
-    pModel->SetShader(shaders[3]);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, -1.0f, 0.0f));
-    pModel->SetRoll(0.0f);
-    pModel->SetPitch(0.0f);
-    pModel->SetYaw(0.0f);
-    pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-    // set the model to the scene
-    m_Scene.Add(pModel.get(), false);
-    pModel.release();
-
-    shaders[3]->Use(true);
-
-    // configure water
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_uWaveStrength"),  0.1f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_LightDir"),      -0.3f, -1.0f, -0.3f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_WaterColor"),     0.1f,  0.3f,  0.4f);
-    glUniform3f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_DeepWaterColor"), 0.0f,  0.1f,  0.2f);
-    glUniform1f(glGetUniformLocation((GLuint)shaders[3]->GetProgramID(), "dwf_WaterClearness"), 0.15f);
-
-    shaders[3]->Use(false);
-
-    // set vertex format for colored models
-    vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_Colors;
-
-    // create material
-    mat.m_Color.m_B = 0.41f;
-    mat.m_Color.m_G = 0.38f;
-    mat.m_Color.m_R = 0.37f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the tower platform model
-    std::shared_ptr<DWF_Model::Model> pPlatform(DWF_Model::Factory::GetCylinder(0.2f, 0.2f, 0.1f, 15, vf, vc, mat));
-
-    // create material
-    mat.m_Color.m_B = 0.81f;
-    mat.m_Color.m_G = 0.78f;
-    mat.m_Color.m_R = 0.77f;
-    mat.m_Color.m_A = 1.0f;
-
-    // create the tower platform model
-    std::shared_ptr<DWF_Model::Model> pPlatformClosure(DWF_Model::Factory::GetDisk(0.0f, 0.0f, 0.2f, 15, vf, vc, mat));
-
-    const std::size_t platformCount = 22;
-    const float       step          = ((float)M_PI * 2.0f) / (float)platformCount;
-    const float       heightStep    = 0.0f;// 0.05f;
-
-    for (std::size_t i = 0; i < platformCount; ++i)
-    {
-        float x =  1.4f * std::sinf(i * step);
-        float y = -0.44f + (i >= (platformCount >> 1) ? (platformCount - i) * heightStep : i * heightStep);
-        float z =  1.4f * std::cosf(i * step);
-
-        // create the platform item
-        pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_" + std::to_wstring(i));
-        pModel->SetStatic(false);
-        pModel->SetVisible(true);
-        pModel->SetModel(pPlatform);
-        pModel->SetShader(shaders[1]);
-        pModel->SetPos(DWF_Math::Vector3F(x, y, z));
-        pModel->SetRoll(0.0f);
-        pModel->SetPitch(0.0f);
-        pModel->SetYaw(0.0f);
-        pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-        // create the platform collider
-        std::unique_ptr<DWF_Collider::Cylinder_Collider> pPlatformCollider = std::make_unique<DWF_Collider::Cylinder_Collider>();
-        pPlatformCollider->SetCylinder(0.2f, 0.05f, -0.05f);
-        pModel->AddCollider(pPlatformCollider.get());
-        pPlatformCollider.release();
-
-        // set the model to the scene
-        m_Scene.Add(pModel.get(), false);
-        pModel.release();
-
-        // create the platform top item
-        pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_top_" + std::to_wstring(i));
-        pModel->SetStatic(false);
-        pModel->SetVisible(true);
-        pModel->SetModel(pPlatformClosure);
-        pModel->SetShader(shaders[1]);
-        pModel->SetPos(DWF_Math::Vector3F(x, y + 0.05f, z));
-        pModel->SetRoll(-(float)M_PI / 2.0f);
-        pModel->SetPitch(0.0f);
-        pModel->SetYaw(0.0f);
-        pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-        // set the model to the scene
-        m_Scene.Add(pModel.get(), false);
-        pModel.release();
-
-        // create the platform bottom item
-        pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_bottom_" + std::to_wstring(i));
-        pModel->SetStatic(false);
-        pModel->SetVisible(true);
-        pModel->SetModel(pPlatformClosure);
-        pModel->SetShader(shaders[1]);
-        pModel->SetPos(DWF_Math::Vector3F(x, y - 0.05f, z));
-        pModel->SetRoll((float)M_PI / 2.0f);
-        pModel->SetPitch(0.0f);
-        pModel->SetYaw(0.0f);
-        pModel->SetScale(DWF_Math::Vector3F(1.0f, 1.0f, 1.0f));
-
-        // set the model to the scene
-        m_Scene.Add(pModel.get(), false);
-        pModel.release();
-    }
+    // create water and add it to scene
+    if (!m_pWater->Load(shaders[3]))
+        return false;
 
     // bind the update physics callback to the scene
     m_Scene.Set_OnUpdatePhysics(std::bind(&Main::OnSceneUpdatePhysics, this, std::placeholders::_1, std::placeholders::_2));

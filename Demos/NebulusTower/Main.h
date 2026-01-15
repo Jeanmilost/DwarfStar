@@ -47,7 +47,8 @@
 // demo
 #include "Skybox.h"
 #include "Tower.h"
-#include "Platform.h"
+#include "Platforms.h"
+#include "Water.h"
 #include "Player.h"
 
 // libraries
@@ -127,7 +128,8 @@ class Main
         ITextures                     m_TextureItems;
         Nebulus::Skybox*              m_pSkybox          = nullptr;
         Nebulus::Tower*               m_pTower           = nullptr;
-        Nebulus::Platform*            m_pPlatform        = nullptr;
+        Nebulus::Platforms*           m_pPlatforms       = nullptr;
+        Nebulus::Water*               m_pWater           = nullptr;
         Nebulus::Player*              m_pPlayer          = nullptr;
         DWF_Physics::Force            m_Force;
         IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
@@ -214,12 +216,16 @@ class Main
                          const DWF_Math::Vector3F&     mtv);
 
         /**
-        * Loads the cubemap textures
-        *@param fileNames - texture file names
-        *@param convertPixels - if true, image pixels will be converted from BGR(A) to RGB(A)
-        *@return texture identifier
+        * Called when a texture loader function should be attached to the tower model
+        *@param pModel - the model for which the texture function should be attached
         */
-        //REM GLuint LoadCubemap(const IFilenames fileNames, bool convertPixels);
+        void OnAttachTowerTextureFn(std::shared_ptr<DWF_Model::Model>& pModel);
+
+        /**
+        * Called when a texture loader function should be attached to the player model
+        *@param pIQM - the model for which the texture function should be attached
+        */
+        void OnAttachPlayerTextureFn(std::shared_ptr<DWF_Model::IQM>& pIQM);
 
         /**
         * Loads the scene

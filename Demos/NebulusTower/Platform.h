@@ -29,6 +29,7 @@
 #pragma once
 
 // std
+#include <memory>
 #include <string.h>
 
 // classes
@@ -39,14 +40,19 @@
 
 namespace Nebulus
 {
+    /**
+    * Tower platform
+    *@author Jean-Milost Reymond
+    */
     class Platform : public Item
     {
         public:
             /**
             * Constructor
             *@param pScene - the current scene with which this item is linked
+            *@param pos - platform position
             */
-            Platform(DWF_Scene::Scene* pScene);
+            Platform(DWF_Scene::Scene* pScene, const DWF_Math::Vector3F& pos);
 
             virtual ~Platform();
 
@@ -56,5 +62,21 @@ namespace Nebulus
             *@param is32bit - if true, the texture is a 32 bit texture
             */
             virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
+
+            /**
+            * Loads the platform and adds it to the scene
+            *@param i - platform index
+            *@param pPlatform - platform model
+            *@param pPlatformClosure - platform closure model
+            *@param pShader - shader to use to draw the platform
+            *@returns true on success, otherwise false
+            */
+            virtual bool Load(std::size_t                            i,
+                              std::shared_ptr<DWF_Model::Model>&     pPlatform,
+                              std::shared_ptr<DWF_Model::Model>&     pPlatformClosure,
+                        const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+        private:
+            DWF_Math::Vector3F m_Pos;
     };
 }
