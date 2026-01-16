@@ -30,6 +30,7 @@
 
 // classes
 #include "DWF_ModelFactory.h"
+#include "DWF_Sound_OpenAL.h"
 
 using namespace Nebulus;
 
@@ -99,6 +100,48 @@ bool Water::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
 
     pShader->Use(false);
 
+    // load water sound
+    std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
+    pSound->OpenWav(L"..\\..\\Resources\\Sound\\water.wav");
+    pSound->Loop(true);
+    pSound->ChangeVolume(0.5f);
+    pSound->Play();
+
+    // create a sound item
+    std::unique_ptr<DWF_Scene::SceneAudioItem> pSoundItem = std::make_unique<DWF_Scene::SceneAudioItem>(L"sound_water");
+    pSoundItem->SetSound(pSound.get());
+    pSound.release();
+
+    // add sound to scene
+    pScene->Add(pSoundItem.get());
+    pSoundItem.release();
+
     return true;
+}
+//------------------------------------------------------------------------------
+void Water::Animate(const DWF_Scene::Scene* pScene, double elapsedTime)
+{
+    DWF_Scene::SceneItem_PointOfView* pArcballItem = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
+    DWF_Scene::SceneItem_Model*       pWaterModel  = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_water"));
+
+    if (!pArcballItem || !pWaterModel)
+        return;
+
+    DWF_Renderer::Shader* pWaterShader = pWaterModel->GetShader();
+    pWaterShader->Use(true);
+
+    // update time
+    m_Time += (float)elapsedTime / 1000.0f;
+    glUniform1f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "dwf_uTime"), m_Time);
+
+    // calculate camera position from arcball parameters
+    float camX = pArcballItem->GetPos().m_X + pArcballItem->GetRadius() * std::sinf(pArcballItem->GetY()) * std::cosf(pArcballItem->GetX());
+    float camY = pArcballItem->GetPos().m_Y + pArcballItem->GetRadius() * std::sinf(pArcballItem->GetX());
+    float camZ = pArcballItem->GetPos().m_Z + pArcballItem->GetRadius() * std::cosf(pArcballItem->GetY()) * std::cosf(pArcballItem->GetX());
+
+    // set water camera position
+    glUniform3f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "dwf_CameraPos"), camX, camY, camZ);
+
+    pWaterShader->Use(false);
 }
 //------------------------------------------------------------------------------

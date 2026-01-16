@@ -75,12 +75,15 @@ namespace Nebulus
             virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
 
             /**
-            * Set OnAttachTextureFunction function
+            * Sets OnAttachTextureFunction function
             *@param fHandler - function handler
             */
             virtual void Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler);
 
         private:
+            float                      m_X                        = 0.0f;
+            float                      m_Y                        = 4.0f;
+            float                      m_Z                        = 0.0f;
             ITfOnAttachTextureFunction m_fOnAttachTextureFunction = nullptr;
     };
 }

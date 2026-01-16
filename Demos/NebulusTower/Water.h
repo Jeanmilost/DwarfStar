@@ -68,5 +68,15 @@ namespace Nebulus
             *@returns true on success, otherwise false
             */
             virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+            /**
+            * Animates the water
+            *@param pScene - scene containing the water
+            *@param elapsedTime - elapsed time in milliseconds since the last frame
+            */
+            virtual void Animate(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+        private:
+            float m_Time = 0.0f;
     };
 }

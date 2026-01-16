@@ -80,7 +80,30 @@ namespace Nebulus
                               const std::shared_ptr<DWF_Renderer::Shader>& pColliderShader);
 
             /**
-            * Set OnAttachTextureFunction function
+            * Animates the player
+            *@param pScene - scene containing the water
+            *@param elapsedTime - elapsed time in milliseconds since the last frame
+            */
+            virtual void Animate(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+            /**
+            * Applies the collision on player
+            *@param pScene - the scene in which the collision happened
+            *@param pItem1 - first item in collision
+            *@param pCollider1 - collider belonging to the first item
+            *@param pItem2 - second item in collision
+            *@param pCollider2 - collider belonging to the second item
+            *@param mtv - minimum translation vector resulting from the collision
+            */
+            virtual void ApplyCollision(const DWF_Scene::Scene*       pScene,
+                                              DWF_Scene::SceneItem*   pItem1,
+                                              DWF_Collider::Collider* pCollider1,
+                                              DWF_Scene::SceneItem*   pItem2,
+                                              DWF_Collider::Collider* pCollider2,
+                                        const DWF_Math::Vector3F&     mtv);
+
+            /**
+            * Sets OnAttachTextureFunction function
             *@param fHandler - function handler
             */
             virtual void Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler);
@@ -90,6 +113,12 @@ namespace Nebulus
             float                      m_yPos                     = 0.0f;
             float                      m_zPos                     = 0.0f;
             float                      m_Distance                 = 1.4f;
+            float                      m_Angle                    = 0.0f;
+            float                      m_Gravity                  = 0.0025f;
+            float                      m_Velocity                 = 0.001f;
+            float                      m_WalkOffset               = 1.0f;
+            float                      m_PlayerShift              = 0.25f;
+            bool                       m_Walking                  = false;
             ITfOnAttachTextureFunction m_fOnAttachTextureFunction = nullptr;
 
             /**

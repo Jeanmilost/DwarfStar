@@ -84,10 +84,12 @@ bool Platforms::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
 
     const std::size_t platformCount = 22;
     const float       step          = ((float)M_PI * 2.0f) / (float)platformCount;
-    const float       heightStep    = 0.0f;// 0.05f;
+    const float       heightStep    = 0.05f;
 
+    // create first platform row
     for (std::size_t i = 0; i < platformCount; ++i)
     {
+        // calculate the platform position
         const float x =  1.4f  * std::sinf(i * step);
         const float y = -0.44f + (i >= (platformCount >> 1) ? (platformCount - i) * heightStep : i * heightStep);
         const float z =  1.4f  * std::cosf(i * step);
@@ -95,7 +97,40 @@ bool Platforms::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
         // create the platform and add it to the scene
         std::unique_ptr<Platform> pPlatform = std::make_unique<Platform>(pScene, DWF_Math::Vector3F(x, y, z));
 
+        // load the platform and add it to the scene
         if (!pPlatform->Load(i, pPlatformModel, pPlatformClosureModel, pShader))
+            return false;
+    }
+
+    // create second platform row, part 1
+    for (std::size_t i = 0; i < 3; ++i)
+    {
+        // calculate the platform position
+        const float x = 1.4f  * std::sinf(i * step);
+        const float y = 0.9f;
+        const float z = 1.4f  * std::cosf(i * step);
+
+        // create the platform and add it to the scene
+        std::unique_ptr<Platform> pPlatform = std::make_unique<Platform>(pScene, DWF_Math::Vector3F(x, y, z));
+
+        // load the platform and add it to the scene
+        if (!pPlatform->Load(platformCount + i, pPlatformModel, pPlatformClosureModel, pShader))
+            return false;
+    }
+
+    // create second platform row, part 2
+    for (std::size_t i = 7; i < 14; ++i)
+    {
+        // calculate the platform position
+        const float x = 1.4f  * std::sinf(i * step);
+        const float y = 0.9f;
+        const float z = 1.4f  * std::cosf(i * step);
+
+        // create the platform and add it to the scene
+        std::unique_ptr<Platform> pPlatform = std::make_unique<Platform>(pScene, DWF_Math::Vector3F(x, y, z));
+
+        // load the platform and add it to the scene
+        if (!pPlatform->Load(platformCount + i, pPlatformModel, pPlatformClosureModel, pShader))
             return false;
     }
 

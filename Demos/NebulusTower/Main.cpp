@@ -86,12 +86,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                     break;
 
-                case '3':
-                    if (Main::GetInstance())
-                        Main::GetInstance()->ChangeCameraType();
-
-                    break;
-
                 case VK_ESCAPE:
                     ::PostQuitMessage(0);
                     break;
@@ -394,173 +388,11 @@ void Main::OnSceneUpdatePhysics(const DWF_Scene::Scene* pScene, double elapsedTi
     if (!pScene)
         return;
 
-    // get the objects of interest from scene
-    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
-    DWF_Scene::SceneItem_Model*       pWaterModel    = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem(L"scene_water"));
-    DWF_Scene::SceneItem_AnimAsset*   pModelItem     = static_cast<DWF_Scene::SceneItem_AnimAsset*>  (pScene->SearchItem (L"scene_player_model"));
-    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
-    /*REM
-    DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_footsteps");
+    // animate the player
+    m_pPlayer->Animate(pScene, elapsedTime);
 
-    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
-        return;
-
-    // player is jumping?
-    if (m_Grounded)
-        // space bar pressed?
-        if (::GetKeyState(VK_SPACE) & 0x8000)
-        {
-            // add jump force to scene force
-            m_Force.Add(DWF_Math::Vector3F(0.0f, m_JumpVelocity * (float)elapsedTime, 0.0f));
-
-            m_Jumping = true;
-        }
-        else
-            m_Jumping = false;
-
-    // left (or "A") or right (or "D") key pressed?
-    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_DOWN : VK_LEFT) & 0x8000) ||
-        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 83 : 65) & 0x8000))
-    {
-        m_Walking    =  true;
-        m_WalkOffset = -1.0f;
-
-        // add left move force to scene force
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f, m_Velocity * (float)elapsedTime));
-    }
-    else
-    if ((::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? VK_UP : VK_RIGHT) & 0x8000) ||
-        (::GetKeyState(m_CameraType == IECameraType::IE_CT_Follow ? 87 : 68) & 0x8000))
-    {
-        m_Walking    = true;
-        m_WalkOffset = 1.0f;
-
-        // add right move force to scene force
-        m_Force.Add(DWF_Math::Vector3F(0.0f, 0.0f , -m_Velocity * (float)elapsedTime));
-    }
-    else
-        m_Walking = false;
-
-    // apply state machine
-    if (m_Jumping)
-    {
-        if (pModelItem->GetSelectedAnim() != 3)
-            pModelItem->SelectAnim(3);
-
-        pSoundItem->GetSound()->Stop();
-    }
-    else
-    if (m_Walking)
-    {
-        if (pModelItem->GetSelectedAnim() != 2)
-            pModelItem->SelectAnim(2);
-
-        if (!pSoundItem->GetSound()->IsPlaying())
-            pSoundItem->GetSound()->Play();
-    }
-    else
-    {
-        if (pModelItem->GetSelectedAnim() != 0)
-            pModelItem->SelectAnim(0);
-
-        pSoundItem->GetSound()->Stop();
-    }
-
-    // update gravity and friction depending on time
-    m_Force.SetGravity (0.0025f * (float)elapsedTime);
-    m_Force.SetFriction(0.0003f * (float)elapsedTime);
-
-    // calculate the resulting force
-    const DWF_Math::Vector3F force = m_Force.Calculate();
-
-    // apply it to the player position
-    m_xPos += force.m_X;
-    m_yPos += force.m_Y;
-    m_zPos += force.m_Z;
-
-    // is player walking or was previously walking before jumping?
-    if (m_Walking)
-        // rotate the player
-        if (m_WalkOffset < 0.0f)
-            pModelItem->SetY(-(float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-        else
-        if (m_WalkOffset > 0.0f)
-            pModelItem->SetY((float)(M_PI / 2.0) - (float)(M_PI / 2.0));
-
-    switch (m_CameraType)
-    {
-        case IECameraType::IE_CT_Static:
-            // set the x position
-            m_xPos = 0.5f;
-
-            // set the camera rotation
-            pArcballItem->SetY((float)(M_PI / 2.0));
-            break;
-
-        case IECameraType::IE_CT_Rotate:
-            // set the x position
-            m_xPos = 0.5f;
-
-            // apply a rotation on the camera
-            pArcballItem->SetY(((float)M_PI / 2.0f) - (((m_zPos + 4.0f) / 100.0f) * (float)M_PI * 2.0f) / 1.0f);
-            break;
-
-        case IECameraType::IE_CT_Follow:
-            // set the x position
-            m_xPos = -0.25f;
-
-            // place the camera below the player
-            pArcballItem->SetY((float)M_PI);
-            break;
-    }
-
-    // calculate the next player position (arcball, model and collider)
-    pArcballItem->SetPos  (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
-    pModelItem->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pModelCollider->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-
-    // player is falling too low?
-    if (m_yPos < -3.0f)
-    {
-        // reset the pos to start
-        m_xPos = 0.5f;
-        m_yPos = 0.5f;
-        m_zPos = 0.0f;
-    }
-
-    // reset the grounded state, in order to test it on the next collision detection
-    m_Grounded = false;
-    */
-
-    pModelItem->SetPos(DWF_Math::Vector3F(m_xPos - (m_Distance * std::sinf(m_Angle)), m_yPos - 0.25f, m_zPos + (m_Distance * std::cosf(m_Angle))));
-    pModelItem->SetPitch(-m_Angle - ((float)M_PI / 2.0f));
-
-    if (pModelItem->GetSelectedAnim() != 1)
-        pModelItem->SelectAnim(1);
-
-    pModelCollider->SetPos(DWF_Math::Vector3F(m_xPos - (m_Distance * std::sinf(m_Angle)), m_yPos - 0.25f, m_zPos + (m_Distance * std::cosf(m_Angle))));
-    pModelCollider->SetPitch(-m_Angle - ((float)M_PI / 2.0f));
-
-    pArcballItem->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
-    pArcballItem->SetY(m_Angle);
-
-    //m_yPos  -= 0.01f;
-    m_Angle += 0.01f;
-
-    DWF_Renderer::Shader* pWaterShader = pWaterModel->GetShader();
-    pWaterShader->Use(true);
-
-    m_Time += (float)elapsedTime / 1000.0f;
-    glUniform1f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "dwf_uTime"), m_Time);
-
-    // calculate camera position from arcball parameters
-    float camX = pArcballItem->GetPos().m_X + pArcballItem->GetRadius() * sin(pArcballItem->GetY()) * cos(pArcballItem->GetX());
-    float camY = pArcballItem->GetPos().m_Y + pArcballItem->GetRadius() * sin(pArcballItem->GetX());
-    float camZ = pArcballItem->GetPos().m_Z + pArcballItem->GetRadius() * cos(pArcballItem->GetY()) * cos(pArcballItem->GetX());
-
-    glUniform3f(glGetUniformLocation((GLuint)pWaterShader->GetProgramID(), "dwf_CameraPos"), camX, camY, camZ);
-
-    pWaterShader->Use(false);
+    // animate the water
+    m_pWater->Animate(pScene, elapsedTime);
 }
 //------------------------------------------------------------------------------
 void Main::OnSceneUpdate(const DWF_Scene::Scene* pScene, double elapsedTime)
@@ -573,36 +405,8 @@ void Main::OnCollision(const DWF_Scene::Scene*       pScene,
                              DWF_Collider::Collider* pCollider2,
                        const DWF_Math::Vector3F&     mtv)
 {
-    /*REM
-    // as in this demo all the objects against which the player may collide are platforms, we can assume that in case of collisions the player is grounded
-    m_Grounded = true;
-
-    // use the minimum translation vector to correct the cached position
-    m_xPos -= mtv.m_X;
-    m_yPos += mtv.m_Y;
-    m_zPos -= mtv.m_Z;
-
-    if (!pItem1)
-        return;
-
-    // get the point of view from the scene
-    DWF_Scene::SceneItem_PointOfView* pPOV = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
-
-    if (!pPOV)
-        return;
-
-    // get the player model from the scene
-    DWF_Scene::SceneItem_AnimAsset* pPlayer = static_cast<DWF_Scene::SceneItem_AnimAsset*>(pScene->SearchItem(L"scene_player_model"));
-
-    if (!pPlayer)
-        return;
-
-    // apply modifications to player (to avoid a parasite thrill effect)
-    pPOV->SetPos      (DWF_Math::Vector3F( m_xPos, -m_yPos - 0.5f,  2.0f + m_zPos));
-    pPlayer->SetPos   (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pItem1->SetPos    (DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    pCollider1->SetPos(DWF_Math::Vector3F(-m_xPos,  m_yPos,        -2.0f - m_zPos));
-    */
+    // apply the collision on player
+    m_pPlayer->ApplyCollision(pScene, pItem1, pCollider1, pItem2, pCollider2, mtv);
 }
 //------------------------------------------------------------------------------
 void Main::OnAttachTowerTextureFn(std::shared_ptr<DWF_Model::Model>& pModel)
@@ -668,22 +472,6 @@ bool Main::LoadScene(const IShaders& shaders, const RECT& clientRect)
                                       std::placeholders::_4,
                                       std::placeholders::_5,
                                       std::placeholders::_6));
-
-    /*REM
-    // load footsteps sound
-    std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
-    pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps_run_grass.wav");
-    pSound->Loop(false);
-
-    // create a sound item
-    std::unique_ptr<DWF_Scene::SceneAudioItem> pSoundItem = std::make_unique<DWF_Scene::SceneAudioItem>(L"sound_footsteps");
-    pSoundItem->SetSound(pSound.get());
-    pSound.release();
-
-    // add sound to scene
-    m_Scene.Add(pSoundItem.get());
-    pSoundItem.release();
-    */
 
     return true;
 }

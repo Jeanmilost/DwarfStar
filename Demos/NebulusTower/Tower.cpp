@@ -113,7 +113,7 @@ bool Tower::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
     pModel->SetVisible(true);
     pModel->SetModel(pTower);
     pModel->SetShader(pShader);
-    pModel->SetPos(DWF_Math::Vector3F(0.0f, 4.0f, 0.0f));
+    pModel->SetPos(DWF_Math::Vector3F(m_X, m_Y, m_Z));
     pModel->SetRoll(0.0f);
     pModel->SetPitch(0.0f);
     pModel->SetYaw(0.0f);

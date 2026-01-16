@@ -38,6 +38,7 @@
 #include "DWF_Model.h"
 #include "DWF_ModelFactory.h"
 #include "DWF_CapsuleCollider.h"
+#include "DWF_Sound_OpenAL.h"
 
 // demo
 #include "Main.h"
@@ -124,7 +125,7 @@ bool Player::Load(const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
     pAnim->SetScale(DWF_Math::Vector3F(0.1f, 0.1f, 0.1f));
     pAnim->SetModel(pIqm);
     pAnim->AddAnim((std::size_t)0, 0, 0,  0.0,    false); // idle
-    pAnim->AddAnim((std::size_t)0, 0, 60, 0.0125, true);  // walk
+    pAnim->AddAnim((std::size_t)0, 0, 60, 0.0055, true);  // walk
     pAnim->Set_OnFrame(std::bind(&Player::OnFrame, this, std::placeholders::_1, std::placeholders::_2));
     pAnim->Set_OnEndReached(std::bind(&Player::OnEndReached, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -177,7 +178,132 @@ bool Player::Load(const std::shared_ptr<DWF_Renderer::Shader>& pModelShader,
     pScene->Add(pModel.get(), false);
     pModel.release();
 
+    // load footsteps sound
+    std::unique_ptr<DWF_Audio::Sound_OpenAL> pSound = std::make_unique<DWF_Audio::Sound_OpenAL>();
+    pSound->OpenWav(L"..\\..\\Resources\\Sound\\footsteps_metal.wav");
+    pSound->Loop(false);
+
+    // create a sound item
+    std::unique_ptr<DWF_Scene::SceneAudioItem> pSoundItem = std::make_unique<DWF_Scene::SceneAudioItem>(L"sound_player_footsteps");
+    pSoundItem->SetSound(pSound.get());
+    pSound.release();
+
+    // add sound to scene
+    pScene->Add(pSoundItem.get());
+    pSoundItem.release();
+
     return true;
+}
+//---------------------------------------------------------------------------
+void Player::Animate(const DWF_Scene::Scene* pScene, double elapsedTime)
+{
+    // get the objects of interest from scene
+    DWF_Scene::SceneItem_PointOfView* pArcballItem   = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem (L"scene_arcball"));
+    DWF_Scene::SceneItem_AnimAsset*   pModelItem     = static_cast<DWF_Scene::SceneItem_AnimAsset*>  (pScene->SearchItem (L"scene_player_model"));
+    DWF_Scene::SceneItem_Model*       pModelCollider = static_cast<DWF_Scene::SceneItem_Model*>      (pScene->SearchItem (L"scene_player_collider"));
+    DWF_Scene::SceneAudioItem*        pSoundItem     =                                                pScene->SearchAudio(L"sound_player_footsteps");
+
+    if (!pArcballItem || !pModelItem || !pModelCollider || !pSoundItem)
+        return;
+
+    // left (or "A") or right (or "D") key pressed?
+    if ((::GetKeyState(VK_LEFT) & 0x8000) || (::GetKeyState(65) & 0x8000))
+    {
+        m_Walking    = true;
+        m_WalkOffset = 1.0f;
+    }
+    else
+    if ((::GetKeyState(VK_RIGHT) & 0x8000) || (::GetKeyState(68) & 0x8000))
+    {
+        m_Walking    =  true;
+        m_WalkOffset = -1.0f;
+    }
+    else
+        m_Walking = false;
+
+    // set the camera position
+    pArcballItem->SetPos(DWF_Math::Vector3F(m_xPos, m_yPos, m_zPos));
+    pArcballItem->SetY(m_Angle);
+
+    // calculate the player position
+    const float x = m_xPos - (m_Distance * std::sinf(m_Angle));
+    const float y = m_yPos -  m_PlayerShift;
+    const float z = m_zPos + (m_Distance * std::cosf(m_Angle));
+
+    // set the player position
+    pModelItem->SetPos(DWF_Math::Vector3F(x, y + 0.022f, z));
+    pModelItem->SetPitch(-m_Angle - ((float)M_PI / 2.0f) * m_WalkOffset);
+
+    // set the player collider position
+    pModelCollider->SetPos(DWF_Math::Vector3F(x, y, z));
+    pModelCollider->SetPitch(-m_Angle - ((float)M_PI / 2.0f) * m_WalkOffset);
+
+    // apply the gravity to the player
+    m_yPos -= m_Gravity * (float)elapsedTime;
+
+    // is player walking?
+    if (m_Walking)
+    {
+        // calculate the next position
+        m_Angle += m_Velocity * (float)m_WalkOffset * (float)elapsedTime;
+
+        // play the walk animation, if still not running
+        if (pModelItem->GetSelectedAnim() != 1)
+            pModelItem->SelectAnim(1);
+
+        // play the walk sound, if not playing
+        if (!pSoundItem->GetSound()->IsPlaying())
+            pSoundItem->GetSound()->Play();
+    }
+    else
+    {
+        // play the idle animation, if still not running
+        if (pModelItem->GetSelectedAnim() != 0)
+            pModelItem->SelectAnim(0);
+
+        // stop the walk sound
+        pSoundItem->GetSound()->Stop();
+    }
+}
+//------------------------------------------------------------------------------
+void Player::ApplyCollision(const DWF_Scene::Scene*       pScene,
+                                  DWF_Scene::SceneItem*   pItem1,
+                                  DWF_Collider::Collider* pCollider1,
+                                  DWF_Scene::SceneItem*   pItem2,
+                                  DWF_Collider::Collider* pCollider2,
+                            const DWF_Math::Vector3F&     mtv)
+{
+    // use the minimum translation vector to correct the cached position
+    m_yPos += mtv.m_Y;
+
+    // get the point of view from the scene
+    DWF_Scene::SceneItem_PointOfView* pPOV = static_cast<DWF_Scene::SceneItem_PointOfView*>(pScene->SearchItem(L"scene_arcball"));
+
+    if (!pPOV)
+        return;
+
+    // get the player model from the scene
+    DWF_Scene::SceneItem_AnimAsset* pPlayer = static_cast<DWF_Scene::SceneItem_AnimAsset*>(pScene->SearchItem(L"scene_player_model"));
+
+    if (!pPlayer)
+        return;
+
+    DWF_Collider::Collider* pCollider;
+
+    if (pItem1 == pPlayer)
+        pCollider = pCollider1;
+    else
+        pCollider = pCollider2;
+
+    // recalculate the corrected position
+    const float x = m_xPos - (m_Distance * std::sinf(m_Angle));
+    const float y = m_yPos -  m_PlayerShift;
+    const float z = m_zPos + (m_Distance * std::cosf(m_Angle));
+
+    // apply modifications to player (to avoid a parasite thrill effect)
+    pPOV->SetPos     (DWF_Math::Vector3F(m_xPos, -m_yPos,     m_zPos));
+    pPlayer->SetPos  (DWF_Math::Vector3F(x,       y + 0.022f, z));
+    pCollider->SetPos(DWF_Math::Vector3F(x,       y,          z));
 }
 //---------------------------------------------------------------------------
 void Player::Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler)

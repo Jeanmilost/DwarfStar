@@ -63,7 +63,7 @@ bool Platform::Load(std::size_t                            i,
 
     // create the platform item
     std::unique_ptr<DWF_Scene::SceneItem_Model> pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_" + std::to_wstring(i));
-    pModel->SetStatic(false);
+    pModel->SetStatic(true);
     pModel->SetVisible(true);
     pModel->SetModel(pPlatform);
     pModel->SetShader(pShader);
@@ -85,7 +85,7 @@ bool Platform::Load(std::size_t                            i,
 
     // create the platform top item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_top_" + std::to_wstring(i));
-    pModel->SetStatic(false);
+    pModel->SetStatic(true);
     pModel->SetVisible(true);
     pModel->SetModel(pPlatformClosure);
     pModel->SetShader(pShader);
@@ -101,7 +101,7 @@ bool Platform::Load(std::size_t                            i,
 
     // create the platform bottom item
     pModel = std::make_unique<DWF_Scene::SceneItem_Model>(L"scene_platform_bottom_" + std::to_wstring(i));
-    pModel->SetStatic(false);
+    pModel->SetStatic(true);
     pModel->SetVisible(true);
     pModel->SetModel(pPlatformClosure);
     pModel->SetShader(pShader);

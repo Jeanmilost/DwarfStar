@@ -95,11 +95,6 @@ class Main
         virtual inline void SetShowColliders(bool value);
 
         /**
-        * Changes the camera type
-        */
-        virtual inline void ChangeCameraType();
-
-        /**
         * Runs the form
         *@param hInstance - app instance
         *@param nCmdShow - flags specifying how the application should be displayed when opened
@@ -119,7 +114,6 @@ class Main
 
         typedef std::map<std::string, DWF_Model::Texture*>                ITextures;
         typedef std::vector<std::shared_ptr<DWF_Renderer::Shader_OpenGL>> IShaders;
-        //REM typedef std::vector<std::string>                                  IFilenames;
 
         static Main* m_This;
 
@@ -131,21 +125,18 @@ class Main
         Nebulus::Platforms*           m_pPlatforms       = nullptr;
         Nebulus::Water*               m_pWater           = nullptr;
         Nebulus::Player*              m_pPlayer          = nullptr;
-        DWF_Physics::Force            m_Force;
-        IECameraType                  m_CameraType       =  IECameraType::IE_CT_Rotate;
-        //REM GLuint                        m_SkyboxTexId      = -1;
-        float                         m_xPos             =  0.0f;
-        float                         m_yPos             =  0.0f;
-        float                         m_zPos             =  0.0f;
-        float                         m_Distance         =  1.4f;
-        float                         m_Angle            =  0.0f;
-        float                         m_Time             =  0.0f;
-        float                         m_Velocity         =  0.00125f;
-        float                         m_JumpVelocity     =  0.00875f;
-        float                         m_WalkOffset       =  0.0f;
+        /*REM
+        float m_PlayerShift = 0.25f; // player
+        float                         m_xPos             =  0.0f; // player
+        float                         m_yPos             =  0.0f; // player
+        float                         m_zPos             =  0.0f; // player
+        float                         m_Distance         =  1.4f; // player
+        float                         m_Angle            =  0.0f; // player?
+        float m_Gravity = 0.0025f; // player
+        float                         m_Velocity         =  0.001f; // player
+        float                         m_WalkOffset       =  1.0f; // player
         bool                          m_Walking          =  false;
-        bool                          m_Jumping          =  false;
-        bool                          m_Grounded         =  false;
+        */
         bool                          m_ShowSkeleton     =  false;
         bool                          m_OldShowSkeleton  =  false;
         bool                          m_ShowColliders    =  false;
@@ -256,23 +247,5 @@ inline bool Main::GetShowColliders()
 inline void Main::SetShowColliders(bool value)
 {
     m_ShowColliders = value;
-}
-//---------------------------------------------------------------------------
-inline void Main::ChangeCameraType()
-{
-    switch (m_CameraType)
-    {
-        case IECameraType::IE_CT_Static:
-            m_CameraType = IECameraType::IE_CT_Follow;
-            break;
-
-        case IECameraType::IE_CT_Rotate:
-            m_CameraType = IECameraType::IE_CT_Static;
-            break;
-
-        case IECameraType::IE_CT_Follow:
-            m_CameraType = IECameraType::IE_CT_Rotate;
-            break;
-    }
 }
 //---------------------------------------------------------------------------
