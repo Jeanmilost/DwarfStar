@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Shader_Collection_OpenGL ----------------------------------------*
+ * ==> Water ---------------------------------------------------------------*
  ****************************************************************************
- * Description: OpenGL ready-to-use shader collection                       *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Nebulus water effect                                       *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -29,46 +29,54 @@
 #pragma once
 
 // std
-#include <string>
+#include <string.h>
 
-namespace DWF_Renderer
+// classes
+#include "DWF_Texture_OpenGL.h"
+#include "DWF_Scene.h"
+
+// demo
+#include "Item.h"
+
+namespace Nebulus
 {
     /**
-    * OpenGL ready-to-use shader collection
+    * Water
     *@author Jean-Milost Reymond
     */
-    class Shader_Collection_OpenGL
+    class Water : public Item
     {
         public:
             /**
-            * Shader type
+            * Constructor
+            *@param pScene - the current scene with which this item is linked
             */
-            enum class IEShaderType
-            {
-                IE_ST_Color,
-                IE_ST_Texture,
-                IE_ST_Texture_Normal,
-                IE_ST_Texture_Alpha_Cut,
-                IE_ST_Skybox,
-                IE_ST_Line,
-                IE_ST_Water
-            };
+            Water(DWF_Scene::Scene* pScene);
 
-            Shader_Collection_OpenGL();
-            virtual ~Shader_Collection_OpenGL();
+            virtual ~Water();
 
             /**
-            * Gets a vertex shader
-            *@param type - shader type to get
-            *@return the vertex shader
+            * Loads the item texture
+            *@param fileName - texture file name
+            *@param is32bit - if true, the texture is a 32 bit texture
             */
-            static std::string GetVertexShader(IEShaderType type);
+            virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
 
             /**
-            * Gets a fragment shader
-            *@param type - shader type to get
-            *@return the fragment shader
+            * Loads the water and adds it to the scene
+            *@param pShader - shader to use to draw the water
+            *@returns true on success, otherwise false
             */
-            static std::string GetFragmentShader(IEShaderType type);
+            virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+            /**
+            * Animates the water
+            *@param pScene - scene containing the water
+            *@param elapsedTime - elapsed time in milliseconds since the last frame
+            */
+            virtual void Animate(const DWF_Scene::Scene* pScene, double elapsedTime);
+
+        private:
+            float m_Time = 0.0f;
     };
 }

@@ -58,6 +58,26 @@ namespace DWF_Model
                                const VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
 
             /**
+            * Gets a water surface model
+            *@param width - surface width (on the x axis)
+            *@param height - surface height (on the y axis)
+            *@param gridSize - tessellation (be aware that this value doesn't change the surface size, just its density)
+            *@param format - the mesh format to use
+            *@param culling - the mesh culling to use
+            *@param material - the mesh material to use
+            *@param fOnGetVertexColor - get vertex color callback function to use, nullptr if not used
+            *@return model, nullptr on error
+            *@note This model is submitted to several constraints, e.g. it cannot be rotated
+            */
+            static Model* GetWaterSurface(float                                   width,
+                                          float                                   height,
+                                          std::size_t                             gridSize,
+                                          const VertexFormat&                     format,
+                                          const VertexCulling&                    culling,
+                                          const Material&                         material,
+                                          const VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
+
+            /**
             * Gets a box model
             *@param width - box width (on the x axis)
             *@param height - box height (on the y axis)

@@ -1,7 +1,7 @@
 /****************************************************************************
- * ==> Platformer Demo -----------------------------------------------------*
+ * ==> Nebulus Tower Demo --------------------------------------------------*
  ****************************************************************************
- * Description : Very minimalist platformer demo                            *
+ * Description : Nebulus Tower demo                                         *
  * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
@@ -71,7 +71,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     */
 
     // create and run the main form
-    std::unique_ptr<Main> pMain = std::make_unique<Main>();
+    std::unique_ptr<Main> pMain  = std::make_unique<Main>();
     const int             result = pMain->Run(hInstance, nCmdShow);
 
     // for the debugging, force the objects to be deleted in order to better highlight memory leaks

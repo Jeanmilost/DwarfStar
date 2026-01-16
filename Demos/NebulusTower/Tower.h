@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Shader_Collection_OpenGL ----------------------------------------*
+ * ==> Tower ---------------------------------------------------------------*
  ****************************************************************************
- * Description: OpenGL ready-to-use shader collection                       *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Nebulus tower                                              *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -29,46 +29,61 @@
 #pragma once
 
 // std
-#include <string>
+#include <string.h>
 
-namespace DWF_Renderer
+// classes
+#include "DWF_Texture_OpenGL.h"
+
+// demo
+#include "Item.h"
+
+namespace Nebulus
 {
     /**
-    * OpenGL ready-to-use shader collection
+    * Tower
     *@author Jean-Milost Reymond
     */
-    class Shader_Collection_OpenGL
+    class Tower : public Item
     {
         public:
             /**
-            * Shader type
+            * Called when a texture loader function should be attached to the tower model
+            *@param arg1 - the model for which the texture function should be attached
             */
-            enum class IEShaderType
-            {
-                IE_ST_Color,
-                IE_ST_Texture,
-                IE_ST_Texture_Normal,
-                IE_ST_Texture_Alpha_Cut,
-                IE_ST_Skybox,
-                IE_ST_Line,
-                IE_ST_Water
-            };
-
-            Shader_Collection_OpenGL();
-            virtual ~Shader_Collection_OpenGL();
+            typedef std::function<void(std::shared_ptr<DWF_Model::Model>&)> ITfOnAttachTextureFunction;
 
             /**
-            * Gets a vertex shader
-            *@param type - shader type to get
-            *@return the vertex shader
+            * Constructor
+            *@param pScene - the current scene with which this item is linked
             */
-            static std::string GetVertexShader(IEShaderType type);
+            Tower(DWF_Scene::Scene* pScene);
+
+            virtual ~Tower();
 
             /**
-            * Gets a fragment shader
-            *@param type - shader type to get
-            *@return the fragment shader
+            * Loads the tower texture
+            *@param fileName - texture file name
+            *@param is32bit - if true, the texture is a 32 bit texture
             */
-            static std::string GetFragmentShader(IEShaderType type);
+            virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
+
+            /**
+            * Loads the tower and adds it to the scene
+            *@param pShader - shader to use to draw the tower
+            *@returns true on success, otherwise false
+            */
+            virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
+
+            /**
+            * Sets OnAttachTextureFunction function
+            *@param fHandler - function handler
+            */
+            virtual void Set_OnAttachTextureFunction(ITfOnAttachTextureFunction fHandler);
+
+        private:
+            float                      m_X                        = 0.0f;
+            float                      m_Y                        = 4.0f;
+            float                      m_Z                        = 0.0f;
+            ITfOnAttachTextureFunction m_fOnAttachTextureFunction = nullptr;
     };
 }

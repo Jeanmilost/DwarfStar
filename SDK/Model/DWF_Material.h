@@ -43,6 +43,8 @@ namespace DWF_Model
         public:
             Texture* m_pTexture;    // texture to apply to vertex buffer
             ColorF   m_Color;       // vertex color, applied to all vertices if per-vertex color is disabled
+            float    m_uScale;      // texture u coordinate scale factor
+            float    m_vScale;      // texture v coordinate scale factor
             bool     m_Transparent; // whether or not the alpha blending should be activated
             bool     m_Wireframe;   // whether or not the vertex buffer should be drawn in wireframe
 

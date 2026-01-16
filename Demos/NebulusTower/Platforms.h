@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Shader_Collection_OpenGL ----------------------------------------*
+ * ==> Platforms -----------------------------------------------------------*
  ****************************************************************************
- * Description: OpenGL ready-to-use shader collection                       *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Nebulus tower platforms                                    *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -29,46 +29,44 @@
 #pragma once
 
 // std
-#include <string>
+#include <string.h>
 
-namespace DWF_Renderer
+// classes
+#include "DWF_Texture_OpenGL.h"
+
+ // demo
+#include "Item.h"
+#include "Platform.h"
+
+namespace Nebulus
 {
     /**
-    * OpenGL ready-to-use shader collection
+    * Tower platforms
     *@author Jean-Milost Reymond
     */
-    class Shader_Collection_OpenGL
+    class Platforms : public Item
     {
         public:
             /**
-            * Shader type
+            * Constructor
+            *@param pScene - the current scene with which this item is linked
             */
-            enum class IEShaderType
-            {
-                IE_ST_Color,
-                IE_ST_Texture,
-                IE_ST_Texture_Normal,
-                IE_ST_Texture_Alpha_Cut,
-                IE_ST_Skybox,
-                IE_ST_Line,
-                IE_ST_Water
-            };
+            Platforms(DWF_Scene::Scene* pScene);
 
-            Shader_Collection_OpenGL();
-            virtual ~Shader_Collection_OpenGL();
+            virtual ~Platforms();
 
             /**
-            * Gets a vertex shader
-            *@param type - shader type to get
-            *@return the vertex shader
+            * Loads the platform texture
+            *@param fileName - texture file name
+            *@param is32bit - if true, the texture is a 32 bit texture
             */
-            static std::string GetVertexShader(IEShaderType type);
+            virtual DWF_Model::Texture_OpenGL* LoadTexture(const std::string& fileName, bool is32bit) const;
 
             /**
-            * Gets a fragment shader
-            *@param type - shader type to get
-            *@return the fragment shader
+            * Loads the platform and adds it to the scene
+            *@param pShader - shader to use to draw the platform
+            *@returns true on success, otherwise false
             */
-            static std::string GetFragmentShader(IEShaderType type);
+            virtual bool Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader);
     };
 }

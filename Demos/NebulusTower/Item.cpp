@@ -1,8 +1,8 @@
 /****************************************************************************
- * ==> DWF_Shader_Collection_OpenGL ----------------------------------------*
+ * ==> Item ----------------------------------------------------------------*
  ****************************************************************************
- * Description: OpenGL ready-to-use shader collection                       *
- * Developer:   Jean-Milost Reymond                                         *
+ * Description : Nebulus item                                               *
+ * Developer   : Jean-Milost Reymond                                        *
  ****************************************************************************
  * MIT License - DwarfStar Game Engine                                      *
  *                                                                          *
@@ -26,49 +26,22 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                   *
  ****************************************************************************/
 
-#pragma once
+#include "Item.h"
 
-// std
-#include <string>
+using namespace Nebulus;
 
-namespace DWF_Renderer
+//---------------------------------------------------------------------------
+// Item
+//---------------------------------------------------------------------------
+Item::Item(DWF_Scene::Scene* pScene) :
+    m_pScene(pScene)
+{}
+//---------------------------------------------------------------------------
+Item::~Item()
+{}
+//------------------------------------------------------------------------------
+DWF_Scene::Scene* Item::GetScene() const
 {
-    /**
-    * OpenGL ready-to-use shader collection
-    *@author Jean-Milost Reymond
-    */
-    class Shader_Collection_OpenGL
-    {
-        public:
-            /**
-            * Shader type
-            */
-            enum class IEShaderType
-            {
-                IE_ST_Color,
-                IE_ST_Texture,
-                IE_ST_Texture_Normal,
-                IE_ST_Texture_Alpha_Cut,
-                IE_ST_Skybox,
-                IE_ST_Line,
-                IE_ST_Water
-            };
-
-            Shader_Collection_OpenGL();
-            virtual ~Shader_Collection_OpenGL();
-
-            /**
-            * Gets a vertex shader
-            *@param type - shader type to get
-            *@return the vertex shader
-            */
-            static std::string GetVertexShader(IEShaderType type);
-
-            /**
-            * Gets a fragment shader
-            *@param type - shader type to get
-            *@return the fragment shader
-            */
-            static std::string GetFragmentShader(IEShaderType type);
-    };
+    return m_pScene;
 }
+//------------------------------------------------------------------------------
