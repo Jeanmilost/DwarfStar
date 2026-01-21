@@ -69,13 +69,13 @@ namespace DWF_Model
             *@return model, nullptr on error
             *@note This model is submitted to several constraints, e.g. it cannot be rotated
             */
-            static Model* GetWaterSurface(float                                   width,
-                                          float                                   height,
-                                          std::size_t                             gridSize,
-                                          const VertexFormat&                     format,
-                                          const VertexCulling&                    culling,
-                                          const Material&                         material,
-                                          const VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
+            static Model* GetWaterSurface(float                             width,
+                                          float                             height,
+                                          std::size_t                       gridSize,
+                                    const VertexFormat&                     format,
+                                    const VertexCulling&                    culling,
+                                    const Material&                         material,
+                                    const VertexBuffer::ITfOnGetVertexColor fOnGetVertexColor = nullptr);
 
             /**
             * Gets a box model

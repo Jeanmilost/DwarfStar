@@ -61,7 +61,7 @@ bool Water::Load(const std::shared_ptr<DWF_Renderer::Shader>& pShader)
     DWF_Model::VertexCulling vc;
     DWF_Model::Material      mat;
 
-    // set vertex format for colored models
+    // set vertex format for textured models
     vf.m_Format = DWF_Model::VertexFormat::IEFormat::IE_VF_TexCoords;
 
     // create material
