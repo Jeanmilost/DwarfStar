@@ -236,14 +236,6 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             DWF_Renderer::Shader::IEType::IE_ST_Fragment);
     shader.Link(true);
 
-    DWF_Renderer::Shader_OpenGL lineShader;
-    lineShader.CreateProgram();
-    lineShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetVertexShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Line),
-            DWF_Renderer::Shader::IEType::IE_ST_Vertex);
-    lineShader.Attach(DWF_Renderer::Shader_Collection_OpenGL::GetFragmentShader(DWF_Renderer::Shader_Collection_OpenGL::IEShaderType::IE_ST_Line),
-            DWF_Renderer::Shader::IEType::IE_ST_Fragment);
-    lineShader.Link(true);
-
     DWF_Model::MDL mdl;
     mdl.Set_OnCreateTexture(OnCreateTexture);
     mdl.Open("..\\..\\Resources\\Model\\MDL\\wizard.mdl");
@@ -258,13 +250,9 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                             &shader,
                             projMatrix);
 
-    // connect the projection matrix to the line shader
-    renderer.ConnectProjectionMatrixToShader(&lineShader, projMatrix);
-
-    // connect the view matrix to the both model and line shaders
+    // connect the view matrix to the model shaders
     DWF_Math::Matrix4x4F viewMatrix = DWF_Math::Matrix4x4F::Identity();
-    renderer.ConnectViewMatrixToShader(&shader,     viewMatrix);
-    renderer.ConnectViewMatrixToShader(&lineShader, viewMatrix);
+    renderer.ConnectViewMatrixToShader(&shader, viewMatrix);
 
     DWF_Model::ColorF bgColor;
     bgColor.m_R = 0.08f;
@@ -324,7 +312,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
             // place the model in the 3d world (update the matrix directly)
             DWF_Math::Matrix4x4F modelMatrix =  rotMatZ.Multiply(scaleMat);
-            modelMatrix.m_Table[3][2] = -40.0f;
+            modelMatrix.m_Table[3][2]        = -40.0f;
 
             // calculate the elapsed time
             double elapsedTime = (double)::GetTickCount64() - lastTime;
