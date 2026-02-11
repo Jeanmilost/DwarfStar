@@ -53,6 +53,10 @@ Initially DwarfStar was targetted to be a retro game engine, to create 3D games 
 
 ![Screenshot](Common/Screenshots/ThridPersonDemo.png?raw=true "Screenshot")
 
+*A **voxelizer** demo, which transforms any bitmap image to voxels.*
+
+![Screenshot](Common/Screenshots/Voxelizer.png?raw=true "Screenshot")
+
 ## Third-party
 This project depends on several third-party libraries, which are:
 - Glew (http://glew.sourceforge.net/)
