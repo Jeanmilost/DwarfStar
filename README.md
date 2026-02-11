@@ -2,7 +2,7 @@
 
 DrawfStar is a (constantly) work in progress game engine, written in C++ and based on my (also constantly) work in progress, C written, CompactStar engine.
 
-Initially DwarfStar was targetted to be a retro game engine, to create 3D games with fixed camera like **Resident Evil** or **Alone In The Dark**. But with the time, this project became my playground where I tested several new techniques who caught my attention.
+Initially DwarfStar was targetted to be a retro game engine, to create 3D games with fixed camera like **Resident Evil** or **Alone In The Dark**. But with the time, this project became my playground where I test several new techniques who caught my attention.
 
 ## <b>Here are the actual supported features</b>
 - Simple shapes creation (surface, box, sphere, cylinder, disk, ring, spiral and capsule)
