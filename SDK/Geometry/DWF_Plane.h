@@ -244,7 +244,7 @@ namespace DWF_Geometry
                                        const DWF_Math::Vector3<T>& normal)
     {
         // the a, b, and c components are only the normal of the plane, and the D
-        // component can be calculated using the aX + bY + cZ + d = 0 algorithm
+        // component can be calculated using the aX + bY + cZ + d = 0 formula
         return Plane(normal.m_X,
                      normal.m_Y,
                      normal.m_Z,
