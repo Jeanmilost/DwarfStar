@@ -267,7 +267,7 @@ namespace DWF_Model
                 * Reads the structure content
                 *@param header - IQM header
                 *@param[in, out] start - start offset in buffer, new start position on function ends
-                *@param count - total text count, as read from
+                *@param buffer - buffer to read from
                 *@return true on success, otherwise false
                 */
                 bool Read(const IHeader& header, std::size_t& start, DWF_Buffer::Buffer& buffer);
